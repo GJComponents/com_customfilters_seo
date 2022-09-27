@@ -107,16 +107,13 @@ class seoTools
 
         $this->setMetaData( $res , $table );
 
-
-        $this->app->input->set( 'start' , 72 );
+        // TODO : Проверить -- похоже что не нужно
+        //        $this->app->input->set( 'start' , 72 );
 
         foreach ( $table as $key => $item)
         { 
             $this->app->input->set( $key , $item );
         }
-
-
-
     }
 
     /**
@@ -196,6 +193,9 @@ class seoTools
 //        die(__FILE__ .' '. __LINE__ );
 
 
+
+
+
         /**
          * @var VirtueMartModelCategory
          */
@@ -203,6 +203,7 @@ class seoTools
         $vmCategory = $categoryModel->getCategory($vmCategoryId[0] );
 
         $filterOrdering = [];
+
         foreach ( $table as $key => $item)
         {
             $filter = $this->_getFilterById( $key );
@@ -211,6 +212,8 @@ class seoTools
             $filterOrdering[$filter->ordering] = $filter ;
         }
 
+//        echo'<pre>';print_r( $filterOrdering );echo'</pre>'.__FILE__.' '.__LINE__;
+//        die(__FILE__ .' '. __LINE__ );
 
 
         $findReplaceArr = [
@@ -218,6 +221,21 @@ class seoTools
             '{{FILTER_VALUE_LIST}}' => seoTools_shortCode::getFilterValueListText( $filterOrdering ) ,
             '{{CATEGORY_NAME}}' => $vmCategory->category_name ,
         ];
+
+
+
+
+        $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , false );
+        $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
+        $this->app->set('filter_data_h1' , $default_h1_tag );
+
+
+//        echo'<pre>';print_r( $findReplaceArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//        echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
+//        die(__FILE__ .' '. __LINE__ );
+
+
+
 
         $default_title = $this->paramsComponent->get('default_title' , false );
         $default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );

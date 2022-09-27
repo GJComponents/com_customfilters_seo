@@ -99,6 +99,21 @@
 
 	<fieldset name="Seo_setting" label="COM_CUSTOMFILTERS_SEO_SETTING"
 			  description="COM_CUSTOMFILTERS_SEO_SETTING_DESC">
+		<field name="default_h1_tag"
+			type="textarea"
+			default=""
+			class="default_h1_tag "
+			rows="5"
+			cols="4"
+			readonly=""
+			required=""
+			label="CONFIG_DEFAULT_H_1_TAG"
+			description="CONFIG_DEFAULT_H_1_TAG_DESC"
+			showon=""
+			hint=""
+			filter="raw" />
+			
+			
 		<field name="default_title"
 			   type="textarea"
 			   label="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_TITLE"

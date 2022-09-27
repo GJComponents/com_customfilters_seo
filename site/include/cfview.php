@@ -116,6 +116,9 @@ class cfView extends JViewLegacy{
 				unset($this->this);
 			}
 
+
+
+
 			// start capturing output into a buffer
 			ob_start();
 			// include the requested template filename in the local scope
