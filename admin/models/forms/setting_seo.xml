@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="basic"
+			  addfieldpath="/administrator/components/com_virtuemart/fields">
+
+		<field type="vmcategory"
+			   name="vmcategory_id"
+			   class="vmcategory_id-select"
+			   label="SETTING_SEO_VMCATEGORY_LABEL"
+			   description="SETTING_SEO_VMCATEGORY_DESC" />
+
+		<field
+				name="sef_url"
+				type="text"
+				label="SETTING_SEO_URL_SEF_LABEL"
+				description="SETTING_SEO_URL_SEF_DESC"
+		/>
+
+
+
+
+
+		<field
+				name="url_params"
+				type="text"
+				readonly="0"
+				class="input-url_params"
+				label="SETTING_SEO_URL_PARAMS_LABEL"
+				description="SETTING_SEO_URL_PARAMS_DESC"
+		/>
+
+
+
+		<field
+				name="selected_filters_table"
+				type="subform"
+				label="SETTING_SEO_SELECTED_FILTERS_TABLE_LABEL"
+				description="SETTING_SEO_SELECTED_FILTERS_TABLE_DESC"
+				multiple="true"
+				min="1"
+				max="10"
+		>
+			<form>
+				<field
+						name="title"
+						type="titlefield"
+						label="SETTING_SEO_SELECTED_FILTERS_TABLE_TITLE_LABEL"
+				/>
+				<field
+						name="value"
+						type="list"
+						disabled="1"
+						class="list-value"
+						multiple="1"
+						label="SETTING_SEO_SELECTED_FILTERS_TABLE_VALUE_LABEL"
+				>
+
+				</field>
+			</form>
+		</field>
+
+		<field
+				name="sef_filter_title"
+				type="text"
+				label="SETTING_SEO_SEF_FILTER_TITLE_LABEL"
+				description="SETTING_SEO_SEF_FILTER_TITLE_DESC"
+		/>
+		<field
+				name="sef_filter_description"
+				type="textarea"
+				rows="10" cols="5"
+				filter="raw"
+				label="SETTING_SEO_SEF_FILTER_DESCRIPTION_LABEL"
+				description="SETTING_SEO_SEF_FILTER_DESCRIPTION_DESC"
+		/>
+		<field
+				name="sef_filter_keywords"
+				type="textarea"
+				rows="10" cols="5"
+				filter="raw"
+				label="SETTING_SEO_SEF_FILTER_KEYWORDS_LABEL"
+				description="SETTING_SEO_SEF_FILTER_KEYWORDS_DESC"
+		/>
+
+
+	</fieldset>
+
+	<field
+			name="id"
+			type="text"
+			hint="JSEARCH_FILTER"
+	/>
+	<field
+			name="description"
+			type="text"
+			hint="JSEARCH_FILTER"
+	/>
+	<fields name="filter">
+
+
+
+		<field
+				name="published"
+				type="status"
+				label="JSTATUS"
+				description="JFIELD_PUBLISHED_DESC"
+				class="advancedSelect"
+				onchange="this.form.submit();"
+		>
+			<option value="">JOPTION_SELECT_PUBLISHED</option>
+		</field>
+	</fields>
+
+	<fields name="list">
+		<field
+				name="limit"
+				type="limitbox"
+				class="input-mini advancedSelect"
+				default="25"
+				onchange="this.form.submit();"
+		/>
+
+		<field
+				name="fullordering"
+				type="hidden"
+		/>
+	</fields>
+</form>
