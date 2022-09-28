@@ -143,6 +143,9 @@ class CustomfiltersModelCustomfilters extends JModelList
         $query->select('cf.vm_custom_id AS vm_custom_id');
         $query->select('cf.alias AS alias');
         $query->select('cf.published AS published');
+        // if false - field no SEF proc.
+        $query->select('cf.on_seo AS on_seo');
+
         $query->select('cf.type_id AS type_id');
         $query->select('cf.data_type AS data_type');
         $query->select('cf.order_by AS order_by');
@@ -220,6 +223,10 @@ class CustomfiltersModelCustomfilters extends JModelList
     {
         $items = parent::getItems();
         $customFieldsTypes = $this->getField_types();
+
+//        echo'<pre>';print_r( $items );echo'</pre>'.__FILE__.' '.__LINE__;
+//        die(__FILE__ .' '. __LINE__ );
+
 
         foreach ($items as &$item) {
             $params = new Registry;

@@ -1,0 +1,1 @@
+ALTER TABLE `#__cf_customfields` ADD `on_seo` INT(11) NOT NULL DEFAULT '1' AFTER `published`;

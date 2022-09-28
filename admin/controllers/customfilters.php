@@ -36,6 +36,8 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
     {
         $user = Factory::getUser();
         if ($user->authorise('core.edit', 'com_customfilters')) {
+
+            // типы дисплеев с расширенными настройками
             // display types which have advanced settings
             $adv_setting_types = [
                 5,
@@ -45,18 +47,23 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
 
             $model = $this->getModel();
             $app = Factory::getApplication();
-            $jinput = $app->input;
-            $type_ids = $jinput->get('type_id', [], 'array');
-            $alias = $jinput->get('alias', [], 'array');
-            $smart_search = $jinput->get('smart_search', [], 'array');
-            $expanded = $jinput->get('expanded', [], 'array');
-            $scrollbar_after = $jinput->get('scrollbar_after', [], 'array');
-            $slider_min_value = $jinput->get('slider_min_value', [], 'array');
-            $slider_max_value = $jinput->get('slider_max_value', [], 'array');
-            $filter_category_ids = $jinput->get('filter_categories', [], 'array');
+
+            $type_ids = $app->input->get('type_id', [], 'array');
+            $alias = $app->input->get('alias', [], 'array');
+            $smart_search = $app->input->get('smart_search', [], 'array');
+            $expanded = $app->input->get('expanded', [], 'array');
+            $scrollbar_after = $app->input->get('scrollbar_after', [], 'array');
+            $slider_min_value = $app->input->get('slider_min_value', [], 'array');
+            $slider_max_value = $app->input->get('slider_max_value', [], 'array');
+            $filter_category_ids = $app->input->get('filter_categories', [], 'array');
             // Display if selected setting display_if_filter_exist
-            $display_if_filter_exist = $jinput->get('display_if_filter_exist', [], 'array');
-            $conditional_operator = $jinput->get('conditional_operator', [], 'array');
+            $display_if_filter_exist = $app->input->get('display_if_filter_exist', [], 'array');
+            $conditional_operator = $app->input->get('conditional_operator', [], 'array');
+
+
+
+
+
 
             $params_array = [];
             array_walk($type_ids, function (&$value, $key) {

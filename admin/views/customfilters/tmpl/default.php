@@ -89,9 +89,15 @@ if ($saveOrder) {
 					<th id="header-displaytype">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CUSTOMFILTERS_DISPLAY_TYPE', 'cf.type_id', $listDirn, $listOrder); ?>
 					</th>
+
+                    <th id="header-smartsearch" class="nowrap hidden-phone">
+                        <?php echo Text::_('COM_CUSTOMFILTERS_ON_SEO');?>
+					</th>
+
                     <th id="header-smartsearch" class="nowrap hidden-phone">
                         <?php echo Text::_('COM_CUSTOMFILTERS_SMART_SEARCH');?>
-					</th>
+                    </th>
+
 					<th id="header-expanded">
                         <?php echo Text::_('COM_CUSTOMFILTERS_EXPANDED');?>
 					</th>
@@ -115,8 +121,19 @@ if ($saveOrder) {
 			</tfoot>
 			<tbody>
 			<?php
+
+
+
+
 			foreach($this->items as $i => $item){
-				$displayTypes=$model->getDisplayTypes($item->data_type);?>
+                $displayTypes=$model->getDisplayTypes($item->data_type);
+
+
+//                echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
+//                die(__FILE__ .' '. __LINE__ );
+
+                
+				 ?>
                 <!-- We use 1 as 'sortable-group-id' (the same) for all the records, as they all belong in the same group (e.g. category)-->
 				<tr class="row<?php echo $i % 2; ?>" sortable-group-id="1">
                     <td class="order nowrap center hidden-phone">
@@ -173,6 +190,27 @@ if ($saveOrder) {
                     <td class="left">
                         <?php echo  HTMLHelper::_('select.genericlist', $displayTypes,"type_id[$item->id]",'class="inputbox cfDisplayTypes" size="1" aria-labelledby="header-displaytype"', 'value', 'text',$item->type_id);?>
 					</td>
+
+                    <?php
+
+//                    echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
+//                    die(__FILE__ .' '. __LINE__ );
+
+
+                    ?>
+
+                    <td class="center nowrap hidden-phone">
+                        <div id="on_seo_<?php echo $item->id?>" class="cfCheckboxGroup">
+                            <!-- Нам нужно скрыть ввод здесь, потому что флажок не будет отправлен, если он не установлен. Пустые значения не обрабатываются процессом сохранения -->
+                            <!-- We need the input hidden here, because the checkbox is not submitted if not selected. Empty values are not handled by the save process-->
+                            <input type="hidden" name="on_seo[<?php echo $item->id?>]" value="0"/>
+                            <?php $checked = $item->on_seo ? 'checked' : '';?>
+                            <input id="on_seo_input_<?php echo $item->id?>" type="checkbox" name="on_seo[<?php echo $item->id?>]" value="1" <?=$checked?> aria-labelledby="header-on_seo"/>
+                            <label for="on_seo_input_<?php echo $item->id?>"></label>
+                        </div>
+                    </td>
+
+
                     <td class="center nowrap hidden-phone">
                         <div id="smart_search_<?php echo $item->id?>" class="cfCheckboxGroup">
                             <!-- We need the input hidden here, because the checkbox is not submitted if not selected. Empty values are not handled by the save process-->
@@ -182,6 +220,8 @@ if ($saveOrder) {
                             <label for="smart_search_input_<?php echo $item->id?>"></label>
                         </div>
 					</td>
+
+
                     <td class="left">
                         <div id="expanded<?php echo $item->id?>" class="cfCheckboxGroup">
                             <!-- We need the input hidden here, because the checkbox is not submitted if not selected. Empty values are not handled by the save process-->

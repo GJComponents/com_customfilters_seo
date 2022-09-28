@@ -69,12 +69,17 @@ class CustomfiltersModelCustomfilter extends JModelAdmin
      *
      * The function to save any change to the customfilters view
      *
-     * @param array    the selected display types
+     * @param array $type_ids the selected display types
      * @author    Sakis Terz
      * @since    1.0
      */
-    function savefilters($type_ids, $alias, $params)
+    function savefilters($type_ids, $alias, $params): bool
     {
+        
+//        echo'<pre>';print_r( $type_ids );echo'</pre>'.__FILE__.' '.__LINE__;
+//        die(__FILE__ .' '. __LINE__ );
+
+        
         $db = JFactory::getDbo();
         $row = $this->getTable();
 
@@ -85,6 +90,8 @@ class CustomfiltersModelCustomfilter extends JModelAdmin
             $data = array();
             $data['id'] = $fltID;
             $data['alias'] = $al_str;
+
+
 
             if (!$row->bind($data)) {
                 $errors[] = $db->getErrorMsg();
@@ -149,6 +156,9 @@ class CustomfiltersModelCustomfilter extends JModelAdmin
             }
             unset($data);
         }
+
+
+
 
 
         if (count($errors) > 0) {

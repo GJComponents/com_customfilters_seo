@@ -60,11 +60,19 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
      */
     public function display($tpl = null)
     {
+
+
+
+
+
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
         $this->displayTypes = $this->get('AllDisplayTypes');
         $this->filterForm    = $this->get('FilterForm');
+
+
+
 
         // Check for errors.
         if (count($errors = $this->get('Errors')))
@@ -96,6 +104,7 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
             JToolbarHelper::unpublish('customfilters.unpublish', 'JTOOLBAR_UNPUBLISH', true);
         }
 
+        // Добавить кнопки !
         if (Factory::getUser()->authorise('core.edit', 'com_customfilters')) {
             // Add the optimizer button.
             $icon = 'health';
@@ -137,5 +146,9 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
         // add choosen
         $script = 'jQuery( function($) {$(".cf-choosen-select").chosen({width:"200px",display_selected_options:false});});';
         $this->document->addScriptDeclaration($script);
+    }
+
+    protected function addLibrary(){
+
     }
 }
