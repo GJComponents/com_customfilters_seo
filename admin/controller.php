@@ -158,12 +158,8 @@ class CustomfiltersController extends JControllerLegacy
 //      Update their details in the users table using id as the primary key.
         $result = \Joomla\CMS\Factory::getDbo()->updateObject('#__cf_customfields', $object, 'id');
 //
-
-        echo'<pre>';print_r( $object );echo'</pre>'.__FILE__.' '.__LINE__;
-        echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__;
-        echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
-
-        die(__FILE__ . ' ' . __LINE__);
+        echo new JResponseJson( $result , JText::_('COM_COMPONENT_MY_TASK_ERROR'), false );
+        die( );
 
 
     }

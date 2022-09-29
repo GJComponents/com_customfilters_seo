@@ -10,6 +10,7 @@
 			<option value="0">JNO</option>
 		</field>
 
+
 		<field name="filtered_products" type="radio" default="parent"
 			class="btn-group" label="COM_CUSTOMFILTERS_FILTERED_PRODUCTS_LABEL"
 			description="COM_CUSTOMFILTERS_FILTERED_PRODUCTS_DESC">
