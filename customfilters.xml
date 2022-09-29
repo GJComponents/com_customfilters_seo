@@ -12,6 +12,9 @@
 	<!-- The description is optional and defaults to the name -->
 	<description>Custom Filters is offering Search and Filtering functionalities to your ecommerce solution</description>
 
+	<scriptfile>installer.script.php</scriptfile>
+
+
 	<install>
 		<sql>
 			<file driver="mysql" charset="utf8">sql/install.sql</file>
