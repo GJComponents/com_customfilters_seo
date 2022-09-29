@@ -1,6 +1,8 @@
 <?php
 
 
+use Joomla\CMS\Installer\InstallerAdapter;
+
 class com_customfiltersInstallerScript
 {
     /**
