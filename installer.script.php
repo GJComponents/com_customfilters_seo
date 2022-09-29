@@ -14,7 +14,7 @@ class com_customfiltersInstallerScript
      */
     public function __construct(InstallerAdapter $adapter)
     {
-        die(__FILE__ .' '. __LINE__ );
+
     }
 
 }
