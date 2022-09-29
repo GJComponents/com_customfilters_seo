@@ -108,6 +108,7 @@ window.customfiltersAdminCore = function () {
         });
     }
 
+
     this.updateOnSeoElement = function (El){
         var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
         Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
