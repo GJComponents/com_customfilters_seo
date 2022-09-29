@@ -4,7 +4,34 @@
 Модуль для вывода фильтров https://github.com/GJModules/mod_cf_filtering
 <br><br><br>
 
+#### Установка meta-tag canonical
+-- **!!! Удалить этот код из файла /templates/[YOUR-TEMPLATE]/index.php**
 
+-- он больше не нужен !!!
+
+~~Установить в начало файла /templates/[YOUR-TEMPLATE]/index.php~~ 
+```php
+/**
+ * START - Изменение canonical для результатов фильтрации --  
+ */
+$app = \Joomla\CMS\Factory::getApplication();
+$doc = \Joomla\CMS\Factory::getDocument();
+$option = $app->input->get('option' , false );
+
+if ( $option == 'com_customfilters'){
+    foreach ($doc->_links as $url => $link)
+    {
+        if ($link['relation'] == 'canonical')   unset( $doc->_links[$url] ); #END IF
+
+    }#END FOREACH
+    $docBase  = preg_replace('/start=\d+\/$/', '', $doc->base );
+    $canUrl = '<link href="' . $docBase . '" rel="canonical" />';
+    $doc->addCustomTag($canUrl);
+}
+/**
+ * END - Изменение canonical для результатов фильтрации 
+ */
+```
 
 
 #### Установка тега `<h1 />` с параметрами фильтрации 

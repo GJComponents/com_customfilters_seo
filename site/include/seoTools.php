@@ -44,10 +44,6 @@ class seoTools
 
     public function __construct()
     {
-
-
-
-
         $this->app = JFactory::getApplication();
         $this->db = JFactory::getDbo();
         $this->doc = JFactory::getDocument();
@@ -81,9 +77,6 @@ class seoTools
         $path = preg_replace('/\/start=\d+/' , '' , $path );
 
         $Query = $this->db->getQuery(true );
-
-
-
         $Query->select('*')->from('#__cf_customfields_setting_seo')
             ->where(
                 [
@@ -94,7 +87,6 @@ class seoTools
 //        echo $Query->dump() ;
         $this->db->setQuery( $Query );
         $res = $this->db->loadObject();
-
 
 
         if ( !$res ) return ;
@@ -169,7 +161,6 @@ class seoTools
         return $Object ;
     }
 
-
     /**
      * Установить Мета данные для страницы в соответствии с включенными фильтрами
      *
@@ -181,20 +172,6 @@ class seoTools
     protected function setMetaData( $res , $table ){
         JLoader::register('seoTools_shortCode' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_shortCode.php');
         $vmCategoryId = $this->app->input->get('virtuemart_category_id' , [] , 'ARRAY') ;
-
-//        $doc = \Joomla\CMS\Factory::getDocument();
-//
-//        $canUrl = '<link href="' . $doc->base . '" rel="canonical" zxczxc="zxczxczxczxczxczxc"/>';
-//        $doc->addCustomTag($canUrl);
-//
-//
-//        echo'<pre>';print_r( $doc->base );echo'</pre>'.__FILE__.' '.__LINE__;
-//
-//        die(__FILE__ .' '. __LINE__ );
-
-
-
-
 
         /**
          * @var VirtueMartModelCategory
@@ -212,10 +189,6 @@ class seoTools
             $filterOrdering[$filter->ordering] = $filter ;
         }
 
-//        echo'<pre>';print_r( $filterOrdering );echo'</pre>'.__FILE__.' '.__LINE__;
-//        die(__FILE__ .' '. __LINE__ );
-
-
         $findReplaceArr = [
             '{{FILTER_LIST}}' => seoTools_shortCode::getFilterListText( $filterOrdering ) ,
             '{{FILTER_VALUE_LIST}}' => seoTools_shortCode::getFilterValueListText( $filterOrdering ) ,
@@ -227,13 +200,9 @@ class seoTools
 
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , false );
         $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
+
+
         $this->app->set('filter_data_h1' , $default_h1_tag );
-
-
-//        echo'<pre>';print_r( $findReplaceArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//        echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
-//        die(__FILE__ .' '. __LINE__ );
-
 
 
 
@@ -262,12 +231,8 @@ class seoTools
      */
     public function getSefUrl(string $option_url ){
 
-//		echo'<pre>';print_r( $option_url );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
-
-
         $res = $this->_getUrlObject( $option_url );
-		// Если в DB нет ссылки то - сохраняем
+		// Если в DB нет ссылки, то - сохраняем
         if ( !$res ) {
             $res =  $this->_saveUrlObject( $option_url );
         }
@@ -489,6 +454,37 @@ class seoTools
         return preg_replace('/[^\/\-_\w\d]/i', '', $sef_url);
     }
 
+    /**
+     * Проверить - есть ли среди выбранных фильтров - отключенные
+     * @param $inputs
+     * @return bool - Если есть отключенные фильтры  - то TRUE
+     * @since 3.9
+     */
+    public function checkOffFilters( $inputs ): bool
+    {
+        $idFieldActive = [] ;
+
+        foreach ( $inputs as $key => $input)
+        {
+            preg_match('/custom_f_(\d+)/', $key, $matches);
+            if (empty($matches)) continue; #END IF
+            $idFieldActive[] = $matches[1];
+        }#END FOREACH
+        $Query = $this->db->getQuery( true ) ;
+        $Query->select('id');
+        $Query->from('#__cf_customfields');
+        $Query->where( $this->db->quoteName('id') . 'IN ( "'.implode('","' , $idFieldActive  ).'")' );
+        $Query->where( $this->db->quoteName('on_seo') . ' = 0 ' );
+        $this->db->setQuery( $Query ) ;
+        $result = $this->db->loadColumn();
+        if ( !empty( $result ) )
+        {
+            return true ;
+        }#END IF
+        return false ;
+
+
+    }
 }
 
 /***

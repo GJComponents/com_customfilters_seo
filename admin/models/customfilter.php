@@ -75,13 +75,17 @@ class CustomfiltersModelCustomfilter extends JModelAdmin
      */
     function savefilters($type_ids, $alias, $params): bool
     {
-        
+        $db = JFactory::getDbo();
+        $row = $this->getTable();
+
+
 //        echo'<pre>';print_r( $type_ids );echo'</pre>'.__FILE__.' '.__LINE__;
+//        echo'<pre>';print_r( $alias );echo'</pre>'.__FILE__.' '.__LINE__;
+//        echo'<pre>';print_r( $params );echo'</pre>'.__FILE__.' '.__LINE__;
 //        die(__FILE__ .' '. __LINE__ );
 
         
-        $db = JFactory::getDbo();
-        $row = $this->getTable();
+
 
         $errors = array();
 

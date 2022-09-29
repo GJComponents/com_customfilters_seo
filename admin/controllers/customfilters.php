@@ -25,15 +25,17 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
 {
 
     /**
-     * savefilters task
+     * save filters task
      *
      *
      * @return void
-     * @since 1.0
+     * @throws Exception
      * @author Sakis Terz
+     * @since 1.0
      */
     public function savefilters()
     {
+        $app = Factory::getApplication();
         $user = Factory::getUser();
         if ($user->authorise('core.edit', 'com_customfilters')) {
 
@@ -44,9 +46,9 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
                 6,
                 8
             ];
-
+            /** @var CustomfiltersModelCustomfilter $model */
             $model = $this->getModel();
-            $app = Factory::getApplication();
+
 
             $type_ids = $app->input->get('type_id', [], 'array');
             $alias = $app->input->get('alias', [], 'array');
@@ -59,10 +61,6 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
             // Display if selected setting display_if_filter_exist
             $display_if_filter_exist = $app->input->get('display_if_filter_exist', [], 'array');
             $conditional_operator = $app->input->get('conditional_operator', [], 'array');
-
-
-
-
 
 
             $params_array = [];
@@ -123,7 +121,7 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
      * @param string $prefix
      *            for the PHP class name.
      *
-     * @return JModel
+     * @return bool|JModel|JModelLegacy
      * @since 1.0
      */
     public function getModel(

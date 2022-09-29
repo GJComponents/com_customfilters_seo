@@ -92,11 +92,6 @@ class CustomfiltersViewProducts extends cfView
         $categoryModel->addImages($category, $catImgAmount);
         $category->haschildren = $category_haschildren;
 
-
-
-
-
-
         if ($category_haschildren) {
             $category->children = $categoryModel->getChildCategoryList($vendorId, $this->categoryId,
                 $categoryModel->getDefaultOrdering(), $categoryModel->_selectedOrderingDir);
@@ -142,28 +137,14 @@ class CustomfiltersViewProducts extends cfView
         $this->productModel->withRating = $this->showRating;
 
 
-
-
         $ids = $this->get('ProductListing');
 
-
-
         $this->products = $this->productModel->getProducts($ids);
-
-
-
-
         $this->productModel->addImages($this->products);
         /**
          * @var CustomfiltersModelProducts Object
          */
         $model = $this->getModel();
-
-
-
-
-
-
 
         if ($this->products) {
             $display_stock = VmConfig::get('display_stock', 1);
@@ -343,6 +324,8 @@ class CustomfiltersViewProducts extends cfView
     }
 
     /**
+     * Добавьте канонические URL-адреса в заголовок страниц.
+     * Если есть другой канонический заменяет его на новый
      *
      * Add canonical urls to the head of the pages
      * If there is another canonical replaces it with a new one
@@ -351,10 +334,12 @@ class CustomfiltersViewProducts extends cfView
      */
     protected function setCanonical()
     {
+
         $inputs = CfInput::getInputs();
 
         if (isset($inputs['virtuemart_category_id']) && count($inputs['virtuemart_category_id']) == 1
             || isset($inputs['virtuemart_manufacturer_id']) && count($inputs['virtuemart_manufacturer_id']) == 1) {
+
             if (isset($inputs['virtuemart_category_id'])) {
                 $currentlink = '&virtuemart_category_id=' . (int)reset($inputs['virtuemart_category_id']);
             } else {
@@ -363,6 +348,8 @@ class CustomfiltersViewProducts extends cfView
                 }
             }
         }
+
+
 
         if (!empty($currentlink)) {
             // Route::TLS_IGNORE introduced in 3.9.7
@@ -375,6 +362,10 @@ class CustomfiltersViewProducts extends cfView
                 return $this;
             }
 
+
+
+
+
             foreach ($this->document->_links as $key => $link) {
                 if (is_array($link)
                     && array_key_exists('relation', $link)
@@ -383,6 +374,21 @@ class CustomfiltersViewProducts extends cfView
                     unset($this->document->_links[$key]);
                 }
             }
+
+            $seoTools = new seoTools();
+            if ( $seoTools->checkOffFilters( $inputs ) )
+            {
+                $this->document->setMetaData('robots' , 'noindex,follow' );
+            }else{
+                if (!empty( $this->document->base ) )
+                {
+                    $canonical_url = $this->document->base ;
+                }#END IF
+            }#END IF
+
+
+
+
             // add a new one
             $this->document->_links[$canonical_url] = array(
                 'relType' => 'rel',

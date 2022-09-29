@@ -125,6 +125,8 @@ class CustomfiltersModelCustomfilters extends JModelList
 
 
     /**
+     * Создайте запрос SQL для загрузки данных списка.
+     *
      * Build an SQL query to load the list data.
      *
      * @param boolean $use_filters
@@ -258,6 +260,8 @@ class CustomfiltersModelCustomfilters extends JModelList
      */
     public function getTable($type = 'Customfilter', $prefix = 'Customfilters', $config = array())
     {
+
+
         return JTable::getInstance($type, $prefix, $config);
     }
 

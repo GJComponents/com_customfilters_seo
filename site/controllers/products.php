@@ -31,14 +31,12 @@ class CustomfiltersControllerProducts extends JControllerLegacy{
 	 * @param	string	$name	The name of the model.
 	 * @param	string	$prefix	The prefix for the PHP class name.
 	 *
-	 * @return	JModel
+	 * @return bool|JModel|JModelLegacy
 	 * @since	1.0
 	 */
 	public function getModel($name = 'Products', $prefix = 'customfiltersModel', $config = array('ignore_request' => true))
 	{
-		$model = parent::getModel($name, $prefix, $config);
-		
-		return $model;
+        return parent::getModel($name, $prefix, $config);
 	}
 
 }

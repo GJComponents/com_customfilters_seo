@@ -11,8 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
 use Breakdesigns\Customfilters\Admin\Model\UpdateManager;
-
-
+use Joomla\Utilities\ArrayHelper;
 
 
 /**
@@ -136,6 +135,36 @@ class CustomfiltersController extends JControllerLegacy
         ];
         echo new JResponseJson( $dataResponse, null, false );
         die();
+
+    }
+
+    public function updateOnSeoElement()
+    {
+        if (!JSession::checkToken('get'))
+        {
+            echo new JResponseJson(null, JText::_('JINVALID_TOKEN'), true);
+            die();
+        }
+        $app = \Joomla\CMS\Factory::getApplication();
+        $object = new stdClass();
+        // Должно быть допустимое значение первичного ключа.
+        $object->id = $app->input->get('idField' , 0 , 'INT' );
+
+        $status =  $app->input->get('status' , 0  , 'INT' ) ;
+
+        $object->on_seo = $status ;
+
+
+//      Update their details in the users table using id as the primary key.
+        $result = \Joomla\CMS\Factory::getDbo()->updateObject('#__cf_customfields', $object, 'id');
+//
+
+        echo'<pre>';print_r( $object );echo'</pre>'.__FILE__.' '.__LINE__;
+        echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__;
+        echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+
+        die(__FILE__ . ' ' . __LINE__);
+
 
     }
 

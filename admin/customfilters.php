@@ -51,7 +51,6 @@
     JLoader::register('Breakdesigns\Customfilters\Admin\Model\UpdateManager',
         dirname(__FILE__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'UpdateManager.php');
 
-
     // Подключение GNZ11
     try
     {
@@ -65,6 +64,8 @@
             $this->app->enqueueMessage('The GNZ11 library must be installed GNZ11' , 'error');
         }#END IF
     }
+
+    \GNZ11\Core\Js::addJproLoad(\Joomla\CMS\Uri\Uri::root().'administrator/components/com_customfilters/assets/js/customfilters.admin.core.js' ,   false ,   false );
 
 
     // Add stylesheets and Scripts

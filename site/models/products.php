@@ -167,8 +167,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
             $profiler->mark('start');
         }
 
-
-
         $app = Factory::getApplication();
         $db = Factory::getDbo();
         $where_product_ids = [];

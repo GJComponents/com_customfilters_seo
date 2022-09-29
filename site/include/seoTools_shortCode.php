@@ -21,7 +21,7 @@ class seoTools_shortCode
      */
     public static function getFilterListText($filterOrdering){
         $FILTER_LIST_text = '';
-        // Перебираем фильтры -- составляем описание для вкл. фильтров
+        // Перебираем фильтры -- составляем описание для включенных фильтров
         $filterCount = 0 ;
         foreach ($filterOrdering as $filter ){
             if ($filterCount)  $FILTER_LIST_text .= ', ';
@@ -36,7 +36,8 @@ class seoTools_shortCode
             }
             $filterCount++;
         }
-        return $FILTER_LIST_text ;
+
+        return \Joomla\CMS\Language\Text::_( $FILTER_LIST_text );
     }
 
     /**

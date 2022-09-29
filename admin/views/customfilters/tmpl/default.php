@@ -205,7 +205,7 @@ if ($saveOrder) {
                             <!-- We need the input hidden here, because the checkbox is not submitted if not selected. Empty values are not handled by the save process-->
                             <input type="hidden" name="on_seo[<?php echo $item->id?>]" value="0"/>
                             <?php $checked = $item->on_seo ? 'checked' : '';?>
-                            <input id="on_seo_input_<?php echo $item->id?>" type="checkbox" name="on_seo[<?php echo $item->id?>]" value="1" <?=$checked?> aria-labelledby="header-on_seo"/>
+                            <input data-evt="on_seo_change" id="on_seo_input_<?= $item->id ?>" type="checkbox" name="on_seo[<?=$item->id?>]" value="1" <?=$checked?> aria-labelledby="header-on_seo"/>
                             <label for="on_seo_input_<?php echo $item->id?>"></label>
                         </div>
                     </td>
