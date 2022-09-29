@@ -130,7 +130,7 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
                 $width, $height, $top, $left, $onClose);
         }
 
-        if (Factory::getUser()->authorise('core.admin', 'com_customfilters')) {
+        if (Factory::getUser()->authorise('core.administrator', 'com_customfilters')) {
             JToolbarHelper::preferences('com_customfilters', '400');
         }
 

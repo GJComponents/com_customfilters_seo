@@ -65,7 +65,7 @@
         }#END IF
     }
 
-    \GNZ11\Core\Js::addJproLoad(\Joomla\CMS\Uri\Uri::root().'administrator/components/com_customfilters/assets/js/customfilters.admin.core.js' ,   false ,   false );
+    \GNZ11\Core\Js::addJproLoad(\Joomla\CMS\Uri\Uri::root().'administrator/components/com_customfilters/assets/js/customfilters.administrator.core.js' ,   false ,   false );
 
 
     // Add stylesheets and Scripts

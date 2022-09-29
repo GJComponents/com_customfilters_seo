@@ -83,24 +83,24 @@ window.customfiltersAdminCore = function () {
 
         // Event - change
         document.addEventListener('change', function (e) {
-            console.log( 'customfilters.admin.core' , e.target.dataset );
+            console.log( 'customfilters.administrator.core' , e.target.dataset );
             switch (e.target.dataset.evt) {
                 case "on_seo_change" :
                     e.preventDefault();
                     self.updateOnSeoElement(e.target)
                     if (e.target.checked) {
-                        console.log( 'customfilters.admin.core' ,  "Checkbox is checked..");
-                        console.log( 'customfilters.admin.core' ,  e.target.checked);
+                        console.log( 'customfilters.administrator.core' ,  "Checkbox is checked..");
+                        console.log( 'customfilters.administrator.core' ,  e.target.checked);
                     } else {
-                        console.log( 'customfilters.admin.core' ,  "Checkbox is not checked..");
-                        console.log( 'customfilters.admin.core' ,  e.target.checked);
+                        console.log( 'customfilters.administrator.core' ,  "Checkbox is not checked..");
+                        console.log( 'customfilters.administrator.core' ,  e.target.checked);
                     }
                     break;
             }
         });
         // Event - click
         document.addEventListener('click', function (e) {
-            console.log( 'customfilters.admin.core' , e.target.dataset.evt );
+            console.log( 'customfilters.administrator.core' , e.target.dataset.evt );
             switch (e.target.dataset.evt) {
                 case "" :
                     break;
@@ -113,7 +113,7 @@ window.customfiltersAdminCore = function () {
         Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
         Data.status = El.checked?1:0
         self.AjaxPost( Data ).then(function (r){
-            console.log( 'customfilters.admin.core' , r ); 
+            console.log( 'customfilters.administrator.core' , r );
 
         },function (err){console.log(err)});
     }
