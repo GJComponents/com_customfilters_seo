@@ -8,7 +8,7 @@
 	<authorUrl>https://breakdesigns.net</authorUrl>
 	<copyright>Copyright(c) 2012-2021 breakdesigns.net</copyright>
 	<license>GNU/GPL v.2</license>
-	<version>3.10.2</version>
+	<version>3.10.3</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>Custom Filters is offering Search and Filtering functionalities to your ecommerce solution</description>
 
@@ -128,7 +128,7 @@
 		<!-- Administration Main File Copy Section -->
 		<!-- Note the folder attribute: This attribute describes the folder
 			to copy FROM in the package to install therefore files copied
-			in this section are copied from /admin/ in the package -->
+			in this section are copied from /administrator/ in the package -->
 		<files folder="administrator">
 			<!-- Admin Main File Copy Section -->
 			<filename>access.xml</filename>

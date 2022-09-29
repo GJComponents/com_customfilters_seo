@@ -121,7 +121,7 @@ class CustomfiltersViewProducts extends cfView
          * show base price variables
          */
         $user = Factory::getUser();
-        $this->showBasePrice = ($user->authorise('core.admin', 'com_virtuemart') || $user->authorise('core.manage',
+        $this->showBasePrice = ($user->authorise('core.administrator', 'com_virtuemart') || $user->authorise('core.manage',
                 'com_virtuemart'));
 
         /*

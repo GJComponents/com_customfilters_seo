@@ -4,6 +4,9 @@
 Модуль для вывода фильтров https://github.com/GJModules/mod_cf_filtering
 <br><br><br>
 
+// ALTER TABLE `#__cf_customfields` ADD `on_seo` INT(11) NOT NULL DEFAULT '1' AFTER `published`;
+
+
 #### Установка meta-tag canonical
 -- **!!! Удалить этот код из файла /templates/[YOUR-TEMPLATE]/index.php**
 

@@ -131,7 +131,7 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         $manufacturer_id = 0
     ) {
         $user = Factory::getUser();
-        if (!($user->authorise('core.admin', 'com_virtuemart') || $user->authorise('core.manage', 'com_virtuemart'))) {
+        if (!($user->authorise('core.administrator', 'com_virtuemart') || $user->authorise('core.manage', 'com_virtuemart'))) {
             $onlyPublished = true;
         }
 
