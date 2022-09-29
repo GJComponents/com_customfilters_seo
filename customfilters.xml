@@ -66,10 +66,10 @@
 		<language tag="el-GR">el-GR/el-GR.mod_cf_search.sys.ini</language>
 
 		<language tag="en-GB">en-GB/en-GB.com_customfilters.ini</language>
-		<language tag="en-GB">en-GB/en-GB.mod_cf_filtering.ini</language>
-		<language tag="en-GB">en-GB/en-GB.mod_cf_filtering.sys.ini</language>
-		<language tag="en-GB">en-GB/en-GB.mod_cf_search.ini</language>
-		<language tag="en-GB">en-GB/en-GB.mod_cf_search.sys.ini</language>
+<!--		<language tag="en-GB">en-GB/en-GB.mod_cf_filtering.ini</language>-->
+<!--		<language tag="en-GB">en-GB/en-GB.mod_cf_filtering.sys.ini</language>-->
+<!--		<language tag="en-GB">en-GB/en-GB.mod_cf_search.ini</language>-->
+<!--		<language tag="en-GB">en-GB/en-GB.mod_cf_search.sys.ini</language>-->
 
 		<language tag="es-ES">es-ES/es-ES.com_customfilters.ini</language>
 		<language tag="es-ES">es-ES/es-ES.mod_cf_filtering.ini</language>
