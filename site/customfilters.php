@@ -16,9 +16,9 @@ defined('_JEXEC') or die;
 // TODO - development - Включение отладки и вывод ошибок
 if ( $_SERVER['REMOTE_ADDR'] == '80.187.97.238' )
 {
-    $config = \Joomla\CMS\Factory::getConfig();
-    $config->set( 'debug', 1 );
-    $config->set( 'error_reporting', 'development' );
+//    $config = \Joomla\CMS\Factory::getConfig();
+//    $config->set( 'debug', 1 );
+//    $config->set( 'error_reporting', 'development' );
 }#END IF
 
 
