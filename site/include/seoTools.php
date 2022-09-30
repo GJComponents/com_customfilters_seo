@@ -464,6 +464,13 @@ class seoTools
     {
         $idFieldActive = [] ;
 
+
+
+
+//        echo'<pre>';print_r( $_SERVER['REMOTE_ADDR'] == '80.187.97.238' );echo'</pre>'.__FILE__.' '.__LINE__;
+//        die(__FILE__ .' '. __LINE__ );
+
+
         foreach ( $inputs as $key => $input)
         {
             preg_match('/custom_f_(\d+)/', $key, $matches);
@@ -473,10 +480,21 @@ class seoTools
         $Query = $this->db->getQuery( true ) ;
         $Query->select('id');
         $Query->from('#__cf_customfields');
-        $Query->where( $this->db->quoteName('id') . 'IN ( "'.implode('","' , $idFieldActive  ).'")' );
+//        $Query->where( $this->db->quoteName('id') . 'IN ( "'.implode('","' , $idFieldActive  ).'")' );
+        $Query->where( $this->db->quoteName('vm_custom_id') . 'IN ( "'.implode('","' , $idFieldActive  ).'")' );
         $Query->where( $this->db->quoteName('on_seo') . ' = 0 ' );
         $this->db->setQuery( $Query ) ;
         $result = $this->db->loadColumn();
+
+        if ( $_SERVER['REMOTE_ADDR'] == '80.187.97.238' )
+        {
+//            echo 'Query Dump :'.__FILE__ .' Line:'.__LINE__  .$Query->dump() ;
+//            echo'<pre>';print_r( $inputs );echo'</pre>'.__FILE__.' '.__LINE__;
+//            echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__;
+//            die(__FILE__ .' '. __LINE__ );
+
+        }
+
         if ( !empty( $result ) )
         {
             return true ;
