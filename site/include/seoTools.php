@@ -1,5 +1,6 @@
 <?php
 
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 
 class seoTools
@@ -195,25 +196,29 @@ class seoTools
             '{{CATEGORY_NAME}}' => $vmCategory->category_name ,
         ];
 
-
-
-
+	
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , false );
         $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
 
+	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
 
-        $this->app->set('filter_data_h1' , $default_h1_tag );
+	    $this->app->set('filter_data_h1' , Text::_($default_h1_tag) );
 
 
 
         $default_title = $this->paramsComponent->get('default_title' , false );
         $default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );
+	    $default_title = $this->getLanguageText( $default_title );
+
 
         $default_description = $this->paramsComponent->get('default_description' , false );
         $default_description = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_description );
+	    $default_description = $this->getLanguageText( $default_description );
 
         $default_keywords = $this->paramsComponent->get('default_keywords' , false );
         $default_keywords = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_keywords );
+	    $default_keywords = $this->getLanguageText( $default_keywords );
+
 
         $this->doc->setTitle($default_title );
         $this->doc->setDescription( $default_description );
@@ -464,13 +469,6 @@ class seoTools
     {
         $idFieldActive = [] ;
 
-
-
-
-//        echo'<pre>';print_r( $_SERVER['REMOTE_ADDR'] == '80.187.97.238' );echo'</pre>'.__FILE__.' '.__LINE__;
-//        die(__FILE__ .' '. __LINE__ );
-
-
         foreach ( $inputs as $key => $input)
         {
             preg_match('/custom_f_(\d+)/', $key, $matches);
@@ -503,6 +501,29 @@ class seoTools
 
 
     }
+
+	/**
+	 * Поиск и замена Языковых констант $pattern = '~\{\K.+?(?=})~';
+	 * @param   string  $enterText  Текст с языковыми константами.
+	 *                              Языковые константы должны быть окружены фигурными скобками
+	 *
+	 * @return string
+	 *
+	 * @since version
+	 */
+	public function getLanguageText( string $enterText ): string
+	{
+		$pattern = '~\{\K.+?(?=})~';
+		preg_match_all($pattern, $enterText, $out);
+
+		foreach ($out[0] as $item)
+		{
+			$text      = Text::_($item);
+			$enterText = str_replace('{' . $item . '}', $text, $enterText);
+		}#END FOREACH
+
+		return $enterText ;
+	}
 }
 
 /***

@@ -275,6 +275,10 @@ class CustomfiltersViewProducts extends cfView
             $titles [] = implode(', ', $manufacturerNames);
         }
 
+
+		//die(__FILE__ .' '. __LINE__ );
+
+
 //        echo'<pre>';print_r( $titles );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
 //        die( __FILE__ .' ' . __LINE__);
         if (!empty($titles)) {
