@@ -1,6 +1,11 @@
 # com_customfilters_seo
 Фильтр товаров Virtuemart + SEF ссылки
 
+INSTALL : 
+[Library GNZ11.zip](https://github.com/gartes/GNZ11/archive/refs/heads/master.zip)
+[Component - Filter-Seo.zip](https://github.com/GJComponents/com_customfilters_seo/archive/refs/heads/main.zip)
+[Module - mod_cf_filtering.zip](https://github.com/GJModules/mod_cf_filtering/archive/refs/heads/main.zip)
+
 Модуль для вывода фильтров https://github.com/GJModules/mod_cf_filtering
 <br><br><br>
 
