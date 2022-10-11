@@ -20,6 +20,7 @@ defined('_JEXEC') or die();
 
 require_once JPATH_COMPONENT . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'cfview.php';
 
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 
@@ -28,26 +29,28 @@ class CustomfiltersViewProducts extends cfView
     /**
      *
      * @var string
+     * @since 3.9
      */
     public $vm_version;
 
     /**
      *
      * @var int
+     * @since 3.9
      */
     public $show_prices;
 
-    /**
-     * Display function of the view
-     *
-     * @see cfView::display()
-     * @since 1.0.0
-     */
+	/**
+	 * Display function of the view
+	 *
+	 * @throws Exception
+	 * @since 1.0.0
+	 * @see   cfView::display()
+	 */
     public function display($tpl = null)
     {
         $app = Factory::getApplication();
-
-
+	    $paramsComponent = ComponentHelper::getParams('com_customfilters');
 
 
         $this->show_prices = (int)VmConfig::get('show_prices', 1);
@@ -61,6 +64,8 @@ class CustomfiltersViewProducts extends cfView
 
 
 
+
+
         // get menu parameters
         $this->menuParams = cftools::getMenuparams();
         $vendorId = 1;
@@ -69,8 +74,15 @@ class CustomfiltersViewProducts extends cfView
 
         $categories = $jinput->get('virtuemart_category_id', array(), 'array');
 
-        /* If there is only one category selected and is not zero, display children categories */
-        if (count($categories) == 1 && isset($categories[0]) && $categories[0] > 0) {
+	    /**
+	     * Если выбрана только одна категория, а не ноль
+	     * и в настройках компонента установленно - отображать вложенные категории
+	     * Настройки компонента -> вкладка "Настройки SEO" -> "Отображение дочерних категорий"
+	     * отобразить дочерние категории
+	     *
+	     * If there is only one category selected and is not zero, display children categories
+	     */
+        if (count($categories) == 1 && isset($categories[0]) && $categories[0] > 0 && $paramsComponent->get('on_show_children_category' , 1) ) {
             $this->categoryId = (int)$categories[0];
             if ($this->showcategory) {
                 $category_haschildren = true;
@@ -87,6 +99,7 @@ class CustomfiltersViewProducts extends cfView
 
 
         $categoryModel = VmModel::getModel('category');
+		/**@var TableCategories $category */
         $category = $categoryModel->getCategory($this->categoryId);
         $catImgAmount = VmConfig::get('catimg_browse', 1) ? VmConfig::get('catimg_browse', 1) : 1;
         $categoryModel->addImages($category, $catImgAmount);
@@ -103,19 +116,25 @@ class CustomfiltersViewProducts extends cfView
             shopFunctionsF::triggerContentPlugin($category, 'category', 'category_description');
         }
 
+
         $this->category = $category;
         $this->setVariablesFromParams();
 
-        // load basic libraries before any other script
-        $template = VmConfig::get('vmtemplate', 'default');
-        if (is_dir(JPATH_THEMES . DIRECTORY_SEPARATOR . $template)) {
-            $mainframe = Factory::getApplication();
-            $mainframe->set('setTemplate', $template);
-        }
-        $this->prepareDocument();
+	    // load basic libraries before any other script
+	    $template = VmConfig::get('vmtemplate', 'default');
+	    if (is_dir(JPATH_THEMES . DIRECTORY_SEPARATOR . $template)) {
+		    $mainframe = Factory::getApplication();
+		    $mainframe->set('setTemplate', $template);
+	    }
+	    $this->prepareDocument();
 
+		// Если в настройках компонента com_customfilters - не отображать описание категории
+	    if ( !$paramsComponent->get('on_description_vm_category' , 1 ) )
+	    {
+		    $this->category->category_description = null ;
+	    }#END IF
 
-
+		// on_description_vm_category
 
         /*
          * show base price variables
@@ -199,8 +218,7 @@ class CustomfiltersViewProducts extends cfView
 
 
         /**
-         * @var cfPagination Object
-         * my model's pagination
+         * @var cfPagination Object my model's pagination
          */
         $this->vmPagination = $model->getPagination(true);
 
@@ -317,7 +335,7 @@ class CustomfiltersViewProducts extends cfView
 
         if ($this->categoryId > 0 && !empty($this->category->metarobot)) {
             $this->document->setMetaData('robots', $this->category->metarobot);
-        } elseif ($this->menuParams->get('robots')) {
+        } elseif ( $this->menuParams->get('robots') ) {
             $this->document->setMetadata('robots', $this->menuParams->get('robots'));
         }
 
@@ -366,10 +384,6 @@ class CustomfiltersViewProducts extends cfView
                 return $this;
             }
 
-
-
-
-
             foreach ($this->document->_links as $key => $link) {
                 if (is_array($link)
                     && array_key_exists('relation', $link)
@@ -380,9 +394,10 @@ class CustomfiltersViewProducts extends cfView
             }
 
             $seoTools = new seoTools();
-            if ( $seoTools->checkOffFilters( $inputs ) )
+		    if ( $seoTools->checkOffFilters( $inputs ) )
             {
                 $this->document->setMetaData('robots' , 'noindex,follow' );
+
             }else{
                 if (!empty( $this->document->base ) )
                 {

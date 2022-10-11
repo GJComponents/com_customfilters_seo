@@ -71,9 +71,71 @@ use Joomla\CMS\Language\Text;
         <?php }?>
 
         <?php
-        $customFiltersOptions = cfHelper::getCustomFiltersOptions($item->vm_custom_id, $item->display_if_filter_exist); ?>
+        $customFiltersOptions = cfHelper::getCustomFiltersOptions($item->vm_custom_id, $item->display_if_filter_exist);
+
+        $itemParams = new \Joomla\Registry\Registry($item->params);
+
+        $use_only_one_opt = $itemParams->get('use_only_one_opt' , 0) ;
+
+
+
+
+        ?>
         <li>
-            <label class="cflabel" for="customfilters_<?php echo $item->id?>"><?php echo Text::_('COM_CUSTOMFILTERS_DISPLAY_IF_SELECTED');?>
+            <!-- Лимит количества выбранных опций -->
+            <label class="cflabel" for="customfilters_<?php echo $item->id?>">
+				<?= Text::_('COM_CUSTOMFILTERS_LIMIT_OPTIONS_SELECT_FOR_NO_INDEX');?>
+                :</label>
+            <input class="cf-input"
+                    data-placeholder="<?= Text::_('COM_CUSTOMFILTERS');?>"
+                    id="customfilters_<?= $item->id?>"
+                    name="limit_options_select_for_no_index[<?= $item->id?>]"
+                   min="0"
+                   max="10"
+                   type="number"
+                   value="<?= $itemParams->get('limit_options_select_for_no_index' , 0 ) ?>"
+            />
+     </li>
+
+        <li>
+            <div class="control-group">
+                <div class="control-label">
+                    <label id="jform_on_show_children_category-lbl" for="jform_on_show_children_category"
+                           class="hasPopover"
+                           title=""
+                           data-content="<?= Text::_('COM_CUSTOMFILTERS_USE_ONLY_ONE_OPT_CONTENT');?>"
+                           data-original-title="<?= Text::_('COM_CUSTOMFILTERS_USE_ONLY_ONE_OPT_TITLE');?>">
+	                    <?= Text::_('COM_CUSTOMFILTERS_USE_ONLY_ONE_OPT');?></label>
+                </div>
+                <div class="controls">
+                    <fieldset id="jform_on_show_children_category" class="btn-group btn-group-yesno radio">
+                        <input type="radio"
+                               id="customfilters_use_only_one_opt_<?= $item->id?>0" name="use_only_one_opt[<?= $item->id?>]"
+                               value="1"
+	                        <?= $use_only_one_opt?'checked="checked"':'' ?>
+                        />
+                        <label for="customfilters_use_only_one_opt_<?= $item->id?>0"
+                               class="btn <?= $use_only_one_opt?'active':'' ?>">Да</label>
+
+
+                        <input type="radio"
+                               id="customfilters_use_only_one_opt_<?= $item->id?>1" name="use_only_one_opt[<?= $item->id?>]"
+                               value="0"
+	                        <?= !$use_only_one_opt?'checked="checked"':'' ?>
+                        />
+                        <label for="customfilters_use_only_one_opt_<?= $item->id?>1"
+                               class="btn  <?= !$use_only_one_opt?'btn-danger active':'' ?>"> Нет </label>
+                    </fieldset>
+                </div>
+            </div>
+        </li>
+
+
+
+        <li>
+
+            <label class="cflabel" for="customfilters_<?php echo $item->id?>">
+                <?= Text::_('COM_CUSTOMFILTERS_DISPLAY_IF_SELECTED');?>
                 :</label>
             <select class="cf-choosen-select"
                     data-placeholder="<?php echo Text::_('COM_CUSTOMFILTERS');?>"

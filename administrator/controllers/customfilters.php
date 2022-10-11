@@ -60,13 +60,24 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
             $filter_category_ids = $app->input->get('filter_categories', [], 'array');
             // Display if selected setting display_if_filter_exist
             $display_if_filter_exist = $app->input->get('display_if_filter_exist', [], 'array');
-            $conditional_operator = $app->input->get('conditional_operator', [], 'array');
+			$conditional_operator = $app->input->get('conditional_operator', [], 'array');
+
+			// Лимит количества выбранных опций
+			$limit_options_select_for_no_index = $app->input->get('limit_options_select_for_no_index', [], 'array');
+			$use_only_one_opt_for_no_index = $app->input->get('use_only_one_opt', [], 'array');
+
+
+
+
+
 
 
             $params_array = [];
-            array_walk($type_ids, function (&$value, $key) {
+
+			array_walk($type_ids, function (&$value, $key) {
                 $value = (string)$value;
             });
+
             $smart_search = ArrayHelper::toInteger($smart_search);
             $expanded = ArrayHelper::toInteger($expanded);
             $slider_min_value = ArrayHelper::toInteger($slider_min_value);
@@ -78,6 +89,9 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
             array_walk($scrollbar_after, function (&$value, $key) {
                 $value = (string)$value;
             });
+
+
+
 
             // store the params in an assoc array and use the item id as key
             foreach ($smart_search as $key => $val) {
@@ -91,16 +105,27 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
                         ['AND', 'OR']) ? strtoupper($conditional_operator[$key]) : 'AND'
                 );
                 if (in_array($type_ids[$key], $adv_setting_types)) {
-                    if ($type_ids[$key] == '6' || $type_ids[$key] == '5,6') { // slider
+                    if ($type_ids[$key] == '6' || $type_ids[$key] == '5,6') {
+						// slider
                         $params_array[$key]['slider_min_value'] = $slider_min_value[$key];
                         $params_array[$key]['slider_max_value'] = $slider_max_value[$key];
                     }
                     $params_array[$key]['filter_category_ids'] = !empty($filter_category_ids[$key]) ? $filter_category_ids[$key] : '';
                 }
+	            $params_array[$key]['limit_options_select_for_no_index'] = $limit_options_select_for_no_index[$key] ;
+	            $params_array[$key]['use_only_one_opt'] = $use_only_one_opt_for_no_index[$key] ;
+
+
             }
+
 
             $params_formated = $this->formatParams($params_array);
             // sanitize the input to be int
+
+//	        echo'<pre>';print_r( $params_array );echo'</pre>'.__FILE__.' '.__LINE__;
+//	        echo'<pre>';print_r( $params_formated );echo'</pre>'.__FILE__.' '.__LINE__;
+//	        echo'<pre>';print_r( $limit_options_select_for_no_index );echo'</pre>'.__FILE__.' '.__LINE__;
+//	        die(__FILE__ .' '. __LINE__ );
 
             if ($type_ids || $alias || $params_formated) {
                 if (!$model->savefilters($type_ids, $alias, $params_formated)) {

@@ -100,6 +100,73 @@
 
 	<fieldset name="Seo_setting" label="COM_CUSTOMFILTERS_SEO_SETTING"
 			  description="COM_CUSTOMFILTERS_SEO_SETTING_DESC">
+		<field name="max_count_filters_no_index"
+			type="number"
+			default="3"
+			min="0"
+			max="10" 
+			step="1"
+			class="max_count_filters_no_index "
+			size="20"
+			readonly=""
+			required=""
+			label="CONFIG_MAX_COUNT_FILTERS_NO_INDEX"
+			description="CONFIG_MAX_COUNT_FILTERS_NO_INDEX_DESC"
+			showon=""
+			hint=""
+			filter="raw" />
+			
+			
+		<field name="limit_filter_no_index"
+			type="number"
+			default="3"
+			min="1"
+			max="10" 
+			step="1"
+			class="limit_filter_no_index "
+			size="20"
+			readonly=""
+			required=""
+			label="CONFIG_LIMIT_FILTER_NO_INDEX"
+			description="CONFIG_LIMIT_FILTER_NO_INDEX_DESC"
+			showon=""
+			hint=""
+			filter="raw" />
+			
+			
+
+		<field name="on_show_children_category"
+			type="radio"
+			default="1"
+			readonly="0"
+			label="CONFIG_ON_SHOW_CHILDREN_CATEGORY"
+			description="CONFIG_ON_SHOW_CHILDREN_CATEGORY_DESC"
+			class="btn-group btn-group-yesno"
+			showon=""
+			 
+			>
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		
+		 
+
+		<field name="on_description_vm_category"
+			type="radio"
+			default="1"
+			readonly="0"
+			label="CONFIG_ON_DESCRIPTION_VM_CATEGORY"
+			description="CONFIG_ON_DESCRIPTION_VM_CATEGORY_DESC"
+			class="btn-group btn-group-yesno"
+			showon=""
+			 
+			>
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		
+		 
+		
 		<field name="default_h1_tag"
 			type="textarea"
 			default=""

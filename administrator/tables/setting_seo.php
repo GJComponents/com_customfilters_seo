@@ -67,6 +67,9 @@ class CustomfiltersTableSetting_seo extends \Joomla\CMS\Table\Table{
 	}
     public function store ( $updateNulls = false ){
 
+
+
+
 //		echo'<pre>';print_r( $updateNulls );echo'</pre>'.__FILE__.' '.__LINE__;
 //		die(__FILE__ .' '. __LINE__ );
 

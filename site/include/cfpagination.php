@@ -114,19 +114,9 @@ class cfPagination extends JPagination
         $offset = JRequest::getVar('limitstart', 0, '', 'int');
 
 
-
-//        echo'<pre>';print_r(  (int)ceil( $this->limitstart / $this->limit )+1  );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre> $offset ';print_r( $offset );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre>';print_r( $this->limit );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre>';print_r( $this->limitstart );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre>';print_r( $this->pagesCurrent );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-
-
         // Build the page navigation list.
         $data = $this->_buildDataObject();
 
-//        echo'<pre>';print_r( $data );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        die( __FILE__ .' ' . __LINE__);
 
         $seoTools = new seoTools();
         $data = $seoTools->getPagesLinksData( $data );

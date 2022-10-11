@@ -549,8 +549,9 @@ class cftools
     }
 
     /**
+     * Функция для получения фильтров Компонента из таблицы #__cf_customfields  /
      * Function to get the existing custom filters
-     * Функция для получения существующих пользовательских фильтров
+     *
      *
      * @param string $module_params
      * @param bool $published
@@ -589,6 +590,10 @@ class cftools
             $query->select('cf.type_id  AS disp_type');
             $query->select('cf.params AS params');
             $query->select('cf.data_type AS data_type');
+
+			// Поле ON_SEO
+			$query->select('cf.on_seo AS on_seo');
+
             $query->from('#__cf_customfields AS cf');
 
             // table vituemart_customfields
@@ -600,26 +605,24 @@ class cftools
             $query->select('vmc.custom_tip AS tooltip, vmc.custom_desc AS description');
 
             // joins
-            $query->join('INNER', '#__virtuemart_customs AS vmc ON cf.vm_custom_id=vmc.virtuemart_custom_id');
-            $query->where('cf.published=1');
+            $query->join('INNER', '#__virtuemart_customs AS vmc ON cf.vm_custom_id = vmc.virtuemart_custom_id');
+            $query->where('cf.published = 1');
             if (!empty($selected_customfilters)) {
                 $query->where('vmc.virtuemart_custom_id IN(' . implode(',', $selected_customfilters) . ')');
             }
             $query->order($order . ' ' . $order_dir);
             $db->setQuery($query);
             $cust_filters = $db->loadObjectList();
-            $cust_filters = self::setPluginparamsAsAttributes($cust_filters);
-            self::$_customFilters = [];
+
+            $cust_filters = self::setPluginparamsAsAttributes( $cust_filters ) ;
+
+			self::$_customFilters = [];
             self::$_customFilters[$store] = [];
 
             foreach ($cust_filters as $cf) {
                 self::$_customFilters[$store][$cf->custom_id] = $cf;
             }
         }
-
-//        echo'<pre>';print_r( self::$_customFilters );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        die( __FILE__ .' : ' . __LINE__);
-
 
 
         return self::$_customFilters[$store];
