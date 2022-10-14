@@ -393,12 +393,24 @@ class CustomfiltersViewProducts extends cfView
                 }
             }
 
-            $seoTools = new seoTools();
-		    if ( $seoTools->checkOffFilters( $inputs ) )
+
+		    if ( seoTools::checkOffFilters( $inputs ) )
             {
+
+				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+				{
+
+				    echo'<pre style="color: red ">';print_r( 'Страница - noindex,follow' );echo'</pre>'.__FILE__.' '.__LINE__;
+
+				}
                 $this->document->setMetaData('robots' , 'noindex,follow' );
 
             }else{
+			    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			    {
+				    echo'<pre style="color:green ">';print_r( 'Страница - разрешена для индекса' );echo'</pre>'.__FILE__.' '.__LINE__;
+
+			    }
                 if (!empty( $this->document->base ) )
                 {
                     $canonical_url = $this->document->base ;

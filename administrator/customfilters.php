@@ -18,6 +18,10 @@
     // Check to ensure this file is included in Joomla!
     defined('_JEXEC') or die('Restricted access');
 
+	if (!defined('DEV_IP')) {
+		define('DEV_IP',     '***.***.***.***');
+	}
+
     use Joomla\CMS\Language\Text;
 
     // Access check.

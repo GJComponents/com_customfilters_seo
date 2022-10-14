@@ -30,20 +30,23 @@ class seoTools
      * @since    1.0.0
      */
     protected $settingSeoTable = '#__cf_customfields_setting_seo' ;
-    /**
-     * Массив со всеми опубликованными фильтрами из таблицы #__cf_customfields
-     * @var array
-     * @since    1.0.0
-     */
-    protected $AllFilters = [] ;
+
     /**
      * Параметры компонента com_customfilters
      * @var \Joomla\Registry\Registry
      * @since    1.0.0
      */
     protected $paramsComponent;
+	/**
+	 * @var seoTools_filters
+	 * @since version
+	 */
+	protected $seoTools_filters;
 
-    public function __construct()
+	/**
+	 * @throws Exception
+	 */
+	public function __construct()
     {
         $this->app = JFactory::getApplication();
         $this->db = JFactory::getDbo();
@@ -51,10 +54,11 @@ class seoTools
         $this->uri = Uri::getInstance();
         JLoader::registerNamespace( 'GNZ11',JPATH_LIBRARIES.'/GNZ11',$reset=false,$prepend=false,$type='psr4');
 	    JLoader::register('seoTools_shortCode' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_shortCode.php');
+	    JLoader::register('seoTools_uri' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_uri.php');
+	    JLoader::register('seoTools_filters' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_filters.php');
 	    JTable::addIncludePath(JPATH_SITE.'/administrator/components/com_customfilters/tables');
 
-        // Получить все опубликованные фильтры
-        $this->AllFilters = $this->_getAllFilters();
+		$this->seoTools_filters = seoTools_filters::instance();
 
         $this->paramsComponent = JComponentHelper::getParams('com_customfilters');
 
@@ -90,13 +94,6 @@ class seoTools
 
         $this->db->setQuery( $Query );
         $res = $this->db->loadObject();
-
-	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-	    {
-//		    echo $Query->dump();
-//			echo'<pre>';print_r( $res );echo'</pre>'.__FILE__.' '.__LINE__;
-			
-	    }
 		
         if ( !$res ) return ;
 
@@ -114,12 +111,15 @@ class seoTools
         }
     }
 
-    /**
-     * Route - ссылок для пагинации
-     * @param $data
-     * @return void
-     * @since    1.0.0
-     */
+	/**
+	 * Route - ссылок для пагинации
+	 *
+	 * @param $data
+	 *
+	 * @return void
+	 * @throws Exception
+	 * @since    1.0.0
+	 */
     public function getPagesLinksData( $data ){
 
         $data->all = $this->preparePaginationObj( $data->all );
@@ -132,40 +132,38 @@ class seoTools
         {
             $page = $this->preparePaginationObj( $page );
         }
+//	    echo'<pre>';print_r( seoTools_uri::$arrUrlSef );echo'</pre>'.__FILE__.' '.__LINE__;
+//	    die(__FILE__ .' '. __LINE__ );
+
         return $data ;
     }
 
-    /**
-     * Подготовить объект пагинации
-     * @param \Joomla\CMS\Pagination\PaginationObject $Object
-     * @return \Joomla\CMS\Pagination\PaginationObject
-     * @since    1.0.0
-     */
-    protected function preparePaginationObj( \Joomla\CMS\Pagination\PaginationObject $Object ){
 
-        if (!empty( $Object->link )){
+	/**
+	 * Подготовить объект пагинации
+	 *
+	 * @param   \Joomla\CMS\Pagination\PaginationObject  $Object
+	 *
+	 * @return \Joomla\CMS\Pagination\PaginationObject
+	 * @throws Exception
+	 * @since    1.0.0
+	 */
+	protected function preparePaginationObj(\Joomla\CMS\Pagination\PaginationObject $Object): \Joomla\CMS\Pagination\PaginationObject
+	{
 
-            if ( empty( $Object->base )  &&  (int)$Object->base !== 0 ){
-                $Res =  $this->getSefUrl( $Object->link );
-                $Object->link = $Res->sef_url   ;
-                return $Object ;
-            }
+		/**
+		 *   $Object->link string (/filtr/vodostochnye-sistemy/?custom_f_23[0]=d093d0bbd18fd0bdd186d0b5d0b2d0b0d18f&custom_f_10 .....)
+		 */
+		if (!empty($Object->link))
+		{
 
-            $uriLink = $this->uri::getInstance($Object->link);
-            $queryArr = $uriLink->getQuery(true);
+			$link         = \seoTools_uri::getSefUlrOption($Object->link);
+			$Object->link = $link->sef_url;
 
-	        unset( $queryArr ['start'] );
+		}
 
-            $uriLink->setQuery( $queryArr );
-
-            $Object->link = $uriLink->toString();
-            $Res =  $this->getSefUrl( $Object->link );
-
-            $Object->link = $Res->sef_url . ( (int)$Object->base == 0 ? '' : 'start='.$Object->base  )  ;
-
-        }
-        return $Object ;
-    }
+		return $Object;
+	}
 
     /**
      * Установить Мета данные для страницы в соответствии с включенными фильтрами
@@ -189,9 +187,10 @@ class seoTools
 
         foreach ( $table as $key => $item)
         {
-            $filter = $this->_getFilterById( $key );
+
+            $filter = $this->seoTools_filters->_getFilterById( $key );
             // Подготовить массив со значениями
-            $filter->valueArr = $this->prepareHex2binArr( $item );
+            $filter->valueArr = self::prepareHex2binArr( $item );
             $filterOrdering[$filter->ordering] = $filter ;
         }
 
@@ -231,117 +230,43 @@ class seoTools
 
     }
 
-    /**
-     * Находим ссылки для элементов фильтра
-     *
-     * @param $option_url string  /filter/metallocherepitsa/?custom_f_27[0]=d09bd090d09cd09ed09dd0a2d095d0a0d0a0d090
-     *
-     * @return stdClass Object
-     * @since    1.0.0
-     */
-    public function getSefUrl(string $option_url ){
 
-        $res = $this->_getUrlObject( $option_url );
-		// Если в DB нет ссылки, то - сохраняем
-        if ( !$res ) {
-            $res =  $this->_saveUrlObject( $option_url );
-        }
-        return $res    ;
-    }
 
 	/**
 	 * Создание SEF URL - Для опции фильтра
 	 *
-	 * @param string $option_url etc. /filtr/metallocherepitsa/?custom_f_22[0]=41474e45544....
+	 * @param   CfFilter  $filter
+	 * @param   stdClass  $option_url  etc. /filtr/metallocherepitsa/?custom_f_22[0]=41474e45544....
 	 *
-	 * @return stdClass
+	 * @return stdClass Объект SEF данных
 	 *
+	 * @throws Exception
 	 * @since version
 	 */
-	public function createSefUrl( $option_url ): stdClass
+	public function createSefUrl(\CfFilter $filter ,   stdClass $option ): stdClass
 	{
-		$resultData = new stdClass();
-		$uri = \Joomla\CMS\Uri\Uri::getInstance( $option_url );
-		$path =  $uri->getPath();
-		$uriQuery = $uri->getQuery(true);
-		$settingSeoOrdering = [] ;
-		$resultData->vmcategory_id = $this->app->input->get('virtuemart_category_id' , 0 , 'INT') ;
-		$resultData->url_params = $option_url ;
 
-		$i_filterCount = 0;
-		foreach ( $uriQuery as $fieldId => $valueCustomHashArr ){
+        $var_name = $filter->getVarName();
+        $option_url = $option->option_url ;
 
-			$filter = $this->_getFilterById( $fieldId );
-
-			$filter->aliasTranslite = \GNZ11\Document\Text::rus2translite( $filter->alias ) ;
-			$filter->aliasTranslite = mb_strtolower( $filter->aliasTranslite );
-			$filter->aliasTranslite = str_replace(' ' , '_' , $filter->aliasTranslite );
-			$filter->sef_url   = $filter->aliasTranslite ;
-
-			$i_optionCount = 0 ;
-
-			// Подготовить массив со значениями
-			$valueCustomHashArr = $this->prepareHex2binArr( $valueCustomHashArr );
-
-			foreach ( $valueCustomHashArr as $i => $valueCustom ){
-
-				if ($i_optionCount) $filter->sef_url .= '-and';
-
-				$valueCustomTranslite = \GNZ11\Document\Text::rus2translite($valueCustom) ;
-				$valueCustomTranslite = mb_strtolower( $valueCustomTranslite );
-				$valueCustomTranslite = str_replace(' ' , '_' , $valueCustomTranslite );
-
-				$filter->sef_url  .= '-'.$valueCustomTranslite .'' ;
-				$i_optionCount++;
-			}
-
-			$i_filterCount++;
-			$settingSeoOrdering[$filter->ordering] = $filter ;
-		}
-
-		ksort($settingSeoOrdering);
-
-		$resultData->sef_url = '';
-		$iArrCount = 0 ;
-		foreach ( $settingSeoOrdering as $ordering => $filter  ){
-			if ( $iArrCount ) $resultData->sef_url .= '-and-';
-			$resultData->sef_url .= $filter->sef_url ;
-			$iArrCount++;
-		}
-
-		$resultData->no_ajax = false ;
 		/**
-		 * Если Sef link не пустой - Добавляем путь и в конец слэш
+		 * TODO - Разобраться с фильтром для категорий
 		 */
-		if ( strlen( $resultData->sef_url ) ){
-			$resultData->sef_url .= '/' ;
-		}
-		else{
-			//  $path = str_replace('/filter/' , '/catalog/' , $path );
-			$resultData->no_ajax = 1 ;
-			$path = $this->getPatchToVmCategory();
+		if ( $var_name == 'virtuemart_category_id' )
+        {
+            $Options = $filter->getOptions();
+//                    $option->option_sef_url->sef_url = $option->option_url ;
+            
+//            echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
+            
+        }#END IF
 
-		}
 
-		$resultData->sef_url = $path . $resultData->sef_url   ;
-
-		// Очистим от не нужных символов
-		$resultData->sef_url = $this->cleanSefUrl( $resultData->sef_url );
-
-		$resultData->url_params_hash = md5( $resultData->url_params ) ;
-
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//			echo'<pre>';print_r( $resultData );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
-
-		}
-
-		return $resultData ;
+		return \seoTools_uri::getSefUlrOption( $option_url );
 	}
 
 	/**
-	 * Добавить созданные ссылки для опций фильтра в '#__cf_customfields_setting_seo'
+	 * Добавить созданные ссылок для опций фильтра в '#__cf_customfields_setting_seo'
 	 * @param $optionsFilterArr
 	 *
 	 *
@@ -354,140 +279,103 @@ class seoTools
 			return ;
 		}#END IF
 
-		$columns = [ 'vmcategory_id', 'url_params', 'url_params_hash' , 'sef_url' ];
+		// ключ кеша страницы
+//		$parts[] = \JUri::getInstance()->toString();
+//		$key = md5(serialize($parts));
+
+		$optRegistry = new JRegistry( $optionsFilterArr );
+		$key = md5( $optRegistry->toString() );
+
+//		echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $key );echo'</pre>'.__FILE__.' '.__LINE__;
+
+
+
+		$cache = JFactory::getCache('cf_customfields_setting_seo', '' );
+		$cache->setCaching( 1 );
+		if ( !$cacheFilterArr = $cache->get($key) )
+		{
+			// сохраняем $optionsFilterArr в кэше
+			$cache->store( $optionsFilterArr, $key );
+
+
+
+		}else{
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//			    echo'<pre>';print_r( 'Обновление таблицы #__cf_customfields_setting_seo не требуется' );echo'</pre>'.__FILE__.' '.__LINE__;
+			}
+			return ;
+		}
+
+
+//		echo'<pre>';print_r( $optionsFilterArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $cacheFilterArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $parts );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $key );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $cache );echo'</pre>'.__FILE__.' '.__LINE__;
+//
+//		die(__FILE__ .' '. __LINE__ );
+
+
+
+		$columns = [ 'vmcategory_id', 'url_params', 'url_params_hash' , 'sef_url', 'no_index' ];
 
 		$this->db     = JFactory::getDBO();
 		$query = $this->db->getQuery( true );
 
-		foreach ( $optionsFilterArr as $options)
+
+		foreach ( $optionsFilterArr  as $options)
 		{
 			$values =
-				$this->db->quote( $options->vmcategory_id) . ","
-				. $this->db->quote(  $options->url_params ) . ","
-				. $this->db->quote(  $options->url_params_hash ) . ","
-				. $this->db->quote(  $options->sef_url )  ;
+				$this->db->quote( $options->option_sef_url->vmcategory_id) . ","
+				. $this->db->quote(  $options->option_sef_url->url_params ) . ","
+				. $this->db->quote(  $options->option_sef_url->url_params_hash ) . ","
+				. $this->db->quote(  $options->option_sef_url->sef_url )  . ","
+				. $this->db->quote(  $options->option_sef_url->no_index  )  ;
 
 			$query->values( $values );
-
 		}#END FOREACH
-		$query->insert( $this->db->quoteName( '#__cf_customfields_setting_seo' ) )->columns( $this->db->quoteName( $columns ) );
+
+
+
+		$query->insert( $this->db->quoteName( '#__cf_customfields_setting_seo' ) )
+			->columns( $this->db->quoteName( $columns ) );
+
+		// echo $query->dump();
+
 		$this->db->setQuery(
 			// Заменяет INSERT INTO на другой запрос
 			// substr_replace($query, '******', 0, 12 )
-			 $query . ' ON DUPLICATE KEY UPDATE url_params_hash=url_params_hash ; ' );
-
+			(string)$query . ' ON DUPLICATE KEY UPDATE url_params_hash = url_params_hash ; ' );
+		$this->db->execute();
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
-			echo $query->dump();
-			echo'<pre>';print_r( $optionsFilterArr );echo'</pre>'.__FILE__.' '.__LINE__;
-			
-			die(__FILE__ .' '. __LINE__ );
-
+//			echo'<pre>';print_r( 'Произведено обновление таблицы #__cf_customfields_setting_seo' );echo'</pre>'.__FILE__.' '.__LINE__;
 		}
-		$this->db->execute();
-
-//		echo'<pre>';print_r( $this->db );echo'</pre>'.__FILE__.' '.__LINE__;
-		
-//		die(__FILE__ .' '. __LINE__ );
-
 
 
 	}
 
 
     /**
-     * Сохранить параметры фильтра если его еще не создавали
-     * @param $option_url
-     * @return object|false
-     * @since    1.0.0
-     */
-    protected function _saveUrlObject( $option_url ){
-
-		$resultData = $this->createSefUrl( $option_url );
-
-
-        try {
-
-            /**
-             * @var CustomfiltersTableSetting_seo
-             */
-            $settingSeoTable = JTable::getInstance('Setting_seo'  ,'CustomfiltersTable'  );
-        } catch (Exception $e) {
-            echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-            return false;
-        }
-
-
-
-
-        $data = new JRegistry($resultData);
-        $resultDataArr = $data->toArray();
-        $settingSeoTable->bind( $resultDataArr );
-
-        try {
-            $settingSeoTable->check();
-        } catch (Exception $e) {
-            echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-            die( __FILE__ .' ' . __LINE__);
-        }
-
-        /**
-         * записать данные в ТБЛ. ==========================================
-         */
-        try {
-			/**
-			 * TODO**** - Отключено сохранение ссылок фильтра
-			 */
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//				 $settingSeoTable->store(false );
-			}
-
-        } catch (Exception $e) {
-            echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-            die( __FILE__ .' ' . __LINE__);
-        }
-        /**
-         * записать данные в ТБЛ. ==========================================
-         */
-
-	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-	    {
-		    echo'<pre>';print_r( $settingSeoOrdering );echo'</pre>'.__FILE__.' '.__LINE__;
-		    
-			echo'<pre>';print_r( $option_url );echo'</pre>'.__FILE__.' '.__LINE__;
-		    echo'<pre>';print_r( $uriQuery );echo'</pre>'.__FILE__.' '.__LINE__;
-		    echo'<pre>';print_r( $resultData );echo'</pre>'.__FILE__.' '.__LINE__;
-
-
-
-	    }
-        return $resultData ;
-    }
-
-    /**
-     * Получить ссылку на категорию
-     * @param $virtuemart_category_id
+     * Получить ссылку на текущую категорию Vm
+     * @param $category_id
      * @return string
      * @since    1.0.0
      */
-    public function getPatchToVmCategory( $virtuemart_category_id = false ){
-        if (!$virtuemart_category_id) $virtuemart_category_id =  $this->app->input->get('virtuemart_category_id' , 0  , 'INT' );
+    public static function getPatchToVmCategory( $category_id = false ): string
+    {
+	    if ( !$category_id )
+	    {
+			$app = JFactory::getApplication() ;
+			$category_id =  $app->input->get('virtuemart_category_id' , 0  , 'INT' );
+	    }#END IF
 
-        $path = JRoute::_('index.php?option=com_virtuemart&view=category&virtuemart_category_id='.$virtuemart_category_id.'&virtuemart_manufacturer_id=0');
-        return $path ;
+	    return JRoute::_('index.php?option=com_virtuemart&view=category&virtuemart_category_id='. $category_id .'&virtuemart_manufacturer_id=0');
     }
 
-    /**
-     * Получить фильтр по ID
-     * @param $fieldId
-     * @return mixed
-     * @since    1.0.0
-     */
-    protected function _getFilterById( $fieldId ){
-        $fieldId = str_replace('custom_f_' , '' , $fieldId );
-        return $this->AllFilters[$fieldId];
-    }
+
 
     /**
      * Подготовить массив со значениями
@@ -495,7 +383,34 @@ class seoTools
      * @return array
      * @since    1.0.0
      */
-    protected function prepareHex2binArr( $valueCustomHashArr ){
+    public static function prepareHex2binArr( $valueCustomHashArr )
+    {
+	    if ( !is_array($valueCustomHashArr) && !is_object( $valueCustomHashArr ))
+	    {
+			try
+			{
+			    // Code that may throw an Exception or Error.
+
+			     throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+			}
+			catch (\Exception $e)
+			{
+			    // Executed only in PHP 5, will not be reached in PHP 7
+			    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+			    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+			    die(__FILE__ .' '. __LINE__ );
+			}
+
+			echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+			
+			die(__FILE__ .' '. __LINE__ );
+
+	    }#END IF
+
+
+//		echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
         foreach ( $valueCustomHashArr as $i => &$value ){
             $value = hex2bin( $value );
         }
@@ -503,55 +418,7 @@ class seoTools
         return $valueCustomHashArr;
     }
 
-    /**
-     * Получить объект
-     * @param $option_url
-     * @return mixed|null
-     * @since    1.0.0
-     */
-    protected function _getUrlObject($option_url){
 
-	    $option_urlMd5 = md5( $option_url ) ;
-
-	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-	    {
-//		    echo'<pre>';print_r( $option_url );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r( $option_urlMd5 );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
-
-	    }
-
-
-
-        $Query = $this->db->getQuery(true );
-        $Query->select('*')->from( $this->settingSeoTable )
-            ->where(
-                ' '. $this->db->quoteName( 'url_params_hash')
-                . ' = "'. $option_urlMd5 .'" '  );
-//        echo $Query->dump();
-        $this->db->setQuery( $Query );
-        return $this->db->loadObject();
-    }
-
-    /**
-     * Получить все опубликованные фильтры
-     * @return array|mixed
-     * @since    1.0.0
-     */
-    protected function _getAllFilters(){
-
-        $Query = $this->db->getQuery(true);
-        $Query->select([
-            'cf.*' ,
-            'customs.custom_title' ,
-        ])->from( $this->db->quoteName( '#__cf_customfields' , 'cf' )   );
-        $Query->leftJoin('#__virtuemart_customs AS customs ON customs.virtuemart_custom_id = cf.vm_custom_id');
-        $Query->where('cf.published = 1' )->order('cf.ordering');
-//        echo $Query->dump();
-        $this->db->setQuery($Query);
-
-        return $this->db->loadObjectList('vm_custom_id');
-    }
 
     /**
      * Очистить sef ссылку от лишних символов
@@ -559,20 +426,30 @@ class seoTools
      * @return array|string|string[]|null
      * @since    1.0.0
      */
-    public function cleanSefUrl( $sef_url ){
-        return preg_replace('/[^\/\-_\w\d]/i', '', $sef_url);
+    public static function cleanSefUrl( $sef_url ){
+	    $app = JFactory::getApplication();
+        $sef_suffix = $app->get('sef_suffix' , 0 ) ;
+        $suffix = '';
+        if ( $sef_suffix )
+        {
+            $suffix = '.html' ;
+            $sef_url = str_replace($suffix , '' , $sef_url ) ;
+
+        }#END IF
+        return preg_replace('/[^\/\-_\w\d]/i', '', $sef_url) . $suffix ;
     }
 
     /**
      * Проверить - есть ли среди выбранных фильтров - отключенные
      * или в настройках выбранных фильтров установлено NO-INDEX -
      *
-     * @param $inputs
+     * @param   array  $inputs  - массив с отфильтрованными категориями и отмеченными опциями фильтров
+     *
      *
      * @return bool - Если есть отключенные фильтры  - то TRUE
      * @since 3.9
      */
-    public function checkOffFilters( $inputs ): bool
+    public static function checkOffFilters(array $inputs ): bool
     {
 	    $paramsComponent = \Joomla\CMS\Component\ComponentHelper::getParams('com_customfilters');
 
@@ -604,23 +481,16 @@ class seoTools
         }#END FOREACH
 
 
+	    $result = [] ;
+	    foreach ( $idFieldActive as $item)
+	    {
+		    $result[] = \seoTools_filters::$AllFilters[ $item ] ;
+
+		}#END FOREACH
 
 
-        $Query = $this->db->getQuery( true ) ;
-		$select = [
-			$this->db->quoteName( 'id' ) ,
-			$this->db->quoteName( 'alias' ) ,
-			$this->db->quoteName( 'vm_custom_id' ) ,
-			$this->db->quoteName( 'on_seo' ) ,
-			$this->db->quoteName( 'params' ) ,
-		];
-        $Query->select( $select );
-        $Query->from('#__cf_customfields');
-//        $Query->where( $this->db->quoteName('id') . 'IN ( "'.implode('","' , $idFieldActive  ).'")' );
-        $Query->where( $this->db->quoteName('vm_custom_id') . 'IN ( "'.implode('","' , $idFieldActive  ).'")' );
-//        $Query->where( $this->db->quoteName('on_seo') . ' = 0 ' );
-        $this->db->setQuery( $Query ) ;
-        $result = $this->db->loadObjectList();
+
+
 
 	    foreach ( $result as $item)
 	    {
@@ -629,14 +499,6 @@ class seoTools
 
 			// Если фильтр использовать только как единственный
 		    if ( $params->use_only_one_opt && count( $result ) > 1 ) return true ; #END IF
-			
-		    /*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		    {
-		    echo'<pre>';print_r( $params->use_only_one_opt );echo'</pre>'.__FILE__.' '.__LINE__;
-		    echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__;
-		    echo'<pre>';print_r( $inputs );echo'</pre>'.__FILE__.' '.__LINE__;
-
-		    }*/
 
 			// Проверка - если есть выбранные фильтры запрещенные для индексации
 		    if ( !$item->on_seo ) return true ; #END IF
@@ -648,13 +510,7 @@ class seoTools
 
 			
 		}#END FOREACH
-		
-	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-	    {
-		    echo'<pre>';print_r(  'Эта страница разрешена для индексации'  );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
 
- 	    }
 
 
         return false ;

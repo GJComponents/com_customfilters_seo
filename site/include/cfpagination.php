@@ -114,16 +114,15 @@ class cfPagination extends JPagination
         $offset = JRequest::getVar('limitstart', 0, '', 'int');
 
 
-        // Build the page navigation list.
+	    /**
+	     * @var stdClass $data - Создание списка навигации по страницам. Build the page navigation list.
+	     */
         $data = $this->_buildDataObject();
-
 
         $seoTools = new seoTools();
         $data = $seoTools->getPagesLinksData( $data );
 
 
-//        echo'<pre>';print_r( $data );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        die( __FILE__ .' ' . __LINE__);
 
 
         $list           = array();

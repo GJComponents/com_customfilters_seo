@@ -65,9 +65,10 @@ class CustomfiltersConfig
     }
 
     /**
+     * Возвращает тип продуктов, которые следует искать (родительский, дочерний, все)
      * Return the type of products that should be searched (parent, child, all)
      *
-     * @return string
+     * @return string (parent | child | all)
      */
     public function getFilteredProductsType()
     {       
@@ -79,9 +80,12 @@ class CustomfiltersConfig
     }
 
     /**
+     * Возвращает тип продуктов, которые должны быть возвращены (родительский, дочерний, все),
+     * на основе настройки отфильтрованных продуктов.
      * Return the type of products that should be returned (parent, child, all), based on the filtered products setting
      *
-     * @return string
+     * @return string (parent | child | all)
+     * @since 3.9
      */
     public function getReturnedProductsType()
     {

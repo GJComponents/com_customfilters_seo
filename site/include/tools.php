@@ -1066,11 +1066,12 @@ class cftools
     }
 
     /**
+     * Получить группы покупателей этого пользователя
      * Get shopper groups of that user
      *
      * @author Sakis Terz
      * @since 1.3
-     * @return array
+     * @return array Массив групп покупателей для текущего пользователя
      */
     public static function getUserShopperGroups()
     {

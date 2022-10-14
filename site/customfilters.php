@@ -13,6 +13,11 @@
 // no direct access
 defined('_JEXEC') or die;
 
+if (!defined('DEV_IP')) {
+	define('DEV_IP',     '***.***.***.***');
+}
+
+
 // TODO*** - development - Включение отладки и вывод ошибок
 if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 {
