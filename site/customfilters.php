@@ -17,6 +17,8 @@ if (!defined('DEV_IP')) {
 	define('DEV_IP',     '***.***.***.***');
 }
 
+JLoader::registerNamespace( 'GNZ11' , JPATH_LIBRARIES . '/GNZ11' , $reset = false , $prepend = false , $type = 'psr4' );
+JLoader::register( 'seoTools' , JPATH_ROOT . '/components/com_customfilters/include/seoTools.php');
 
 // TODO*** - development - Включение отладки и вывод ошибок
 if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )

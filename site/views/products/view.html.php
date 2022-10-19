@@ -120,6 +120,7 @@ class CustomfiltersViewProducts extends cfView
         $this->category = $category;
         $this->setVariablesFromParams();
 
+	    // загружать базовые библиотеки перед любым другим скриптом
 	    // load basic libraries before any other script
 	    $template = VmConfig::get('vmtemplate', 'default');
 	    if (is_dir(JPATH_THEMES . DIRECTORY_SEPARATOR . $template)) {
@@ -357,6 +358,8 @@ class CustomfiltersViewProducts extends cfView
     protected function setCanonical()
     {
 
+
+
         $inputs = CfInput::getInputs();
 
         if (isset($inputs['virtuemart_category_id']) && count($inputs['virtuemart_category_id']) == 1
@@ -392,9 +395,22 @@ class CustomfiltersViewProducts extends cfView
                     unset($this->document->_links[$key]);
                 }
             }
+		
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+			    // echo'<pre>';print_r( ini_get('max_execution_time') );echo'</pre>'.__FILE__.' '.__LINE__;
+				// die(__FILE__ .' '. __LINE__ );
+//			cvet-citrine-and-naznachenie-krovlya-and-zvukoizolyaciya-db-33
+			    
+			}
 
 
-		    if ( seoTools::checkOffFilters( $inputs ) )
+	        /**
+	         * Если есть выбранные ссылки, что бы запретить индексацию страницы
+	         * - Или - в самом Url по которому перешли - больше фильтров чем разрешено в настройках компонента
+	         * Устанавливаем 'robots' 'noindex, follow'
+	         */
+		    if ( seoTools::checkOffFilters( $inputs ) || seoTools_uri::$UrlNoIndex )
             {
 
 				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
@@ -417,7 +433,8 @@ class CustomfiltersViewProducts extends cfView
                 }#END IF
             }#END IF
 
-
+	        // Удалить параметры пагинации
+	        $canonical_url = preg_replace('/\/start=\d+/', '', $canonical_url);
 
 
             // add a new one

@@ -171,7 +171,10 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         $db = Factory::getDbo();
         $where_product_ids = [];
 
-        //Creates a logger for that extension
+	    /**
+	     * Создает регистратор для этого расширения
+	     * Creates a logger for that extension
+	     */
         \cftools::addLogger();
 
 
@@ -182,8 +185,10 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
 
 
-        $queryBuilder = new ProductsQueryBuilder($this->componentparams->getFilteredProductsType(),
-            $this->componentparams->getReturnedProductsType());
+        $queryBuilder = new ProductsQueryBuilder(
+			$this->componentparams->getFilteredProductsType(),
+            $this->componentparams->getReturnedProductsType()
+        );
 
 
 
@@ -246,7 +251,17 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
         if (!empty($customFilters)) {
             $query = $queryBuilder->getQuery();
-            foreach ($customFilters as $cf) {
+
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//			    echo'<pre>';print_r( (string)$query );echo'</pre>'.__FILE__.' '.__LINE__;
+//			    echo'<pre>';print_r( $customFilters );echo'</pre>'.__FILE__.' '.__LINE__;
+//			    echo'<pre>';print_r( $this->cfinputs );echo'</pre>'.__FILE__.' '.__LINE__;
+//			    die(__FILE__ .' '. __LINE__ );
+
+			}
+
+			foreach ($customFilters as $cf) {
                 $cf_name = 'custom_f_' . $cf->custom_id;
 
                 //if not range

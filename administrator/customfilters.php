@@ -24,6 +24,11 @@
 
     use Joomla\CMS\Language\Text;
 
+JLoader::registerNamespace( 'GNZ11' , JPATH_LIBRARIES . '/GNZ11' , $reset = false , $prepend = false , $type = 'psr4' );
+JLoader::register( 'seoTools' , JPATH_ROOT . '/components/com_customfilters/include/seoTools.php');
+JLoader::register('seoTools_uri' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_uri.php');
+
+
     // Access check.
     if (!JFactory::getUser()->authorise('core.manage', 'com_customfilters'))
     {

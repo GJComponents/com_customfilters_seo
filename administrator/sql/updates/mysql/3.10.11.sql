@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS
     `#__cf_customfields_setting_seo`;
 CREATE TABLE `#__cf_customfields_setting_seo`(
-     `id` int(11) NOT NULL,
+     `id` INT(11) NOT NULL AUTO_INCREMENT,
      `vmcategory_id` int(11) NOT NULL,
      `url_params` varchar(512) NOT NULL,
      `url_params_hash` varchar(255) NOT NULL,

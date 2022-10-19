@@ -9,7 +9,23 @@ INSTALL : <br>
 Модуль для вывода фильтров https://github.com/GJModules/mod_cf_filtering
 <br><br><br>
 
- 
+#### Получить все опубликованные фильтры
+```php
+/**
+* @var array $published_cf - Все опубликованные фильтры
+*/
+$published_cf = \cftools::getCustomFilters('');
+```
+
+#### Удалить параметры пагинации
+```php
+$this->uri = Uri::getInstance();
+$path = $this->uri->getPath();
+// Удалить параметры пагинации
+$path = preg_replace('/\/start=\d+/', '', $path);
+```
+
+
 
 
 #### Установка meta-tag canonical

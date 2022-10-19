@@ -458,6 +458,7 @@ class cftools
             }
             $r = $filter->clean($r, 'string');
         }
+
         return $r;
     }
 
@@ -548,28 +549,33 @@ class cftools
         return $valArray;
     }
 
-    /**
-     * Функция для получения фильтров Компонента из таблицы #__cf_customfields  /
-     * Function to get the existing custom filters
-     *
-     *
-     * @param string $module_params
-     * @param bool $published
-     * @return array|mixed
-     * @since 1.0.0
-     */
+	/**
+	 * Функция для получения фильтров Компонента из таблицы #__cf_customfields  /
+	 * Function to get the existing custom filters
+	 *
+	 *
+	 * @param   string  $module_params
+	 * @param   bool    $published
+	 *
+	 * @return array|mixed
+	 * @throws Exception
+	 * @since 1.0.0
+	 */
     public static function getCustomFilters( $module_params = '', $published = true )
     {
         if (!empty($module_params)) {
             $store = md5(json_encode($module_params->get('selected_customfilters',
                     array())) . '::' . $module_params->get('cf_ordering',
                     'cf.ordering') . '::' . $module_params->get('cf_ordering_dir', 'ASC').'::'. $published);
-        }  // default
+        }
+		// default
         else {
             $store = md5('Array::cf.ordering::ASC::'.$published);
         }
 
+		// Кешируется
         if (!isset(self::$_customFilters[$store])) {
+
             $db = Factory::getDbo();
             $query = $db->getQuery(true);
 
@@ -590,9 +596,12 @@ class cftools
             $query->select('cf.type_id  AS disp_type');
             $query->select('cf.params AS params');
             $query->select('cf.data_type AS data_type');
+            $query->select('cf.ordering AS ordering');
 
 			// Поле ON_SEO
 			$query->select('cf.on_seo AS on_seo');
+			// Алиас - названия фильтра
+			$query->select('cf.alias AS alias');
 
             $query->from('#__cf_customfields AS cf');
 
@@ -614,6 +623,14 @@ class cftools
             $db->setQuery($query);
             $cust_filters = $db->loadObjectList();
 
+	        foreach ( $cust_filters as &$filter)
+	        {
+		        $filter->sef_url = \seoTools_uri::getStringSefUrl( $filter->alias );
+
+	        }#END FOREACH
+
+
+
             $cust_filters = self::setPluginparamsAsAttributes( $cust_filters ) ;
 
 			self::$_customFilters = [];
@@ -627,6 +644,36 @@ class cftools
 
         return self::$_customFilters[$store];
     }
+
+	/**
+	 * Загрузить все значения для фильтров
+	 *
+	 * @since version
+	 */
+	public static function getCustomSelectValue( $filtersIds = [] ): array
+	{
+		$db = JFactory::getDbo();
+		$Query = $db->getQuery( true ) ;
+		$select = [
+			$db->quoteName('virtuemart_custom_id'),
+			$db->quoteName('customfield_value'),
+		];
+		$Query->select( $select );
+		$Query->from( $db->quoteName('#__virtuemart_product_customfields') );
+		$Query->where( $db->quoteName('virtuemart_custom_id') .'IN ( "'.implode('","' , $filtersIds  ).'")');
+		$Query->where( $db->quoteName( 'published' ) .'= 1 ');
+		$Query->group( $db->quoteName('customfield_value') );
+		$db->setQuery( $Query );
+		$res = $db->loadObjectList();
+		$itemArr = [];
+		foreach ( $res as &$item )
+		{
+			$item->customfield_value_alias = \seoTools_uri::getStringSefUrl( $item->customfield_value );
+			$itemArr[$item->customfield_value_alias] = $item ;
+		}#END FOREACH
+
+		return $itemArr ;
+	}
 
     /**
      * Returns the filters that depend on another filter for their display (display_if_exist setting)
@@ -1301,6 +1348,7 @@ class cftools
     }
 
     /**
+     * Создает регистратор, который записывает в определенный файл
      * Creates a logger that writes in specific file
      *
      * @author Sakis Terz

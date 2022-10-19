@@ -68,18 +68,26 @@
 			<option value="exact">COM_CUSTOMFILTERS_EXACT</option>
 		</field>
 
+		<!-- Очищать фильтры после нового поиска -->
+		<!-- При новом поиске будут очищены все существующие фильтры -->
 		<field name="keyword_search_clear_filters_on_new_search" type="radio"
-			class="btn-group btn-group-yesno" default="1"
-			label="COM_CUSTOMFILTERS_CLEAR_FLT_ON_NEW_SEARCH_LABEL" description="COM_CUSTOMFILTERS_CLEAR_FLT_ON_NEW_SEARCH_DESC">
+			   class="btn-group btn-group-yesno"
+			   default="1"
+			   label="COM_CUSTOMFILTERS_CLEAR_FLT_ON_NEW_SEARCH_LABEL"
+			   description="COM_CUSTOMFILTERS_CLEAR_FLT_ON_NEW_SEARCH_DESC">
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
 
+		<!-- Время кеширования -->
+		<!-- Время (в минутах), в течение которого будут сохраниться в кеше результаты каждого поискового запроса -->
 		<field name="cache_time" type="input" size="5" default="5"
 			label="COM_CUSTOMFILTERS_CACHE_LABEL" description="COM_CUSTOMFILTERS_CACHE_DESC" />
 
-		<field name="keyword_searchfield" type="searchfields"
-			label="COM_CUSTOMFILTERS_SEARCH_SEARCHFIELDS" />
+		<!-- Искать в полях -->
+		<field name="keyword_searchfield"
+			   type="searchfields"
+			   label="COM_CUSTOMFILTERS_SEARCH_SEARCHFIELDS"/>
 	</fieldset>
 
 
@@ -115,8 +123,7 @@
 			showon=""
 			hint=""
 			filter="raw" />
-			
-			
+
 		<field name="limit_filter_no_index"
 			type="number"
 			default="3"
@@ -132,8 +139,6 @@
 			showon=""
 			hint=""
 			filter="raw" />
-			
-			
 
 		<field name="on_show_children_category"
 			type="radio"
@@ -148,8 +153,6 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
-		
-		 
 
 		<field name="on_description_vm_category"
 			type="radio"
@@ -164,9 +167,7 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
-		
-		 
-		
+
 		<field name="default_h1_tag"
 			type="textarea"
 			default=""
@@ -180,8 +181,7 @@
 			showon=""
 			hint=""
 			filter="raw" />
-			
-			
+
 		<field name="default_title"
 			   type="textarea"
 			   label="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_TITLE"
@@ -208,7 +208,23 @@
 		/>
 
 	</fieldset>
+	<fieldset name="debug" label="COM_CUSTOMFILTERS_DEBUG"
+			  description="COM_CUSTOMFILTERS_DEBUG_DESC">
+				<field name="debug_on"
+					type="radio"
+					default="0"
+					label="COM_CUSTOMFILTERS_DEBUG_ON"
+					description="COM_CUSTOMFILTERS_DEBUG_ON_DESC"
+					class="btn-group btn-group-yesno"
+					showon=""
+					>
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
 
+
+
+	</fieldset>
 	<fieldset name="liveupdate"
 		label="COM_CUSTOMFILTERS_CONFIG_LIVEUPDATE_HEADER_LABEL" description="COM_CUSTOMFILTERS_CONFIG_LIVEUPDATE_HEADER_DESC">
 		<field name="update_dlid" type="text" default="" size="30"

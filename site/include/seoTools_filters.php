@@ -63,6 +63,12 @@ class seoTools_filters
 	 */
 	public function _getAllFilters(){
 
+		/**
+		 * @var array $published_cf - Все опубликованные фильтры
+		 */
+		self::$AllFilters = \cftools::getCustomFilters('');
+
+		return ;
 		$Query = $this->db->getQuery(true);
 		$Query->select([
 			'cf.*' ,
@@ -76,7 +82,12 @@ class seoTools_filters
 			->order('cf.ordering');
 //        echo $Query->dump();
 		$this->db->setQuery($Query);
+
+
+		
 		self::$AllFilters = $this->db->loadObjectList('vm_custom_id');
+
+
 
 	}
 	/**
