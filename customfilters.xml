@@ -193,7 +193,7 @@
 	</administration>
 
 	<updateservers>
-		<server type="extension" priority="1" name="OSMap Pro">https://raw.githubusercontent.com/GJComponents/com_osmap/main/update.xml</server>
+		<server type="extension" priority="1" name="COM Custom Filters by Gartes">https://raw.githubusercontent.com/GJComponents/com_customfilters_seo/main/update.xml</server>
 	</updateservers>
 </extension>
 
