@@ -416,6 +416,7 @@ class CfInput
 
 			$needle     = '-and-' . $item->sef_url;
 			$pos        = strripos($path, $needle);
+
 			// Поиск вхождения после первого фильтра
 			if ($pos)
 			{
@@ -433,6 +434,8 @@ class CfInput
 			} #END IF
 		}#END FOREACH
 
+
+
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
 
 
@@ -447,8 +450,10 @@ class CfInput
 		$i          = 0;
 
 		$dataFiltersArr = [];
-		
-		
+
+
+
+
 		foreach ($findResultArr as $start => $item)
 		{
 			$dataFilters        = new stdClass();
@@ -457,26 +462,34 @@ class CfInput
 			if (!$i) $length = null; #END IF
 
 			$i++;
+			//
 			$subStr = mb_substr($path, $start, $length);
+
 
 			// Находим двойные или более опции фильтра 
 			$arrValFilter = explode('-and-', $subStr);
 			// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
 			$arrValFilter = array_diff($arrValFilter, array(''));
 
+
 			
-			foreach ($arrValFilter as $item)
+			foreach ( $arrValFilter as $itemValF )
 			{
-				$item = str_replace('/', '', $item);
+				// Удалить слэши
+				$itemValF = str_replace('/', '', $itemValF);
+
 				// Удаляем название фильтра
-				$item                 = str_replace($dataFilters->name, '', $item);
-				$item                 = str_replace('-', '', $item);
-				$dataFilters->value[] = $item;
+				$itemValF                 = str_replace($dataFilters->name, '', $itemValF);
+
+				$itemValF = preg_replace('/^-/' , '' , $itemValF ) ; 
+
+//				$itemValF                 = str_replace('-', '', $itemValF);
+
+				$dataFilters->value[] = $itemValF;
  
 
 			}#END FOREACH
 
- 
 			$path         = str_replace($subStr, '', $path);
 			$length = $start;
 			$dataFiltersArr[] = $dataFilters;

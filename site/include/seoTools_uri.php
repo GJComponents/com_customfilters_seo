@@ -80,9 +80,9 @@ class seoTools_uri
 			unset( $uriQuery['start']  ) ;
 		}#END IF
 
+
 		// Проверить на NO-INDEX - Option
 		$resultData->no_index = seoTools::checkOffFilters( $uriQuery );
-
 
 
 		$settingSeoOrdering = [] ;
@@ -92,28 +92,8 @@ class seoTools_uri
 
 			$filter = $seoTools_filters->_getFilterById ( $fieldId );
 
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//				echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
-//				die(__FILE__ .' '. __LINE__ );
-			}
-
-
-
-			
-//			$filter->aliasTranslite = \GNZ11\Document\Text::rus2translite( $filter->alias ) ;
-//			$filter->aliasTranslite = mb_strtolower( $filter->aliasTranslite );
-//			$filter->aliasTranslite = str_replace(' ' , '_' , $filter->aliasTranslite );
-//			$filter->sef_url   = $filter->aliasTranslite ;
-
 			$filter->sef_url = self::getStringSefUrl( $filter->alias  );
 
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//				echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
-//				die(__FILE__ .' '. __LINE__ );
-
-			}
 
 			$i_optionCount = 0 ;
 

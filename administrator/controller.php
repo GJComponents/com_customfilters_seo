@@ -51,6 +51,71 @@ class CustomfiltersController extends JControllerLegacy
         return $this;
     }
 
+	public function map_links_lean(){
+		JLoader::register('seoTools_filters' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_filters.php');
+		$seoTools_filters = seoTools_filters::instance();
+
+		$app = \Joomla\CMS\Factory::getApplication();
+		$db = JFactory::getDbo();
+		$Query = $db->getQuery(true );
+		$Query->select([
+			$db->quoteName( 'id' ),
+			$db->quoteName( 'vmcategory_id' ),
+			$db->quoteName( 'url_params' ),
+			$db->quoteName( 'url_params_hash' ),
+			$db->quoteName( 'sef_url' ),
+			$db->quoteName( 'no_index' ),
+		])
+			->from( $db->quoteName('#__cf_customfields_setting_seo'));
+
+		$db->setQuery( $Query , $offset =  0, $limit = 30000 );
+
+
+		$items = $db->loadObjectList('url_params_hash');
+		$dellArr = [];
+		echo'<pre>';print_r( count( $items ) );echo'</pre>'.__FILE__.' '.__LINE__;
+
+
+		foreach ( $items as $item)
+		{
+			if ($item->no_index ) {
+				$dellArr[] = $item->id ;
+				continue ;
+			}   #END IF
+
+			$JUri = JUri::getInstance( $item->url_params );
+			$queryUrl       = $JUri->getQuery(true);
+			$queryUrl['virtuemart_category_id'][] = $item->vmcategory_id ;
+			if ( seoTools::checkOffFilters( $queryUrl ) )
+			{
+				$dellArr[] = $item->id ;
+				continue ; 
+			}#END IF
+
+
+		}#END FOREACH
+
+		if (!count( $dellArr )) $app->redirect('index.php?option=com_customfilters'); #END IF
+
+		$Query = $db->getQuery( true ) ;
+		$conditions = [
+			$db->quoteName('id') . 'IN ( "'.implode('","' , $dellArr  ).'")' ,
+		];
+		$Query->where($conditions);
+		$Query->delete($db->quoteName('#__cf_customfields_setting_seo'));
+		$db->setQuery($Query)->execute();
+
+
+		echo'<pre>';print_r( count( $dellArr ) );echo'</pre>'.__FILE__.' '.__LINE__;
+		echo'<pre>';print_r( (string)$Query );echo'</pre>'.__FILE__.' '.__LINE__;
+
+
+		die(__FILE__ .' '. __LINE__ );
+		$app->redirect('index.php?option=com_customfilters');
+
+
+	}
+
     /**
      *  Function to load the existing custom fields to the filters table
      *

@@ -128,6 +128,19 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
             $bar = Toolbar::getInstance('toolbar');
             $bar->appendButton('Link', $icon, $alt, 'index.php?option=com_customfilters&view=setting_seo_list',
                 $width, $height, $top, $left, $onClose);
+
+
+	        /**
+	         * Кнопка - проверить таблицу
+	         */
+	        JToolBarHelper::custom(
+				$task = 'map_links_lean',
+		        $icon = 'shuffle',
+				$iconOver = 'shuffle',
+				$alt = 'COM_CUSTOMFILTERS_MAP_LINKS_CLEAN_CHECK',
+				$listSelect = false
+	        );
+
         }
 
         if (Factory::getUser()->authorise('core.administrator', 'com_customfilters')) {

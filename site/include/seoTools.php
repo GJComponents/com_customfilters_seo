@@ -239,9 +239,7 @@ class seoTools
         {
             $Options = $filter->getOptions();
 //                    $option->option_sef_url->sef_url = $option->option_url ;
-            
-//            echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
-            
+
         }#END IF
 
 
@@ -258,12 +256,23 @@ class seoTools
 	public function updateSeoTable($optionsFilterArr)
 	{
 
+		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+			echo'<pre>';print_r( $optionsFilterArr );echo'</pre>'.__FILE__.' '.__LINE__;
+			die(__FILE__ .' '. __LINE__ );
+
+		}*/
 
 		// Исключаем ссылки для опций - индексирование которых запрещено
 		foreach ($optionsFilterArr as $i => &$item)
 		{
-			if ($item->option_sef_url->no_index) unset($optionsFilterArr[$i]); #END IF
+			if ($item->option_sef_url->no_index) {
+				unset($optionsFilterArr[$i]);
+
+			} #END IF
 		}#END FOREACH
+
+
 
 		if (empty($optionsFilterArr)) return; #END IF
 
@@ -425,30 +434,47 @@ class seoTools
      * @return bool - Если есть отключенные фильтры  - то TRUE
      * @since 3.9
      */
-    public static function checkOffFilters(array $inputs ): bool
+    public static function checkOffFilters( array $inputs  ): bool
     {
+
 	    $paramsComponent = \Joomla\CMS\Component\ComponentHelper::getParams('com_customfilters');
 
-		// Максимальное количество активных фильтров
+	    /**
+	     * @var int $max_count_filters_no_index Максимальное количество активных фильтров. DEF:3
+	     *                                      PARAM administrator/config.xml - max_count_filters_no_index
+	     */
 		$max_count_filters_no_index = $paramsComponent->get('max_count_filters_no_index' , 3 ) ;
-	    // Максимальное количество активных опций во всех фильтре
+	    /**
+	     * @var int $limit_filter_no_index Максимальное количество активных опций во всех фильтре. DEF:3
+	     *                                 PARAM administrator/config.xml - limit_filter_no_index
+	     */
 	    $limit_filter_no_index = $paramsComponent->get('limit_filter_no_index' , 3 ) ;
 
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//		    echo'<pre>';print_r( $inputs );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    die(__FILE__ .' '. __LINE__ );
 
-
-
+		}
 
 		// Если общее количество активных фильтров больше чем лимит - Def : 3
+	    // (-1) - так как содержаться еще и категория
 	    if ( ( count( $inputs ) -1 ) >=  $max_count_filters_no_index ) return true ; #END IF
 
-	    
+		// --- Считаем опции во всех фильтрах
+		$_allOptionCount = 0 ;
+	    foreach ( $inputs as $filter => $option )
+	    {
+		    if ( $filter == 'virtuemart_category_id') continue ; #END IF
+			$_allOptionCount += count( $option ) ;
+		}#END FOREACH
+	    if ( $_allOptionCount > $limit_filter_no_index ) return true ;  #END IF
+	    // ---
 
 
 
         $idFieldActive = [] ;
 
-
-		
         foreach ( $inputs as $key => $input)
         {
 
@@ -472,13 +498,26 @@ class seoTools
 		}#END FOREACH
 
 
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//			echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
 
 
 
 	    foreach ( $result as $item)
 	    {
-		    $keyInput = 'custom_f_' . $item->vm_custom_id ;
+		    $keyInput = 'custom_f_' . $item->custom_id ;
 			$params = json_decode( $item->params ) ;
+
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//			    echo'<pre>';print_r( $params );echo'</pre>'.__FILE__.' '.__LINE__;
+//			    die(__FILE__ .' '. __LINE__ );
+
+			}
 
 			// Если фильтр использовать только как единственный
 		    if ( $params->use_only_one_opt && count( $result ) > 1 ) return true ; #END IF
