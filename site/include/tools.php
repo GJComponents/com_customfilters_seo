@@ -661,10 +661,15 @@ class cftools
 		$Query->select( $select );
 		$Query->from( $db->quoteName('#__virtuemart_product_customfields') );
 		$Query->where( $db->quoteName('virtuemart_custom_id') .'IN ( "'.implode('","' , $filtersIds  ).'")');
-		$Query->where( $db->quoteName( 'published' ) .'= 1 ');
+        // TODO - Не работало на tekAktiv - с условием
+//		$Query->where( $db->quoteName( 'published' ) .'= 1 ');
 		$Query->group( $db->quoteName('customfield_value') );
 		$db->setQuery( $Query );
 		$res = $db->loadObjectList();
+        if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+        {
+//            echo '<br>------------<br>Query Dump :'.__FILE__ .' '.__LINE__ .$Query->dump().'------------<br>';
+        }
 		$itemArr = [];
 		foreach ( $res as &$item )
 		{

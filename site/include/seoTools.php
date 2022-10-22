@@ -263,13 +263,14 @@ class seoTools
 
 		}*/
 
+
+
 		// Исключаем ссылки для опций - индексирование которых запрещено
 		foreach ($optionsFilterArr as $i => &$item)
 		{
 			if ($item->option_sef_url->no_index) {
 				unset($optionsFilterArr[$i]);
-
-			} #END IF
+            } #END IF
 		}#END FOREACH
 
 

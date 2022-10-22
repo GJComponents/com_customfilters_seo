@@ -434,8 +434,6 @@ class CfInput
 			} #END IF
 		}#END FOREACH
 
-
-
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
 
 
@@ -450,9 +448,6 @@ class CfInput
 		$i          = 0;
 
 		$dataFiltersArr = [];
-
-
-
 
 		foreach ($findResultArr as $start => $item)
 		{
@@ -481,11 +476,10 @@ class CfInput
 				// Удаляем название фильтра
 				$itemValF                 = str_replace($dataFilters->name, '', $itemValF);
 
-				$itemValF = preg_replace('/^-/' , '' , $itemValF ) ; 
-
 //				$itemValF                 = str_replace('-', '', $itemValF);
-
-				$dataFilters->value[] = $itemValF;
+                $itemValF = preg_replace('/^-/' , '' , $itemValF ) ;
+                
+                $dataFilters->value[] = $itemValF;
  
 
 			}#END FOREACH
@@ -512,11 +506,11 @@ class CfInput
 				}#END IF
 			}#END FOREACH
 		}#END FOREACH
+
 		/**
 		 * @var array $customSelectValueArr - Массив всех значений для фильтров
 		 */
 		$customSelectValueArr = \cftools::getCustomSelectValue($selectFilterIds);
-
 
 		foreach ($filtersArr as &$item)
 		{
@@ -525,11 +519,10 @@ class CfInput
 			$arrSetInput = [];
 			foreach ($item->optionSelected as $option)
 			{
-				
+
 				if (array_key_exists( $option , $customSelectValueArr ))
 				{
-
-					$item->dataOptions[] =  $customSelectValueArr[$option];
+                    $item->dataOptions[] =  $customSelectValueArr[$option];
 					$customfield_value = $customSelectValueArr[$option]->customfield_value;
 					$optArr[]          = bin2hex($customfield_value);
 				}#END IF
@@ -548,14 +541,22 @@ class CfInput
 		{
 			foreach ( $items->dataOptions as $optionSelected)
 			{
-				$key = 'custom_f_' . $optionSelected->virtuemart_custom_id  ;
+//				$key = 'custom_f_' . $optionSelected->virtuemart_custom_id  ;
+				$key = 'custom_f_' . $items->custom_id  ;
+
 				$dataTable[$key][] = bin2hex( $optionSelected->customfield_value );
 			}#END FOREACH
 		}#END FOREACH
 		$app->set('seoToolsActiveFilter.table' , $dataTable );
 
 
+        if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+        {
+//            echo'<pre>';print_r( $dataTable );echo'</pre>'.__FILE__.' '.__LINE__;
+//            echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//            die(__FILE__ .' '. __LINE__ );
 
+        }
 
 	}
 
