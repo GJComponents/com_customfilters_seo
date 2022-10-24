@@ -80,10 +80,19 @@ window.customfiltersAdminCore = function () {
      *          </a>
      */
     this.addEvtListener = function () {
+        // Event - change for select
+        /*document.querySelectorAll('select.knownLanguages').forEach( function (el , i){
 
+            
+            el.addEventListener('change' , function (e){
+               console.log( 'com_customfilters.administrator.core' , e ); 
+                
+            })
+        })*/
         // Event - change
         document.addEventListener('change', function (e) {
             console.log( 'customfilters.administrator.core' , e.target.dataset );
+            console.log( 'customfilters.administrator.core' , e   );
             switch (e.target.dataset.evt) {
                 case "on_seo_change" :
                     e.preventDefault();
@@ -96,6 +105,9 @@ window.customfiltersAdminCore = function () {
                         console.log( 'customfilters.administrator.core' ,  e.target.checked);
                     }
                     break;
+                case "known_languages_change" :
+                    self.updateKnownLanguagesElement(e.target)
+                    break ;
             }
         });
         // Event - click
@@ -112,6 +124,21 @@ window.customfiltersAdminCore = function () {
         var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
         Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
         Data.status = El.checked?1:0
+        self.AjaxPost( Data ).then(function (r){
+            console.log( 'customfilters.administrator.core' , r );
+
+        },function (err){console.log(err)});
+    }
+    /**
+     * Изменение языка для поля
+     * @param El
+     */
+    this.updateKnownLanguagesElement = function (El) {
+        var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
+        Data.task = 'updateKnownLanguagesElement' ,
+        Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
+        Data.status = El.value ;
+        console.log( 'com_customfilters.administrator.core' , Data );
         self.AjaxPost( Data ).then(function (r){
             console.log( 'customfilters.administrator.core' , r );
 

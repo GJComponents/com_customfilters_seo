@@ -563,6 +563,7 @@ class cftools
 	 */
     public static function getCustomFilters( $module_params = '', $published = true )
     {
+
         if (!empty($module_params)) {
             $store = md5(json_encode($module_params->get('selected_customfilters',
                     array())) . '::' . $module_params->get('cf_ordering',
@@ -619,9 +620,51 @@ class cftools
             if (!empty($selected_customfilters)) {
                 $query->where('vmc.virtuemart_custom_id IN(' . implode(',', $selected_customfilters) . ')');
             }
+
+	        /**
+	         * Если Multilang isEnabled отбираем поля по языкам
+	         */
+	        if ( JLanguageMultilang::isEnabled() )
+	        {
+		        $lang = JFactory::getLanguage();
+		        $where = [
+					$db->quoteName('known_languages') . ' = ' . $db->quote( $lang->getTag() ) ,
+					$db->quoteName('known_languages') . ' = ' . $db->quote( '*' ) ,
+
+		        ];
+				$query->where('('. implode(' OR ' , $where ) .')');
+		    }
+
             $query->order($order . ' ' . $order_dir);
             $db->setQuery($query);
-            $cust_filters = $db->loadObjectList();
+            try
+            {
+                // Code that may throw an Exception or Error.
+	            $cust_filters = $db->loadObjectList();
+                // throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+            }
+            catch (\Exception $e)
+            {
+				$Code = $e->getCode();
+				switch ( $Code ){
+					case '1054':
+						$db = JFactory::getDbo();
+						$query='ALTER TABLE `#__cf_customfields` ADD `on_seo` int(11) NOT NULL DEFAULT "1" COMMENT "исключение из seo"';
+						$db->setQuery($query);
+						$result = $db->execute();
+						echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__;
+						die(__FILE__ .' '. __LINE__ );
+
+						break;
+				}
+
+                // Executed only in PHP 5, will not be reached in PHP 7
+                echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+                echo 'Выброшено исключение: Code ',  $e->getCode(), "\n";
+                echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+                die(__FILE__ .' '. __LINE__ );
+            }
+
 
 	        foreach ( $cust_filters as &$filter)
 	        {

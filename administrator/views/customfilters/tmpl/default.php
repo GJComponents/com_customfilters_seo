@@ -90,6 +90,19 @@ if ($saveOrder) {
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CUSTOMFILTERS_DISPLAY_TYPE', 'cf.type_id', $listDirn, $listOrder); ?>
 					</th>
 
+                    <!-- для языков если включено Multilang -->
+                    <?php
+                    if ( JLanguageMultilang::isEnabled() )
+                    {
+	                    ?>
+                        <th id="header-language_set" class="nowrap hidden-phone">
+		                    <?php echo Text::_('COM_CUSTOMFILTERS_LANGUAGE_SET');?>
+                        </th>
+	                    <?php
+                    }#END IF
+                    ?>
+
+                    <!-- Index - NoIndex-->
                     <th id="header-smartsearch" class="nowrap hidden-phone">
                         <?php echo Text::_('COM_CUSTOMFILTERS_ON_SEO');?>
 					</th>
@@ -159,12 +172,15 @@ if ($saveOrder) {
                         <!-- we still have the alias field in the database and the save query (although useless) -->
                         <input type="hidden" name="alias[<?php echo $item->id?>]" class="cf_alias_input" id="cf_alias_<?php echo $item->id?>" disabled="disabled" class="inputbox" size="45" value="<?php echo $item->alias ?>" />
                     </td>
+                    <!-- grid.id -->
 					<td class="center">
                         <?php echo HTMLHelper::_('grid.id', $i, $item->id); ?>
 					</td>
+                    <!-- published -->
 					<td class="center">
                         <?php echo HTMLHelper::_('jgrid.published', $item->published, $i,'customfilters.'); ?>
 					</td>
+                    <!-- custom_title -->
                     <td class="left">
                         <?php echo $item->custom_title ?>
 
@@ -178,27 +194,39 @@ if ($saveOrder) {
                         <?php
                         }?>
                     </td>
+                    <!-- custom_descr  -->
 					<td class="left small hidden-phone hidden-tablet">
                         <div class="cf-vm-customfield-desciption">
                             <?php echo $item->custom_descr ?>
                         </div>
 					</td>
-					<td class="left">
+					<!-- Тип настраеваемого поля-->
+                    <td class="left">
                         <?php echo $item->field_type_string ?>
 					</td>
-
+                    <!-- Вид отображения -->
                     <td class="left">
                         <?php echo  HTMLHelper::_('select.genericlist', $displayTypes,"type_id[$item->id]",'class="inputbox cfDisplayTypes" size="1" aria-labelledby="header-displaytype"', 'value', 'text',$item->type_id);?>
 					</td>
 
+                    <!-- Выбор языков для custom field - если включено Multilang -->
                     <?php
+                    if ( JLanguageMultilang::isEnabled() )
+                    {
+                        ?>
+                        <td class="left">
+		                    <?php echo  HTMLHelper::_('select.genericlist', $this->knownLanguages,"known_languages[$item->id]",'class="inputbox knownLanguages" onchange="window.CustomfiltersAdminCore.updateKnownLanguagesElement(this)"  size="1" aria-labelledby="header-displaytype"', 'tag', 'name',$item->known_languages);?>
+                        </td>
+                        <?php
+                    }#END IF
+
 
 //                    echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
 //                    die(__FILE__ .' '. __LINE__ );
 
 
                     ?>
-
+                    <!-- Index On -->
                     <td class="center nowrap hidden-phone">
                         <div id="on_seo_<?php echo $item->id?>" class="cfCheckboxGroup">
                             <!-- Нам нужно скрыть ввод здесь, потому что флажок не будет отправлен, если он не установлен. Пустые значения не обрабатываются процессом сохранения -->

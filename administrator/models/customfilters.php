@@ -145,8 +145,11 @@ class CustomfiltersModelCustomfilters extends JModelList
         $query->select('cf.vm_custom_id AS vm_custom_id');
         $query->select('cf.alias AS alias');
         $query->select('cf.published AS published');
-        // if false - field no SEF proc.
+
+		// if false - field no SEF proc.
         $query->select('cf.on_seo AS on_seo');
+
+		$query->select('cf.known_languages AS known_languages');
 
         $query->select('cf.type_id AS type_id');
         $query->select('cf.data_type AS data_type');

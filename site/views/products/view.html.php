@@ -435,7 +435,13 @@ class CustomfiltersViewProducts extends cfView
 
 	        // Удалить параметры пагинации
 	        $canonical_url = preg_replace('/\/start=\d+/', '', $canonical_url);
-
+			
+			
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+			    echo'<pre>';print_r( $canonical_url );echo'</pre>'.__FILE__.' '.__LINE__;
+			    
+			}
 
             // add a new one
             $this->document->_links[$canonical_url] = array(

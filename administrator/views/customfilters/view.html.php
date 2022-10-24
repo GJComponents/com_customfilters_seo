@@ -51,8 +51,13 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
      * @since 2.8.5
      */
     public $filterForm;
+	/**
+	 * @var array Список поддерживаемых языков
+	 * @since version
+	 */
+	protected $knownLanguages = [];
 
-    /**
+	/**
      * @param null $tpl
      * @return mixed|void
      * @throws Exception
@@ -70,6 +75,18 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
         $this->state = $this->get('State');
         $this->displayTypes = $this->get('AllDisplayTypes');
         $this->filterForm    = $this->get('FilterForm');
+
+	    if ( JLanguageMultilang::isEnabled() )
+	    {
+		    $this->knownLanguages = \Joomla\CMS\Language\LanguageHelper::getKnownLanguages( JPATH_SITE ) ;
+
+			$AllLanguage  = [
+				'name' => 'All Language',
+				'tag' => '*',
+		    ];
+		    array_unshift($this->knownLanguages , $AllLanguage );
+	    }
+
 
 
 

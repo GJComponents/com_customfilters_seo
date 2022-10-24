@@ -203,6 +203,12 @@ class CustomfiltersController extends JControllerLegacy
 
     }
 
+	/**
+	 * Изменить Index - ON OFF
+	 *
+	 * @throws Exception
+	 * @since version
+	 */
     public function updateOnSeoElement()
     {
         if (!JSession::checkToken('get'))
@@ -214,10 +220,9 @@ class CustomfiltersController extends JControllerLegacy
         $object = new stdClass();
         // Должно быть допустимое значение первичного ключа.
         $object->id = $app->input->get('idField' , 0 , 'INT' );
+		$object->on_seo =  $app->input->get('status' , 0  , 'INT' ) ;
 
-        $status =  $app->input->get('status' , 0  , 'INT' ) ;
 
-        $object->on_seo = $status ;
 
 
 //      Update their details in the users table using id as the primary key.
@@ -228,5 +233,23 @@ class CustomfiltersController extends JControllerLegacy
 
 
     }
+
+	public function updateKnownLanguagesElement(){
+		if (!JSession::checkToken('get'))
+		{
+			echo new JResponseJson(null, JText::_('JINVALID_TOKEN'), true);
+			die();
+		}
+		$app = \Joomla\CMS\Factory::getApplication();
+		$object = new stdClass();
+		// Должно быть допустимое значение первичного ключа.
+		$object->id = $app->input->get('idField' , 0 , 'INT' );
+		$object->known_languages =  $app->input->get('status' , 0  , 'STRING' ) ;
+
+		// Update their details in the users table using id as the primary key.
+		$result = \Joomla\CMS\Factory::getDbo()->updateObject('#__cf_customfields', $object, 'id');
+		echo new JResponseJson( $result , JText::_('COM_COMPONENT_MY_TASK_ERROR'), false );
+        die( );
+	}
 
 }

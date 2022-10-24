@@ -145,6 +145,14 @@ class CfInput
 	    $this->parseUrlString();
 
         $componentParams = \cftools::getComponentparams();
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//		 echo'<pre>';print_r( $componentParams );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    die(__FILE__ .' '. __LINE__ );
+
+		}
+
         $selected_flt = array();
         $rangeVars = array();
         $reset_all_filters = false;

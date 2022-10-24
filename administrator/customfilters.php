@@ -22,6 +22,16 @@
 		define('DEV_IP',     '***.***.***.***');
 	}
 
+/**
+ * Получить версию модуля
+ */
+$xml_file = JPATH_ROOT .  '/administrator/components/com_customfilters/customfilters.xml' ;
+$dom = new DOMDocument("1.0", "utf-8");
+$dom->load($xml_file);
+$__v =   $dom->getElementsByTagName('version')->item(0)->textContent;
+
+
+
     use Joomla\CMS\Language\Text;
 
 JLoader::registerNamespace( 'GNZ11' , JPATH_LIBRARIES . '/GNZ11' , $reset = false , $prepend = false , $type = 'psr4' );
@@ -74,7 +84,7 @@ JLoader::register('seoTools_uri' , JPATH_ROOT .'/components/com_customfilters/in
         }#END IF
     }
 
-    \GNZ11\Core\Js::addJproLoad(\Joomla\CMS\Uri\Uri::root().'administrator/components/com_customfilters/assets/js/com_customfilters.administrator.core.js' ,   false ,   false );
+    \GNZ11\Core\Js::addJproLoad(\Joomla\CMS\Uri\Uri::root().'administrator/components/com_customfilters/assets/js/com_customfilters.administrator.core.js?v=' . $__v ,   false ,   false );
 
 
     // Add stylesheets and Scripts

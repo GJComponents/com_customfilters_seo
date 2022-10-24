@@ -58,17 +58,14 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
             $slider_min_value = $app->input->get('slider_min_value', [], 'array');
             $slider_max_value = $app->input->get('slider_max_value', [], 'array');
             $filter_category_ids = $app->input->get('filter_categories', [], 'array');
-            // Display if selected setting display_if_filter_exist
+
+			// Display if selected setting display_if_filter_exist
             $display_if_filter_exist = $app->input->get('display_if_filter_exist', [], 'array');
 			$conditional_operator = $app->input->get('conditional_operator', [], 'array');
 
 			// Лимит количества выбранных опций
 			$limit_options_select_for_no_index = $app->input->get('limit_options_select_for_no_index', [], 'array');
 			$use_only_one_opt_for_no_index = $app->input->get('use_only_one_opt', [], 'array');
-
-
-
-
 
 
 

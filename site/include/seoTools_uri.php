@@ -203,7 +203,7 @@ class seoTools_uri
 
 	/**
 	 * Проверить - нужен ли Редирект на страницу категории - Если не выбрана ни одна опция фильтра - но ссылка ведет
-	 * на компонент фильтрации .
+	 * на компонент фильтрации.
 	 *
 	 * @param array $category_ids - массив категорий VM
 	 * @param array $findResultArr - массив выбранных опций фильтра
@@ -248,9 +248,10 @@ class seoTools_uri
 			$juri           = \Joomla\CMS\Uri\Uri::getInstance($category_link);
 			$queryUrl       = $juri->getQuery(true);
 			$category_ids[] = $queryUrl['virtuemart_category_id'];
-			echo '<pre>';
-			print_r($queryUrl['virtuemart_category_id']);
-			echo '</pre>' . __FILE__ . ' ' . __LINE__;
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+				echo '<pre>'; print_r($queryUrl['virtuemart_category_id']); echo '</pre>' . __FILE__ . ' ' . __LINE__;
+			}
 
 		}#END IF
 
