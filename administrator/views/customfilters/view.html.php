@@ -24,7 +24,7 @@ use Joomla\CMS\Uri\Uri;
  * @author Sakis Terz
  * @since 1.0
  */
-class CustomfiltersViewCustomfilters extends JViewLegacy
+class CustomfiltersViewCustomfilters extends \Joomla\CMS\MVC\View\HtmlView
 {
     /**
      * @var array
@@ -66,15 +66,15 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
     public function display($tpl = null)
     {
 
-
-
-
-
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
         $this->displayTypes = $this->get('AllDisplayTypes');
         $this->filterForm    = $this->get('FilterForm');
+
+//		echo'<pre>';print_r( $this->displayTypes );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
 
 	    if ( JLanguageMultilang::isEnabled() )
 	    {
@@ -86,9 +86,6 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
 		    ];
 		    array_unshift($this->knownLanguages , $AllLanguage );
 	    }
-
-
-
 
 
         // Check for errors.
@@ -158,6 +155,17 @@ class CustomfiltersViewCustomfilters extends JViewLegacy
 				$listSelect = false
 	        );
 
+	        /**
+	         * Кнопка - добавить фильтр CITY SEO
+	         */
+	        JToolBarHelper::custom(
+				$task = 'add_filter_city_seo',
+		        $icon = 'plus-2',
+				$iconOver = 'plus-2',
+				$alt = 'COM_CUSTOMFILTERS_ADD_FILTER_CITY_SEO',
+				$listSelect = false
+	        );
+			$this->document->addStyleDeclaration('span.icon-plus-2:before{color: #378137;}');
         }
 
         if (Factory::getUser()->authorise('core.administrator', 'com_customfilters')) {

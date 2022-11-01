@@ -418,6 +418,13 @@ class CfInput
 		 */
 		$filtersArr    = [];
 
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+		    echo'<pre>';print_r( $published_cf );echo'</pre>'.__FILE__.' '.__LINE__;
+		    die(__FILE__ .' '. __LINE__ );
+
+		}
+
 		// Перебираем опубликованные фильтры - находим фильтры
 		foreach ($published_cf as $item)
 		{

@@ -69,6 +69,10 @@ window.customfiltersAdminCore = function () {
         // Параметры Ajax Default
         this.setAjaxDefaultData();
         this.addEvtListener();
+        // Перехват событий JoomlaSubmit
+        this.JoomlaSubmitInit();
+
+
     };
 
     /**
@@ -119,7 +123,57 @@ window.customfiltersAdminCore = function () {
             }
         });
     }
+    /**
+     * Установка перехвата для событий Joomla.submitbutton
+     * @constructor
+     */
+    this.JoomlaSubmitInit = function (){
+        var JoomlaSubmitButtonClone = Joomla.submitbutton
+        Joomla.submitbutton = function(task)
+        {
+            console.log( 'com_customfilters.administrator.core' , task );
+            switch (task) {
+                case 'add_filter_city_seo':
+                    self.addFilterCitySeo();
+                    break
+                default : JoomlaSubmitButtonClone (task)
+            }
+        };
+    }
+    /**
+     * Создание фильтра - "Отбор по городам"
+     */
+    this.addFilterCitySeo = function (){
+        var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
+        Data.task = 'onAjaxGetFormAddFilterCitySeo' ;
+        Data.view = 'forms_add' ;
+        Data.layout = 'add_city_seo' ;
 
+        var AjaxPost = self.AjaxPost( Data )
+        var getModal = self.__loadModul.Fancybox();
+        var loadCss = self.load.css('/libraries/GNZ11/assets/js/modules/Bxslider/4.2.15/jquery.bxslider.min.css'),
+        Promise.all([AjaxPost , getModal ]).then(function (DataPromise){
+            var Html = DataPromise[0].data.form_html;
+            var Modal = DataPromise[1]
+
+            Modal.open(Html, {
+                baseClass: "addFilterCitySeo", // Класс основного элемента
+                touch: false,
+            });
+            console.log('com_customfilters.administrator.core', DataPromise);
+
+
+        },function (err){console.log(err)});
+
+        /*self.AjaxPost( Data ).then(function (r){
+            console.log( 'customfilters.administrator.core' , r );
+
+        },function (err){console.log(err)});*/
+    }
+    /**
+     * Изменения запрат для фильтра - генерить страницы результата поиска с robot INDEX
+     * @param El
+     */
     this.updateOnSeoElement = function (El){
         var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
         Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
@@ -130,12 +184,12 @@ window.customfiltersAdminCore = function () {
         },function (err){console.log(err)});
     }
     /**
-     * Изменение языка для поля
+     * Изменение использования фильтра для языка (для всех -* | ru-RU | ua-UA)
      * @param El
      */
     this.updateKnownLanguagesElement = function (El) {
         var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
-        Data.task = 'updateKnownLanguagesElement' ,
+        Data.task = 'updateKnownLanguagesElement' ;
         Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
         Data.status = El.value ;
         console.log( 'com_customfilters.administrator.core' , Data );
@@ -183,10 +237,7 @@ window.customfiltersAdminCore = function () {
                 // Отправить запрос
                 Ajax.send(data, 'customfiltersAdminCore', Params).then(function (r) {
                     resolve(r);
-                }, function (err) {
-                    console.error(err);
-                    reject(err);
-                })
+                }, function (err) { console.error(err);   reject(err); })
             });
         });
     };

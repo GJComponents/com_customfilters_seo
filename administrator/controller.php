@@ -45,8 +45,6 @@ class CustomfiltersController extends JControllerLegacy
             UpdateManager::getInstance()->refreshUpdateSite();
         }
 
-
-
         parent::display();
         return $this;
     }
@@ -125,10 +123,9 @@ class CustomfiltersController extends JControllerLegacy
     protected function _createFilters()
     {
         /**
-         * @var CustomfiltersModelCustomfilters Object
+         * @var CustomfiltersModelCustomfilters $model Object
          */
         $model = $this->getModel();
-
 
         try {
             $model->createFilters();
@@ -222,18 +219,20 @@ class CustomfiltersController extends JControllerLegacy
         $object->id = $app->input->get('idField' , 0 , 'INT' );
 		$object->on_seo =  $app->input->get('status' , 0  , 'INT' ) ;
 
-
-
-
 //      Update their details in the users table using id as the primary key.
         $result = \Joomla\CMS\Factory::getDbo()->updateObject('#__cf_customfields', $object, 'id');
 //
         echo new JResponseJson( $result , JText::_('COM_COMPONENT_MY_TASK_ERROR'), false );
         die( );
 
-
     }
 
+	/**
+	 * Изменение использования фильтра для языка (для всех -* | ru-RU | ua-UA) - Ajax Input
+	 * @return void
+	 * @throws Exception
+	 * @since 3.9
+	 */
 	public function updateKnownLanguagesElement(){
 		if (!JSession::checkToken('get'))
 		{
@@ -250,6 +249,22 @@ class CustomfiltersController extends JControllerLegacy
 		$result = \Joomla\CMS\Factory::getDbo()->updateObject('#__cf_customfields', $object, 'id');
 		echo new JResponseJson( $result , JText::_('COM_COMPONENT_MY_TASK_ERROR'), false );
         die( );
+	}
+
+	public function onAjaxGetFormAddFilterCitySeo(){
+		$input = Factory::getApplication()->input;
+		$view = $input->get('view', 'customfilters', '');
+		if (!JSession::checkToken('get'))
+		{
+			echo new JResponseJson(null, JText::_('JINVALID_TOKEN'), true);
+		}
+		else
+		{
+			parent::display();
+		}
+		echo'<pre>';print_r( $view );echo'</pre>'.__FILE__.' '.__LINE__;
+		die(__FILE__ .' '. __LINE__ );
+
 	}
 
 }

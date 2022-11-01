@@ -269,8 +269,10 @@ class CustomfiltersModelCustomfilters extends JModelList
     }
 
     /**
+     * Метод создания фильтров в таблице cf_customfields.
+     *
      * Method to insert the existing records to the table cf_customfields.
-     * Метод для вставки существующих записей в таблицу cf_customfields.
+     *
      *
      * It checks the virtuemart_customs table for new or deleted custom fields and updates the cf filters table accordingly
      * Он проверяет таблицу virtuemart_customs на наличие новых или удаленных настраиваемых полей
@@ -326,7 +328,7 @@ class CustomfiltersModelCustomfilters extends JModelList
                     $virtuemart_custom_id = $vm_c->virtuemart_custom_id;
                     $ret = $dispatcher->trigger('onGenerateCustomfilters', array($name, $virtuemart_custom_id, &$data_type));
                     if ($ret == true && !empty($data_type)) {
-                        $query2 = "INSERT INTO #__cf_customfields (vm_custom_id,alias,ordering,published,data_type)";
+                        $query2 = "INSERT INTO #__cf_customfields ( vm_custom_id, alias, ordering, published, data_type)";
                         $query2 .= " VALUES (" . $vm_c->virtuemart_custom_id . "," . $db->quote($slug) . "," . $counter . ",1," . $db->quote($data_type) . ")";
                     } else continue;
                 }
@@ -428,12 +430,13 @@ class CustomfiltersModelCustomfilters extends JModelList
     }
 
     /**
-     * Get the existing filters
-     * Получить существующие фильтры
+     * Получить существующие фильтры из таблиц #__cf_customfields && #__virtuemart_customs
+     * Get the existing filters form tables #__cf_customfields && #__virtuemart_customs
      *
      *
      * @return array|bool  the filters Array
      * @since 1.9.0
+     * @@ TODO - добавить выборку полей типа City SEO
      */
     public function getCustomFilters()
     {
@@ -451,8 +454,8 @@ class CustomfiltersModelCustomfilters extends JModelList
     }
 
     /**
-     * Get the existing custom fields
-     * Получить существующие настраиваемые поля
+     * Получить существующие настраиваемые поля / Get the existing custom fields
+     *
      *
      * @param string $fields the fields to load from the database
      * @param string $custom_types a string containing the custom types
@@ -497,7 +500,7 @@ class CustomfiltersModelCustomfilters extends JModelList
     }
 
     /**
-     * Checks if the slug already exists in the db
+     * Проверяет, существует ли SLUG в БД - Checks if the slug already exists in the db
      *
      * @param string $slug
      * @return string
@@ -536,6 +539,7 @@ class CustomfiltersModelCustomfilters extends JModelList
     }
 
     /**
+     * Метод для получения доступных типов отображения фильтра.
      * Method to get the available filter display types.
      * 1.Select, 2.Radios, 3.Checkboxes, 4.Links
      *
@@ -549,6 +553,7 @@ class CustomfiltersModelCustomfilters extends JModelList
     }
 
     /**
+     * Метод для получения доступных типов отображения фильтра.
      * Method to get the available filter display types.
      * 1.Select, 2.Radios, 3.Checkboxes, 4.Links
      *
@@ -570,7 +575,8 @@ class CustomfiltersModelCustomfilters extends JModelList
             array('id' => '9', 'type' => 'color_btn_sinlge'),
             array('id' => '10', 'type' => 'color_btn_multi'),
             array('id' => '11', 'type' => 'button_single'),
-            array('id' => '12', 'type' => 'button_multi')
+            array('id' => '12', 'type' => 'button_multi'),
+            array('id' => '13', 'type' => 'city_seo'),
         );
 
         $joptions = array();

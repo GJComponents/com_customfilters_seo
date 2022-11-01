@@ -20,14 +20,24 @@ HTMLHelper::_('behavior.tooltip');
 HTMLHelper::_('behavior.multiselect');
 
 // set some attributes to our chosen select
-HTMLHelper::_('formbehavior.chosen', '#filter_type_id', null, ['placeholder_text_multiple' => '-' . Text::_('COM_CUSTOMFILTERS_SELECT_DISPLAY_TYPE') . '-', 'disable_search_threshold' => 3]);
+HTMLHelper::_('formbehavior.chosen',
+    '#filter_type_id',
+    null,
+    [
+            'placeholder_text_multiple' => '-' . Text::_('COM_CUSTOMFILTERS_SELECT_DISPLAY_TYPE') . '-',
+            'disable_search_threshold' => 3
+    ]);
+
 HTMLHelper::_('formbehavior.chosen', 'select:not(.cfDisplayTypes)');
 
 $model = $this->getModel();
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn = $this->escape($this->state->get('list.direction'));
 $saveOrder = $listOrder == 'cf.ordering';
-$published_opt = array(array('value' => 1, 'text' => Text::_('Published')), array('value' => 0, 'text' => Text::_('Unpublished')));
+$published_opt = array(
+        array('value' => 1, 'text' => Text::_('Published') ),
+    array('value' => 0, 'text' => Text::_('Unpublished'))
+);
 $boolean_options = array(HTMLHelper::_('select.option', 1, Text::_('JYES')), HTMLHelper::_('select.option', 0, Text::_('JNO')));
 
 if ($saveOrder) {

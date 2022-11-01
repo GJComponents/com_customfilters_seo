@@ -126,7 +126,7 @@
 
 		<field name="limit_filter_no_index"
 			type="number"
-			default="3"
+			default="2"
 			min="1"
 			max="10" 
 			step="1"
@@ -170,7 +170,7 @@
 
 		<field name="default_h1_tag"
 			type="textarea"
-			default=""
+			default="{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}"
 			class="default_h1_tag "
 			rows="5"
 			cols="4"
@@ -184,6 +184,7 @@
 
 		<field name="default_title"
 			   type="textarea"
+			   default="{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}"
 			   label="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_TITLE"
 			   description="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_TITLE_DESC"
 			   rows="10"
@@ -192,6 +193,7 @@
 		/>
 		<field name="default_description"
 			   type="textarea"
+			   default="{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}"
 			   label="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_DESCRIPTION"
 			   description="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_DESCRIPTION_DESC"
 			   rows="10"
@@ -199,6 +201,7 @@
 			   filter="raw"
 		/>
 		<field name="default_keywords"
+			   default="{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}"
 			   type="textarea"
 			   label="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_KEYWORDS"
 			   description="COM_CUSTOMFILTERS_SEO_SETTING_DEFAULT_KEYWORDS_DESC"

@@ -665,6 +665,12 @@ class cftools
                 die(__FILE__ .' '. __LINE__ );
             }
 
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+			    echo'<pre>';print_r( $cust_filters );echo'</pre>'.__FILE__.' '.__LINE__;
+//			    die(__FILE__ .' '. __LINE__ );
+
+			}
 
 	        foreach ( $cust_filters as &$filter)
 	        {
@@ -752,13 +758,17 @@ class cftools
     }
 
     /**
+     * Если настраиваемое поле является плагином, получите параметры плагина и назначьте
+     * их пользовательскому фильтру в качестве атрибута объекта.
+     *
      * If the customfield is plugin then get the plugin params and assign them to the custom filter as object attr.
      *
-     * @param array $cust_filters
+     * @param   array  $cust_filters
+     *
      * @return array $cust_filters
      * @since 1.9.0
      */
-    public static function setPluginparamsAsAttributes($cust_filters)
+    public static function setPluginparamsAsAttributes(array $cust_filters): array
     {
         if (!is_array($cust_filters)) {
             return [];

@@ -43,7 +43,10 @@ class UpdateManager
     }
 
     /**
+     * Обновляет сайты обновлений, удаляя устаревшие сайты обновлений в процессе.
+     *
      * Refreshes the update sites, removing obsolete update sites in the process
+     * @since 3.9
      */
     public function refreshUpdateSite()
     {

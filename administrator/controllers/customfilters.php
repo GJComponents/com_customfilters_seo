@@ -63,8 +63,10 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
             $display_if_filter_exist = $app->input->get('display_if_filter_exist', [], 'array');
 			$conditional_operator = $app->input->get('conditional_operator', [], 'array');
 
-			// Лимит количества выбранных опций
+			// Лимит количества выбранных опций в фильтре
 			$limit_options_select_for_no_index = $app->input->get('limit_options_select_for_no_index', [], 'array');
+			// Использовать как одиночную опцию в фильтрах
+	        // (если кроме этой опции будет выбрана еще одна страница NO INDEX)
 			$use_only_one_opt_for_no_index = $app->input->get('use_only_one_opt', [], 'array');
 
 

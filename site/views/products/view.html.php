@@ -439,7 +439,9 @@ class CustomfiltersViewProducts extends cfView
 			
 			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 			{
-			    echo'<pre>';print_r( $canonical_url );echo'</pre>'.__FILE__.' '.__LINE__;
+			    echo'<pre> canonical: ';print_r( $canonical_url );echo'</pre>'.__FILE__.' '.__LINE__;
+//				die(__FILE__ .' '. __LINE__ );
+
 			    
 			}
 

@@ -153,7 +153,15 @@ class seoTools
     public function setMetaData(   ){
 
 		$DataFilters = $this->app->get('seoToolsActiveFilter' );
-	    $table = $this->app->get('seoToolsActiveFilter.table' );
+	    /**
+	     * @var array $table - выбранные опции в фильтрах
+	     */
+		$table = $this->app->get('seoToolsActiveFilter.table' );
+	    if ( !$table )
+	    {
+			return;
+	    }#END IF
+
 
 		
         $vmCategoryId = $this->app->input->get('virtuemart_category_id' , [] , 'ARRAY') ;
@@ -186,7 +194,7 @@ class seoTools
 
 
 	
-        $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , false );
+        $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
         $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
 
 	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
@@ -195,16 +203,24 @@ class seoTools
 
 
 
-        $default_title = $this->paramsComponent->get('default_title' , false );
+        $default_title = $this->paramsComponent->get('default_title' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
         $default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );
 	    $default_title = $this->getLanguageText( $default_title );
+		
 
-
-        $default_description = $this->paramsComponent->get('default_description' , false );
+        $default_description = $this->paramsComponent->get('default_description' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
         $default_description = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_description );
 	    $default_description = $this->getLanguageText( $default_description );
+		
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+		    echo'<pre>description: ';print_r( $default_description );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    die(__FILE__ .' '. __LINE__ );
 
-        $default_keywords = $this->paramsComponent->get('default_keywords' , false );
+		}
+		
+		
+        $default_keywords = $this->paramsComponent->get('default_keywords' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
         $default_keywords = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_keywords );
 	    $default_keywords = $this->getLanguageText( $default_keywords );
 
