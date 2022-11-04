@@ -196,9 +196,7 @@ class seoTools
 	
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
         $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
-
 	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
-
 	    $this->app->set('filter_data_h1' ,  $default_h1_tag  );
 
 
