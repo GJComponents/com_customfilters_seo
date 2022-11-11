@@ -79,11 +79,6 @@ class CustomfiltersViewSetting_seo extends HtmlView
 
         $doc->addScriptOptions('selected_filters_table' , $this->item ) ;
 
-
-
-
-
-
 		// Show the toolbar
 		$this->toolbar();
 
