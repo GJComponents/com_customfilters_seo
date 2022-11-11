@@ -1,0 +1,87 @@
+.addFilterCitySeo{}
+.addFilterCitySeo .fancybox-content{
+    width: 60%;
+    height: 80%;
+    padding: 0px 20px 10px;
+} 
+
+
+
+
+
+.addFilterCitySeo .fancybox-content #form_head{
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 5px;
+} 
+.addFilterCitySeo .fancybox-content #form_head h1{
+    font-size: 1.3em;
+}
+.addFilterCitySeo .fancybox-content #form_content{
+    height: calc(100% - 100px);
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-content{
+    height: calc(100% - 50px);
+
+    overflow: auto;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane{
+    height: 100%;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading{
+
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .accordion-toggle{
+    /* width: calc(100% - 8px); */
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading strong{
+    display: inline-block;
+    /* background: green; */
+    /* height: 100px; */
+    width: calc(100% - 170px);
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .control-group {
+    float: right;
+    margin: 0;
+    margin: 0px;
+    padding: 6px 8px 2px 0;
+    box-sizing: inherit;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .control-group .control-label{
+    float: left;
+    margin-top: 2px;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .control-group .controls{
+    float: left;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .control-group .control-label label{
+    font-size: 10px;
+    margin: 0 5px 0 0;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .control-group .label{
+
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .controls .btn-group.btn-group-yesno{
+    width: 50px;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .controls .btn-group.btn-group-yesno > .btn{
+    font-size: 10px;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .controls fieldset.btn-group-yesno input[type=radio][disabled=disabled] + label{
+    color: #ccc;  
+    cursor: default;
+}
+.addFilterCitySeo .fancybox-content #form_content .tab-pane .accordion-heading .controls fieldset.btn-group-yesno input[type=radio][disabled=disabled] + label.btn-success {
+    background-color: #759f75;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .controls fieldset.btn-group-yesno input[type=radio][disabled=disabled] + label.btn-danger {
+    background-color: #a67674;
+}
+
+/*---------------------- FOOTER --------------------------------- */
+
+.addFilterCitySeo .fancybox-content #form_footer{
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+    margin-top: 5px;
+}
+

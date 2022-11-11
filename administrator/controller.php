@@ -38,6 +38,9 @@ class CustomfiltersController extends JControllerLegacy
 
         echo'<pre>';print_r( $view );echo'</pre>'.__FILE__.' '.__LINE__;
 
+		// TODO - для разработки формы городов
+		$doc = \Joomla\CMS\Factory::getDocument();
+	    $doc->addStyleSheet('/administrator/components/com_customfilters/assets/css/formCitySeo.css');
 
 
         if ($view == 'customfilters' || $view == '') {
@@ -251,6 +254,12 @@ class CustomfiltersController extends JControllerLegacy
         die( );
 	}
 
+	/**
+	 * Загрузить форму настроек для гениратора города
+	 * @return void
+	 * @throws Exception
+	 * @since 3.9
+	 */
 	public function onAjaxGetFormAddFilterCitySeo(){
 		$input = Factory::getApplication()->input;
 		$view = $input->get('view', 'customfilters', '');
@@ -262,9 +271,33 @@ class CustomfiltersController extends JControllerLegacy
 		{
 			parent::display();
 		}
-		echo'<pre>';print_r( $view );echo'</pre>'.__FILE__.' '.__LINE__;
-		die(__FILE__ .' '. __LINE__ );
-
 	}
 
+	/**
+	 * Загрузить слайдер дочерних городов
+	 * @return void
+	 * @since 3.9
+	 */
+	public function onAjaxGetChildrenArea(){
+		if (!JSession::checkToken('get'))
+		{
+			echo new JResponseJson(null, JText::_('JINVALID_TOKEN'), true);
+		}
+		else
+		{
+			parent::display();
+		}
+	}
+
+	public function onAjaxSaveForm(){
+		if (!JSession::checkToken('get'))
+		{
+			echo new JResponseJson(null, JText::_('JINVALID_TOKEN'), true);
+		}
+		else
+		{
+
+			parent::display();
+		}
+	}
 }

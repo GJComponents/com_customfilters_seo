@@ -14,6 +14,9 @@ defined('_JEXEC') or die('Restricted access');
 use Breakdesigns\Customfilters\Admin\Model\UpdateManager;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\View\HtmlView;
+use Joomla\CMS\Object\CMSObject;
+use Joomla\CMS\Pagination\Pagination;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Uri\Uri;
@@ -21,10 +24,10 @@ use Joomla\CMS\Uri\Uri;
 /**
  * The basic view class
  *
- * @author Sakis Terz
+ * @author Gartes
  * @since 1.0
  */
-class CustomfiltersViewCustomfilters extends \Joomla\CMS\MVC\View\HtmlView
+class CustomfiltersViewSetting_city_list extends HtmlView
 {
     /**
      * @var array
@@ -33,13 +36,13 @@ class CustomfiltersViewCustomfilters extends \Joomla\CMS\MVC\View\HtmlView
     protected $items;
 
     /**
-     * @var \Joomla\CMS\Pagination\Pagination
+     * @var Pagination
      * @since 1.0
      */
     protected $pagination;
 
     /**
-     * @var \Joomla\CMS\Object\CMSObject
+     * @var CMSObject
      * @since 1.0
      */
     protected $state;
@@ -66,18 +69,19 @@ class CustomfiltersViewCustomfilters extends \Joomla\CMS\MVC\View\HtmlView
     public function display($tpl = null)
     {
 
-//		\CustomfiltersModelCustomfilters::getItems
+	    /**
+	     * CustomfiltersModelSetting_city_list::getItems
+	     */
         $this->items = $this->get('Items');
 
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
         $this->displayTypes = $this->get('AllDisplayTypes');
-        $this->filterForm    = $this->get('FilterForm');
-
-//		echo'<pre>';print_r( $this->displayTypes );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
+//        $this->filterForm    = $this->get('FilterForm');
 
 
+
+		// for Multilang Site
 	    if ( JLanguageMultilang::isEnabled() )
 	    {
 		    $this->knownLanguages = \Joomla\CMS\Language\LanguageHelper::getKnownLanguages( JPATH_SITE ) ;
@@ -119,56 +123,34 @@ class CustomfiltersViewCustomfilters extends \Joomla\CMS\MVC\View\HtmlView
             JToolbarHelper::publish('customfilters.publish', 'JTOOLBAR_PUBLISH', true);
             JToolbarHelper::unpublish('customfilters.unpublish', 'JTOOLBAR_UNPUBLISH', true);
         }
-
-	    $bar = Toolbar::getInstance('toolbar');
+	    JToolbarHelper::deleteList('COM_CUSTOMFILTERS_SETTING_CITY_LIST_DELETE_MES', 'setting_city_list.delete', 'COM_CUSTOMFILTERS_SETTING_CITY_LIST_DELETE');
 
         // Добавить кнопки !
         if (Factory::getUser()->authorise('core.edit', 'com_customfilters')) {
-            // Add the optimizer button.
-            $icon = 'health';
-            $height = '550';
-            $width = '875';
-            $top = 0;
-            $left = 0;
-            $onClose = '';
-            $alt = 'COM_CUSTOMFILTERS_OPTIMIZER';
 
-            $bar->appendButton('Popup', $icon, $alt, 'index.php?option=com_customfilters&view=optimizer&tmpl=component',
-                $width, $height, $top, $left, $onClose);
-
-
-
-
-            $bar->appendButton('Link',
-	            'new' , // $icon
-	            'COM_CUSTOMFILTERS_SETTING_SEO' , // $alt
-	            'index.php?option=com_customfilters&view=setting_seo_list' );
-
+	        $bar = Toolbar::getInstance('toolbar');
 
 	        /**
-	         * Кнопка - проверить таблицу
-	         */
-	        JToolBarHelper::custom(
-				$task = 'map_links_lean',
-		        $icon = 'shuffle',
-				$iconOver = 'shuffle',
-				$alt = 'COM_CUSTOMFILTERS_MAP_LINKS_CLEAN_CHECK',
-				$listSelect = false
-	        );
-
-
-
-	        /**
-	         * Фильтры по городам
+	         * К списку фильтров
 	         */
 			$bar->appendButton(
 				'Link',
-		        'vcard' , // $icon
-				'COM_CUSTOMFILTERS_SETTING_CITY_LIST', // $alt
-				'index.php?option=com_customfilters&view=setting_city_list'
+		        'exit' , // $icon
+				'COM_CUSTOMFILTERS_LIST_RETURN', // $alt
+				'index.php?option=com_customfilters&view=customfilters'
 			);
 
-
+	        /**
+	         * Кнопка - добавить фильтр CITY SEO
+	         */
+	        JToolBarHelper::custom(
+				$task = 'add_filter_city_seo',
+		        $icon = 'plus-2',
+				$iconOver = 'plus-2',
+				$alt = 'COM_CUSTOMFILTERS_ADD_FILTER_CITY_SEO',
+				$listSelect = false
+	        );
+			$this->document->addStyleDeclaration('span.icon-plus-2:before{color: #378137;}');
         }
 
         if (Factory::getUser()->authorise('core.administrator', 'com_customfilters')) {
@@ -189,7 +171,4 @@ class CustomfiltersViewCustomfilters extends \Joomla\CMS\MVC\View\HtmlView
         $this->document->addScriptDeclaration($script);
     }
 
-    protected function addLibrary(){
-
-    }
 }

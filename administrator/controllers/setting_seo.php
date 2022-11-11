@@ -20,26 +20,22 @@ use Joomla\CMS\MVC\Controller\FormController;
  */
 class CustomfiltersControllerSetting_seo extends FormController
 {
-    /**
-     * Proxy for getModel.
-     *
-     * @param string $name of the model.
-     * @param string $prefix for the PHP class name.
-     *
-     * @return CustomfiltersModelSetting_seo
-     * @since 1.0
-     */
-    public function getModel(
-        $name = 'Setting_seo',
-        $prefix = 'CustomfiltersModel',
-        $config = array('ignore_request' => true)
-    )
+	/**
+	 * Proxy for getModel.
+	 *
+	 * @param   string  $name    of the model.
+	 * @param   string  $prefix  for the PHP class name.
+	 * @param   bool[]  $config
+	 *
+	 * @return CustomfiltersModelSetting_seo
+	 * @since 1.0
+	 */
+    public function getModel( $name = 'Setting_seo', $prefix = 'CustomfiltersModel', $config = array('ignore_request' => true) ): CustomfiltersModelSetting_seo
     {
         /**
          * @var CustomfiltersModelSetting_seo Object
          */
-        $model = parent::getModel($name, $prefix, $config);
-        return $model;
+	    return parent::getModel($name, $prefix, $config);
     }
 
     /**

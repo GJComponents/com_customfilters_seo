@@ -13,6 +13,11 @@ class CustomfiltersViewForms_add extends HtmlView
 	 * @since 3.9
 	 */
 	public $form;
+	/**
+	 * @var array Список городов
+	 * @since 3.9
+	 */
+	public $ListCity;
 
 
 	/**
@@ -21,6 +26,8 @@ class CustomfiltersViewForms_add extends HtmlView
      */
     function display($tpl = null)
     {
+	    JLoader::registerNamespace( 'FiltersSeoNamespace' , JPATH_ADMINISTRATOR . '/components/com_customfilters/libraries' , $reset = false , $prepend = false , $type = 'psr4' );
+
 	    /**
 	     * @var CustomfiltersModelForms_add $model
 	     */
@@ -29,8 +36,33 @@ class CustomfiltersViewForms_add extends HtmlView
 		$app = \Joomla\CMS\Factory::getApplication();
 	    $layout = $app->input->get('layout' , 'add_city_seo' , 'STRING' );
 
+		$task = $app->input->get('task' , false , 'STRING' );
 
+
+	    switch ($task){
+		    case 'onAjaxGetChildrenArea' :
+			    // $Data['form_html'] = $this->loadTemplate( $layout );
+			    break;
+
+			case 'onAjaxSaveForm' : // Сохранение настроек фильтра по городам
+				$model->onAjaxSaveForm();
+
+			    break;
+		    default :
+
+	    }
+
+
+	    $this->ListCity = $model->getListCity();
 	    $Data['form_html'] = $this->loadTemplate( $layout );
+
+
+
+
+
+
+
+
 
 	    echo new JResponseJson( $Data );
 	    die();

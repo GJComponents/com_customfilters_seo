@@ -106,6 +106,10 @@ class CustomfiltersModelOptimizer extends JModelForm
      */
     public function optimize()
     {
+
+
+
+
         $this->setDynamicIndexes();
         $db = $this->getDbo();
         $indexes = array();
@@ -154,6 +158,10 @@ class CustomfiltersModelOptimizer extends JModelForm
     {
         $db = $this->getDbo();
         $indexes = $this->oldIndexes;
+
+
+
+
         // check each index if it is set
         foreach ($newIndexes as $tbl_name => $index) {
             if (empty($index))

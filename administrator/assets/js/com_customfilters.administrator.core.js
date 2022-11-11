@@ -112,13 +112,17 @@ window.customfiltersAdminCore = function () {
                 case "known_languages_change" :
                     self.updateKnownLanguagesElement(e.target)
                     break ;
+                case "changeCityPublished" :
+                    self.onChangeCityPublished(e.target)
+                    break ;
             }
         });
         // Event - click
         document.addEventListener('click', function (e) {
             console.log( 'customfilters.administrator.core' , e.target.dataset.evt );
             switch (e.target.dataset.evt) {
-                case "" :
+                case "loadChildrenArea" :
+                   self.loadChildrenArea( e.target );
                     break;
             }
         });
@@ -141,6 +145,100 @@ window.customfiltersAdminCore = function () {
         };
     }
     /**
+     * Событие снятие с публикации региона
+     * @param target
+     */
+    this.onChangeCityPublished = function (target){
+        var $form = $(target).closest('div#form_content')
+        var changeValue = +$(target).val();
+        var parentAlias = $(target).data('parent-alias')
+        if ( parentAlias.length ){
+            var $parentGroup = $form.find('div.accordion-group.' + parentAlias );
+            var $parentHeading = $parentGroup.children('div.accordion-heading');
+            var $parentUseRadio = $parentHeading.find('input[type="radio"]')
+
+            // disabled - для родительского региона
+            $parentUseRadio.attr("disabled",true) ;
+        }
+
+
+
+        console.log( 'com_customfilters.administrator.core' , parentAlias );
+        
+        var $accordionGroup = $(target).closest('.accordion-body');
+        var $accordionHeading = $accordionGroup.find('.accordion-heading');
+
+        var $accordionBody = $(target).closest('.accordion-body');
+
+
+        console.log( 'com_customfilters.administrator.core $accordionHeading' , $accordionHeading );
+
+        if ( !changeValue ) self._cleanChildrenArea( target ) ;
+
+
+        // accordion-body
+        console.log( 'com_customfilters.administrator.core' , target ); 
+
+        var $Form = $(target).closest('form');
+
+        var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
+        Data.formData = $Form.serialize();
+        Data.task = 'onAjaxSaveForm' ;
+        Data.layout = 'on_ajax_save_form' ;
+        self.AjaxPost( Data ).then(function (r){
+            console.log( 'com_customfilters.administrator.core' , r );
+            
+        },function (err){console.log(err)});
+
+        
+    }
+    /**
+     * Удалить дочерние регионы
+     * @param target
+     * @private
+     */
+    this._cleanChildrenArea = function ( target ){
+        var $accordionGroup = $(target).closest('div.accordion-group');
+        $accordionGroup.find('.accordion-heading + .accordion-body').collapse('hide');
+        var $accordionInner = $accordionGroup.find('div.accordion-inner');
+
+        console.log( 'com_customfilters.administrator.core' , $accordionInner );
+        
+        if ( $accordionGroup.hasClass('is_open')){
+            $accordionInner.find('div.accordion').remove();
+            $accordionGroup.removeClass('is_open')
+
+        }
+    }
+    /**
+     * Загрузить дочерние регионы
+     * @param target
+     */
+    this.loadChildrenArea = function (target){
+        var $accordionGroup = $(target).closest('div.accordion-group');
+        var $accordionInner = $accordionGroup.find('div.accordion-inner')
+        if ( $accordionGroup.hasClass('is_open')){
+            self._cleanChildrenArea( target )
+            return ;
+        }
+        var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
+        Data.task = 'onAjaxGetChildrenArea' ;
+        Data.layout = 'add_city_seo_cities_settings' ;
+        Data.parentRegion = $accordionGroup.find('input.city_setting_city_id').val();
+        Data.parentAlias = $accordionGroup.find('input.city_setting_city_alias').val();
+        Data.parentName = $accordionGroup.find('fieldset input[type="radio"]:checked').attr('name');
+        
+        console.log( 'com_customfilters.administrator.core' , Data.parentName );
+        
+        
+        self.AjaxPost( Data ).then(function (r){
+            $accordionInner.append(r.data.form_html);
+            $accordionGroup.addClass('is_open');
+        },function (err){console.log(err)});
+        console.log( 'com_customfilters.administrator.core target' , target ); 
+        
+    }
+    /**
      * Создание фильтра - "Отбор по городам"
      */
     this.addFilterCitySeo = function (){
@@ -151,8 +249,9 @@ window.customfiltersAdminCore = function () {
 
         var AjaxPost = self.AjaxPost( Data )
         var getModal = self.__loadModul.Fancybox();
-        var loadCss = self.load.css('/libraries/GNZ11/assets/js/modules/Bxslider/4.2.15/jquery.bxslider.min.css'),
-        Promise.all([AjaxPost , getModal ]).then(function (DataPromise){
+
+        // var loadCss = self.load.css('/administrator/components/com_customfilters/assets/css/formCitySeo.css');
+        Promise.all([AjaxPost , getModal /*, loadCss*/ ]).then(function (DataPromise){
             var Html = DataPromise[0].data.form_html;
             var Modal = DataPromise[1]
 
@@ -171,7 +270,7 @@ window.customfiltersAdminCore = function () {
         },function (err){console.log(err)});*/
     }
     /**
-     * Изменения запрат для фильтра - генерить страницы результата поиска с robot INDEX
+     * Изменения запрет для фильтра - генерить страницы результата поиска с robot INDEX
      * @param El
      */
     this.updateOnSeoElement = function (El){
@@ -192,7 +291,7 @@ window.customfiltersAdminCore = function () {
         Data.task = 'updateKnownLanguagesElement' ;
         Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
         Data.status = El.value ;
-        console.log( 'com_customfilters.administrator.core' , Data );
+
         self.AjaxPost( Data ).then(function (r){
             console.log( 'customfilters.administrator.core' , r );
 

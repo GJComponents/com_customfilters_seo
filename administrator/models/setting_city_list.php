@@ -14,6 +14,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Table\Table;
 use Joomla\Registry\Registry;
 
 /**
@@ -22,7 +23,7 @@ use Joomla\Registry\Registry;
  * @author    Sakis Terz
  * @since    1.0
  */
-class CustomfiltersModelCustomfilters extends JModelList
+class CustomfiltersModelSetting_city_list extends JModelList
 {
     /**
      * Model context
@@ -47,22 +48,54 @@ class CustomfiltersModelCustomfilters extends JModelList
      */
     public function __construct($config = array())
     {
-        if (empty($config['filter_fields'])) {
-            $config['filter_fields'] = [
-                'filter_id', 'cf.filter_id',
-                'alias', 'cf.alias',
-                'ordering', 'cf.ordering',
-                'data_type', 'cf.data_type',
-                'custom_title', 'vmc.custom_title',
-                'field_type', 'vmc.field_type',
-                'type_id', 'cf.type_id',
-                'published', 'cf.published',
-                'custom_id', 'cf.vm_custom_id',
-            ];
-        }
+	    Table::addIncludePath(JPATH_SITE.'/administrator/components/com_customfilters/tables');
         parent::__construct($config);
-
     }
+
+	/**
+	 * Удалить фильтры городов
+	 * @param array $pks
+	 *
+	 * @return bool|void
+	 * @since 3.9
+	 */
+	public function delete( $pks ){
+		$table = $this->getTable();
+
+		// Iterate the items to delete each one.
+		foreach ($pks as $i => $pk)
+		{
+			if ($table->load($pk))
+			{
+				/*if ($this->canDelete($table))
+				{
+					$context = $this->option . '.' . $this->name;
+				}*/
+
+				try
+				{
+				    // Code that may throw an Exception or Error.
+					$table->delete($pk);
+				    // throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+				}
+				catch (\Exception $e)
+				{
+				    // Executed only in PHP 5, will not be reached in PHP 7
+				    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+				    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+				    die(__FILE__ .' '. __LINE__ );
+				}
+
+			}
+		}
+
+		return true ;
+
+
+	}
+
+
+
 
     /**
      * Method to auto-populate the model state.
@@ -137,79 +170,92 @@ class CustomfiltersModelCustomfilters extends JModelList
         $db = Factory::getDbo();
         $query = $db->getQuery(true);
 
+
+
+
         //table cf_customfields
-        $query->select('cf.id AS id');
-        $query->select('cf.ordering AS ordering');
-        $query->select('cf.vm_custom_id AS vm_custom_id');
-        $query->select('cf.alias AS alias');
-        $query->select('cf.published AS published');
+        $query->select('sc.id AS id');
+//        $query->select('sc.ordering AS ordering');
+//        $query->select('sc.vm_custom_id AS vm_custom_id');
+        $query->select('sc.alias AS alias');
+        $query->select('sc.published AS published');
 
 		// if false - field no SEF proc.
-        $query->select('cf.on_seo AS on_seo');
+        $query->select('sc.on_seo AS on_seo');
 	    if ( JLanguageMultilang::isEnabled() )
 	    {
 		    $query->select('cf.known_languages AS known_languages');
 	    }
 
 
-        $query->select('cf.type_id AS type_id');
-        $query->select('cf.data_type AS data_type');
-        $query->select('cf.order_by AS order_by');
-        $query->select('cf.order_dir AS order_dir');
-        $query->select('cf.params AS params');
-        $query->from('#__cf_customfields AS cf');
+        $query->select('sc.type_id AS type_id');
+        $query->select('sc.data_type AS data_type');
+//        $query->select('sc.order_by AS order_by');
+//        $query->select('sc.order_dir AS order_dir');
+        $query->select('sc.params AS params');
+
+		$query->from('#__cf_customfields_setting_city AS sc');
 
         //table vituemart_customfields
-        $query->select('vmc.virtuemart_custom_id AS custom_id');
-        $query->select('vmc.custom_title AS custom_title');
-        $query->select('vmc.field_type AS field_type');
-        $query->select('vmc.custom_element AS custom_element');
-        $query->select('vmc.custom_desc AS custom_descr');
+//        $query->select('vmc.virtuemart_custom_id AS custom_id');
+//        $query->select('vmc.custom_title AS custom_title');
+//        $query->select('vmc.field_type AS field_type');
+//        $query->select('vmc.custom_element AS custom_element');
+//        $query->select('vmc.custom_desc AS custom_descr');
 
         //joins
-        $query->join('INNER', '#__virtuemart_customs AS vmc ON cf.vm_custom_id=vmc.virtuemart_custom_id');
+//        $query->join('INNER', '#__virtuemart_customs AS vmc ON cf.vm_custom_id=vmc.virtuemart_custom_id');
 
         //set the wheres
-        if ($use_filters) {
+        if ( $use_filters ) {
             $where = array();
             $where_q = '';
 
             //display type filter
             $disp_types = $this->getState('filter.type_id');
-
-            if (!empty($disp_types)) {
+            /*if (!empty($disp_types)) {
                 $disp_types = array_map([$db, 'quote'], $disp_types);
-                $query->where('cf.type_id IN (' . implode(',', $disp_types) .')');
-            }
+                $query->where('sc.type_id IN (' . implode(',', $disp_types) .')');
+            }*/
+
+
             //published filter
             $published = $this->getState('filter.published');
 
-            if (is_numeric($published)) {
-                $query->where('cf.published = ' . (int)$published);
-            } else if ($published === '') {
-                $query->where('(cf.published = 0 OR cf.published = 1)');
+            /*if (is_numeric($published)) {
+                $query->where('sc.published = ' . (int)$published);
             }
+			else if ($published === '') {
+                $query->where('(sc.published = 0 OR cf.published = 1)');
+            }*/
 
             //search filter
             $search = trim($this->getState('filter.search'));
-            if (!empty($search)) {
+            /*if (!empty($search)) {
                 if (stripos($search, 'id:') === 0) {
                     $query->where('cf.filter_id = ' . (int)substr($search, 3));
                 } else {
                     $search = $db->quote('%' . $db->escape($search, true) . '%');
                     $query->where('(vmc.custom_title LIKE ' . $search . ' || vmc.custom_desc LIKE ' . $search . ')');
                 }
-            }
+            }*/
         }
 
         // Add the list ordering clause.
-        $orderCol = $this->state->get('list.ordering', 'cf.ordering');
+        /*$orderCol = $this->state->get('list.ordering', 'cf.ordering');
         $orderDirn = $this->state->get('list.direction', 'ASC');
         if ($orderCol == 'ordering') {
-            $orderCol = 'cf.ordering';
+            $orderCol = 'sc.ordering';
         }
-        $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
+        $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));*/
+
+
         $query = (string)$query;
+
+//		echo'<pre>';print_r( $query );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
         return $query;
     }
 
@@ -234,20 +280,7 @@ class CustomfiltersModelCustomfilters extends JModelList
 
 
 
-	    // Выборка для фильтров Городов
-	    $db = Factory::getDbo();
-	    $Query = $db->getQuery(true );
-	    $Query->select('*')->from('#__cf_customfields_setting_city');
-	    $where = [
-		    $db->quoteName('type_id') .'='. $db->quote( '13' ),
-	    ];
-	    $Query->where($where);
-	    $db->setQuery($Query);
-	    $resArrCityFiler = $db->loadObjectList();
-	    foreach ( $resArrCityFiler as $item)
-	    {
-		    $items[] = $item ;
-	    }#END FOREACH
+
 
 		
 
@@ -270,8 +303,7 @@ class CustomfiltersModelCustomfilters extends JModelList
             }
         }
 
-//		echo'<pre>';print_r( $items );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
+
 
 
         return $items;
@@ -281,11 +313,14 @@ class CustomfiltersModelCustomfilters extends JModelList
      * @param string $type
      * @param string $prefix
      * @param array $config
-     * @return bool|\Joomla\CMS\Table\Table|JTable
+     *
+     * @return bool|Table|JTable
      * @since    1.0.0
      */
-    public function getTable($type = 'Customfilter', $prefix = 'Customfilters', $config = array())
+    public function getTable($type = 'Setting_city_list', $prefix = 'CustomfiltersTable', $config = array())
     {
+
+		
         return JTable::getInstance($type, $prefix, $config);
     }
 

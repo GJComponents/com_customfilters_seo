@@ -667,7 +667,7 @@ class cftools
 
 			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 			{
-			    echo'<pre>';print_r( $cust_filters );echo'</pre>'.__FILE__.' '.__LINE__;
+//			    echo'<pre>';print_r( $cust_filters );echo'</pre>'.__FILE__.' '.__LINE__;
 //			    die(__FILE__ .' '. __LINE__ );
 
 			}
