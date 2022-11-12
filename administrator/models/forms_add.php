@@ -60,29 +60,28 @@ class CustomfiltersModelForms_add extends AdminModel
 	 * @since 3.9
 	 */
 	protected $cityTableName = '#__cf_customfields_city';
+
 	/**
-     * Method to get the record form.
-     *
-     * @param   array    $data      An optional array of data for the form to interrogate.
-     * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
-     *
-     * @return  Form|boolean    A Form object on success, false on failure
-     * @since   1.0.0
-     */
+	 * Способ получения формы записи.
+	 * Method to get the record form.
+	 *
+	 * @param   array    $data      Необязательный массив данных для опроса формы.
+	 *                              An optional array of data for the form to interrogate.
+	 * @param   boolean  $loadData  Истина, если форма должна загружать свои собственные данные (случай по умолчанию),
+	 *                              ложь, если нет.
+	 *                              True if the form is to load its own data (default case), false if not.
+	 *
+	 * @return  Form|boolean    Объект Form в случае успеха, false в случае неудачи  / A Form object on success, false on failure
+	 * @since   1.0.0
+	 */
     public function getForm($data = [], $loadData = true)
     {
         // Get the form.
         $form = $this->loadForm(
             'com_customfilters.forms_add',
             'forms_add', array('control' => 'jform', 'load_data' => $loadData));
-
-        if (empty($form))
-        {
-            return false;
-        }
-
-        return $form;
-    }
+	    return !empty($form) ? $form : false;
+	}
 
     /**
      * Method to get the data that should be injected in the form.
@@ -157,6 +156,7 @@ class CustomfiltersModelForms_add extends AdminModel
 	 * Сохранение формы фильтра городов
 	 * @return void
 	 * @throws Exception
+	 * @since 3.9
 	 */
 	public function onAjaxSaveForm(){
 		$app = \Joomla\CMS\Factory::getApplication();
@@ -241,11 +241,6 @@ class CustomfiltersModelForms_add extends AdminModel
 		    die(__FILE__ .' '. __LINE__ );
 		}
 		return $cityAssocList ;
-
-
-
-
-		return $cityAssocList ; 
 
 	}
 

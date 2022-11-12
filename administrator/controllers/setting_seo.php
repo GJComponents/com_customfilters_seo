@@ -38,14 +38,17 @@ class CustomfiltersControllerSetting_seo extends FormController
 	    return parent::getModel($name, $prefix, $config);
     }
 
-    /**
-     * Сняить с публикации URL для фильтра
-     * @param $cidname
-     * @param $table
-     * @param $redirect
-     * @return void
-     * @since 3.9
-     */
+	/**
+	 * Снять с публикации URL для фильтра
+	 *
+	 * @param int $cidname
+	 * @param $table
+	 * @param $redirect
+	 *
+	 * @return void
+	 * @throws Exception
+	 * @since 3.9
+	 */
     public function unpublish( $cidname=0,$table=0,$redirect = 0 ){
 
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
@@ -61,15 +64,19 @@ class CustomfiltersControllerSetting_seo extends FormController
             \JRoute::_( 'index.php?option=' . $this->option . '&view=' . $view , false )
         );
     }
-    /**
-     * Опубликовать URL для фильтра
-     * URL для фильтра
-     * @param $cidname
-     * @param $table
-     * @param $redirect
-     * @return void
-     * @since 3.9
-     */
+
+	/**
+	 * Опубликовать URL для фильтра
+	 * URL для фильтра
+	 *
+	 * @param $cidname
+	 * @param $table
+	 * @param $redirect
+	 *
+	 * @return void
+	 * @throws Exception
+	 * @since 3.9
+	 */
     public function publish( $cidname=0,$table=0,$redirect = 0 ){
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
@@ -86,22 +93,15 @@ class CustomfiltersControllerSetting_seo extends FormController
 
     }
 
-    public function save( $key = null, $urlVar = null )
+    public function save( $key = null, $urlVar = null ): bool
     {
-
-        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
-
-//        echo'<pre>';print_r( $key );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre>';print_r( $this->input );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        die( __FILE__ .' ' . __LINE__);
-
+		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
         parent::save( $key , $urlVar  );
         return true;
     }
 
-    public function cancel($key = null)
+    public function cancel($key = null): bool
     {
-
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $this->setRedirect(JRoute::_('index.php?option=com_customfilters&view=setting_seo_list', false));
