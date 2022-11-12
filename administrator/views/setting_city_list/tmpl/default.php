@@ -185,18 +185,16 @@ if ($saveOrder) {
                         <?php echo HTMLHelper::_('jgrid.published', $item->published, $i,'customfilters.'); ?>
 					</td>
                     <!--  title -->
-                    <td class="left">
-                        <?php echo $item->alias ?>
+                    <td class="left title_item">
+                        <a href="<?= JRoute::_('index.php?option=com_customfilters&view=setting_city&id='.$item->id ) ?>" >
+	                        <?= $item->alias ?>
+                        </a>
 
                         <?php
-                        // if there is translation different to the title, display that as well.
-                        $titleTranslated = Text::_($item->custom_title);
-                        if($titleTranslated != $item->custom_title) {?>
-                            <div class="small">
-                                <?php echo $titleTranslated ?>
-                            </div>
-                        <?php
-                        }?>
+//                        echo'<pre>';print_r( $item->id );echo'</pre>'.__FILE__.' '.__LINE__;
+//                        die(__FILE__ .' '. __LINE__ );
+
+                        ?>
                     </td>
 
 
