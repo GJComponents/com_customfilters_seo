@@ -3,8 +3,17 @@
 
 INSTALL : <br>
 [Library GNZ11.zip](https://github.com/gartes/GNZ11/archive/refs/heads/master.zip)<br>
+Компонент фильтров
 [Component - Filter-Seo.zip](https://github.com/GJComponents/com_customfilters_seo/archive/refs/heads/main.zip)<br>
+Модуль для вывода фильтров <br>
 [Module - mod_cf_filtering.zip](https://github.com/GJModules/mod_cf_filtering/archive/refs/heads/main.zip)<br>
+
+
+Создание карты <br>
+[Component - com_osmap.zip](https://github.com/GJComponents/com_osmap/archive/refs/heads/main.zip)<br>
+Модуль для фонового создания карты<br>
+[Module - mod_osmap_background_toolbar.zip](https://github.com/GJModules/mod_osmap_background_toolbar/archive/refs/heads/main.zip)<br>
+
 
 Модуль для вывода фильтров https://github.com/GJModules/mod_cf_filtering
 <br><br><br>
