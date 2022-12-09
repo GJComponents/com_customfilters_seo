@@ -54,59 +54,5 @@ class CustomfiltersViewSetting_seo extends JViewLegacy
         die();
 
 
-
-
-        //load model
-        JModelLegacy::addIncludePath( JPATH_ADMINISTRATOR . '/components/com_customfilters/models/setting_seo.php' );
-        JLoader::register('ModCfFilteringHelper' ,JPATH_SITE . '/modules/mod_cf_filtering/helper.php');
-        JLoader::register('OptionsHelper' ,JPATH_SITE . '/modules/mod_cf_filtering/optionsHelper.php');
-
-        $module = JModuleHelper::getModule('mod_cf_filtering');
-
-
-        $moduleParams = new JRegistry($module->params);
-        $ModCfFilteringHelper = new ModCfFilteringHelper($moduleParams, $module);
-
-        //  custom_f_29
-//        $custom_flt = cftools::getCustomFilters( $module->params );
-        $Filter = $ModCfFilteringHelper->getFilters();
-
-        echo'<pre>';print_r( $Filter );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-        die( __FILE__ .' : ' . __LINE__);
-
-
-        /**
-         * @var CustomfiltersModelCustomfilters
-         */
-        $model = JModelLegacy::getInstance('Customfilters', 'CustomfiltersModel');
-        $dataArr = $model->getCustomFilters();
-        echo'<pre>';print_r( $dataArr );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-
-//        $input = JFactory::getApplication()->input;
-//        $modelCustomfilters = $this->getModel('Customfilters');
-
-
-
-
-//        die( __FILE__ .' : ' . __LINE__);
-
-//        $mapbounds = $input->get('mapBounds', array(), 'ARRAY');
-        /*if ($mapbounds)
-        {
-            $records = $model->getMapSearchResults($mapbounds);
-            if ($records)
-            {
-                echo new JResponseJson($records);
-            }
-            else
-            {
-                echo new JResponseJson(null, JText::_('COM_HELLOWORLD_ERROR_NO_RECORDS'), true);
-            }
-        }
-        else
-        {
-            $records = array();
-            echo new JResponseJson(null, JText::_('COM_HELLOWORLD_ERROR_NO_MAP_BOUNDS'), true);
-        }*/
     }
 }

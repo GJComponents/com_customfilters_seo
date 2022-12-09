@@ -61,11 +61,6 @@ class CustomfiltersViewProducts extends cfView
         $this->showproducts = true;
         $this->showsearch = false;
 
-
-
-
-
-
         // get menu parameters
         $this->menuParams = cftools::getMenuparams();
         $vendorId = 1;
@@ -346,20 +341,25 @@ class CustomfiltersViewProducts extends cfView
         return $this;
     }
 
-    /**
-     * Добавьте канонические URL-адреса в заголовок страниц.
-     * Если есть другой канонический заменяет его на новый
-     *
-     * Add canonical urls to the head of the pages
-     * If there is another canonical replaces it with a new one
-     *
-     * @since 2.2.0
-     */
+	/**
+	 * Добавьте канонические URL-адреса в заголовок страниц.
+	 * Если есть другой канонический заменяет его на новый
+	 *
+	 * Add canonical urls to the head of the pages
+	 * If there is another canonical replaces it with a new one
+	 *
+	 * @throws Exception
+	 * @since 2.2.0
+	 */
     protected function setCanonical()
     {
-
-
-
+	    /**
+	     * @var \Joomla\Registry\Registry $paramsComponent - параметры компонента
+	     */
+	    $paramsComponent = ComponentHelper::getParams('com_customfilters');
+	    /**
+	     * @var array $inputs - выбранные фильтры + категории VM
+	     */
         $inputs = CfInput::getInputs();
 
         if (isset($inputs['virtuemart_category_id']) && count($inputs['virtuemart_category_id']) == 1
@@ -413,15 +413,18 @@ class CustomfiltersViewProducts extends cfView
 		    if ( seoTools::checkOffFilters( $inputs ) || seoTools_uri::$UrlNoIndex )
             {
 
+	            $action_noindex = $paramsComponent->get('action_noindex' , 'noindex,nofollow');
 				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 				{
-
-				    echo'<pre style="color: red ">';print_r( 'Страница - noindex,follow' );echo'</pre>'.__FILE__.' '.__LINE__;
-
+					$app = JFactory::getApplication();
+					$app->enqueueMessage( '<span style="color: red "> Страница - ' . $action_noindex .'</span>' );
+				    echo'<pre style="color: red ">';print_r( 'Страница - ' . $action_noindex );echo'</pre>'.__FILE__.' '.__LINE__;
 				}
-                $this->document->setMetaData('robots' , 'noindex,follow' );
+                $this->document->setMetaData('robots' , $action_noindex );
 
             }else{
+
+			    $this->document->setMetaData('robots' , 'index,follow' );
 			    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 			    {
 				    echo'<pre style="color:green ">';print_r( 'Страница - разрешена для индекса' );echo'</pre>'.__FILE__.' '.__LINE__;

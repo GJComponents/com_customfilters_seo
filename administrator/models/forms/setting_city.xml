@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<!-- Название фильтра -->
+	<field name="alias"
+		   type="text"
+		   default=""
+		   class="alias "
+		   size="20"
+		   readonly=""
+		   required="1"
+		   label="SETTING_CITY_TITLE_FILTER"
+		   description="SETTING_CITY_TITLE_FILTER_DESC"
+		   showon=""
+		   hint=""
+		   pattern="[A-Za-zА-Яа-я\s0-9-_]+"
+
+		   filter="raw"/>
+	<fieldset name="basic" addfieldpath="/administrator/components/com_virtuemart/fields">
+		<field name="vm_categories_id"
+			   type="vmseocategories"
+			   class="chosen-select vm_categories_id"
+			   multiple="1"
+			   label="SETTING_CITY_VMCATEGORIES"
+			   description="SETTING_CITY_VMCATEGORIES_DESC"
+			   showon=""
+			   required="1"
+			   hint=""
+			   filter="raw"/>
+
+	</fieldset>
+	<!-- Статистика для списка городов-->
+	<fieldset name="city_statistic" addfieldpath="/libraries/GNZ11/Extensions/Fields" >
+		<fields name="statistic">
+			<fields name="FilterArea">
+				<!-- ! Требует наличие и подключения библиотеки GNZ11 -->
+				<!-- <fieldset addfieldpath="/libraries/GNZ11/Extensions/Fields" /> -->
+				<field name="fileMapName"
+					   type="textlinkopen"
+					   default=""
+					   class="fileMapName span10"
+					   size="20"
+					   readonly="1"
+					   required=""
+					   label="SETTING_CITY_FILE_MAP_NAME"
+					   description="SETTING_CITY_FILE_MAP_NAME_DESC"
+					   showon=""
+					   hint=""
+					   pattern=""
+					   filter="raw" />
+				<field name="LastModified"
+					type="text"
+					default=""
+					class="LastModified "
+					size="20"
+					readonly="1"
+					required=""
+					label="SETTING_CITY_LAST_MODIFIED"
+					description="SETTING_CITY_LAST_MODIFIED_DESC"
+					showon=""
+					hint=""
+					pattern="[A-Za-z\s0-9]+"
+					filter="raw" />
+					<field name="urlLocCount"
+						type="text"
+						default=""
+						class="urlLocCount span1"
+						size="20"
+						readonly="1"
+						required=""
+						label="SETTING_CITY_URL_LOC_COUNT"
+						description="SETTING_CITY_URL_LOC_COUNT_DESC"
+						showon=""
+						hint=""
+						pattern="[A-Za-z\s0-9]+"
+						filter="raw" />
+						
+						
+					
+
+			</fields>
+		</fields>
+	</fieldset>
+
+	<fieldset name="custom_statistic">
+		<fields name="statistic">
+			<fields name="FilterCustoms">
+				<field name="fileMapName"
+					   type="textlinkopen"
+					   default=""
+					   class="fileMapName span10"
+					   size="20"
+					   readonly="1"
+					   required=""
+					   label="SETTING_CITY_FILE_MAP_NAME"
+					   description="SETTING_CITY_FILE_MAP_NAME_DESC"
+					   showon=""
+					   hint=""
+					   pattern=""
+					   filter="raw" />
+
+
+
+
+				<field name="LastModified"
+					   type="text"
+					   default=""
+					   class="LastModified "
+					   size="20"
+					   readonly="1"
+					   required=""
+					   label="SETTING_CITY_LAST_MODIFIED"
+					   description="SETTING_CITY_LAST_MODIFIED_DESC"
+					   showon=""
+					   hint=""
+					   pattern="[A-Za-z\s0-9]+"
+					   filter="raw" />
+				<field name="urlLocCount"
+					   type="text"
+					   default=""
+					   class="urlLocCount span1"
+					   size="20"
+					   readonly="1"
+					   required=""
+					   label="SETTING_CITY_URL_LOC_COUNT"
+					   description="SETTING_CITY_URL_LOC_COUNT_DESC"
+					   showon=""
+					   hint=""
+					   pattern="[A-Za-z\s0-9]+"
+					   filter="raw" />
+			</fields>
+		</fields>
+	</fieldset>
+
+
+	<fieldset name="customs_settings">
+		<field
+				name="params_customs"
+				type="subform"
+				label="Subform Field"
+				description="Subform Field Description"
+				multiple="true"
+				min="0"
+				max="10"
+		>
+			<form>
+				 <field name="text_prop"
+				 	type="text"
+				 	default=""
+				 	class="text_prop translite"
+				 	size="20"
+				 	readonly=""
+				 	required="1"
+				 	label="SETTING_CITY_TEXT_PROP"
+				 	description="SETTING_CITY_TEXT_PROP_DESC"
+				 	showon=""
+				 	hint=""
+				 	pattern="[A-Za-zА-Яа-я\s0-9-_]+"
+				 	filter="raw" />
+			<field name="sef_alias"
+				type="text"
+				default=""
+				class="sef_alias "
+				size="20"
+				readonly="1"
+				required="1"
+				label="SETTING_CITY_SEF_ALIAS"
+				description="SETTING_CITY_SEF_ALIAS_DESC"
+				showon=""
+				hint=""
+				pattern="[a-z0-9-_]+"
+				filter="raw" />
+
+
+
+
+			</form>
+		</field>
+	</fieldset>
+	<fieldset name="hidden_fields">
+		<field name="id"
+			type="hidden"
+
+			filter="raw" />
+
+
+	</fieldset>
+
+</form>

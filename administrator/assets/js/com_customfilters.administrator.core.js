@@ -73,6 +73,7 @@ window.customfiltersAdminCore = function () {
         this.JoomlaSubmitInit();
 
 
+
     };
 
     /**
@@ -119,6 +120,8 @@ window.customfiltersAdminCore = function () {
         });
         // Event - click
         document.addEventListener('click', function (e) {
+
+
             console.log( 'customfilters.administrator.core' , e.target.dataset.evt );
             switch (e.target.dataset.evt) {
                 case "loadChildrenArea" :
@@ -126,6 +129,14 @@ window.customfiltersAdminCore = function () {
                     break;
             }
         });
+        // Event - keyup
+        document.addEventListener("keyup", function (e) {
+            if ( $(e.target).hasClass('translite')){
+                self.onKeyupSetTranslite(e)
+            }
+            console.log( 'com_customfilters.administrator.core' , e.target );
+        });
+         
     }
     /**
      * Установка перехвата для событий Joomla.submitbutton
@@ -140,9 +151,64 @@ window.customfiltersAdminCore = function () {
                 case 'add_filter_city_seo':
                     self.addFilterCitySeo();
                     break
+                // TODO -- Добавить в шаблон файла
+                case 'setting_city.save':
+                     var form = document.getElementById("adminForm");
+                     if ( document.formvalidator.isValid( form ) ){
+                         JoomlaSubmitButtonClone (task)
+                     }else{
+                         var msg = [];
+                         var $alertHeading = $('.alert-heading');
+                         $alertHeading.text('Error');
+     
+                         msg.push('Invalid input, please verify again!');
+                         var $invalidEl = $(form).find( '.invalid[aria-invalid="true"]' )
+                         console.log( 'com_customfilters.administrator.core' , $invalidEl );
+
+                         /*if (  $invalidEl.length > 0) {
+                             var message = Joomla.JText._('JLIB_FORM_FIELD_INVALID');
+                             var error = {"error": []};
+                             for (var i = $invalidEl.length - 1; i >= 0; i--) {
+                                var label = jQuery($invalidEl[i]).data("label");
+                                 if (label) {
+                                     error.error.push(message + label.text().replace("*", ""));
+                                 }
+                             }
+                             console.log( 'com_customfilters.administrator.core' , error ); 
+
+                             Joomla.renderMessages(error);
+                             return false;
+                         }*/
+
+
+                         /*if($('email').hasClass('invalid')){
+                             msg.push('Invalid Email');
+                         }
+                         $alertHeading.parent().append( '<div>'+msg.join('\n')+'</div>' )
+                         // document.getElementById('system-message-container').innerHTML = '<div>'+msg.join('\n')+'</div>';
+                         return false;*/
+                     }
+                    break
                 default : JoomlaSubmitButtonClone (task)
             }
         };
+    }
+
+    /**
+     * Ввод текста в поле - получение Translite
+     * @param event
+     */
+    this.onKeyupSetTranslite  = function (event) {
+        var $sefAlias = $(event.target).closest('div.subform-repeatable-group').find('input.sef_alias')
+        var Data = JSON.parse(JSON.stringify(self.AjaxDefaultData));
+        Data.view = 'setting_city';
+        Data.task = 'onKeyupSetTranslite';
+        Data.val = event.target.value;
+        self.AjaxPost(Data).then(function (r) {
+            $sefAlias.val(r.data)
+        }, function (err) {
+            console.log('com_customfilters.administrator.core', err);
+        });
     }
     /**
      * Событие снятие с публикации региона
@@ -182,10 +248,18 @@ window.customfiltersAdminCore = function () {
         var $Form = $(target).closest('form');
 
         var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
-        Data.formData = $Form.serialize();
-        Data.task = 'onAjaxSaveForm' ;
+        Data.jform = $Form.serialize();
+        // Data.view = 'forms_add' ;
+        Data.view = 'setting_city' ;
+        // Data.task = 'onAjaxSaveForm' ;
+        Data.task = 'save' ;
         Data.layout = 'on_ajax_save_form' ;
         self.AjaxPost( Data ).then(function (r){
+            if ( r.success ){
+                $Form.find('#jform_id').val( r.data.id );
+                console.log( 'com_customfilters.administrator.core' , $Form ); 
+
+            }
             console.log( 'com_customfilters.administrator.core' , r );
             
         },function (err){console.log(err)});
@@ -215,15 +289,19 @@ window.customfiltersAdminCore = function () {
      * @param target
      */
     this.loadChildrenArea = function (target){
+        var $Form = $(target).closest('form');
         var $accordionGroup = $(target).closest('div.accordion-group');
-        var $accordionInner = $accordionGroup.find('div.accordion-inner')
+        var $accordionInner = $accordionGroup.find('div.accordion-inner');
+
         if ( $accordionGroup.hasClass('is_open')){
             self._cleanChildrenArea( target )
             return ;
         }
         var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
+        Data.view = 'setting_city' ;
         Data.task = 'onAjaxGetChildrenArea' ;
         Data.layout = 'add_city_seo_cities_settings' ;
+        Data.id = $Form.find('input#jform_id').val() ;
         Data.parentRegion = $accordionGroup.find('input.city_setting_city_id').val();
         Data.parentAlias = $accordionGroup.find('input.city_setting_city_alias').val();
         Data.parentName = $accordionGroup.find('fieldset input[type="radio"]:checked').attr('name');
@@ -244,20 +322,33 @@ window.customfiltersAdminCore = function () {
     this.addFilterCitySeo = function (){
         var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
         Data.task = 'onAjaxGetFormAddFilterCitySeo' ;
-        Data.view = 'forms_add' ;
-        Data.layout = 'add_city_seo' ;
+        Data.view = 'setting_city' ;
+        // Data.layout = 'default' ;
 
         var AjaxPost = self.AjaxPost( Data )
         var getModal = self.__loadModul.Fancybox();
 
         // var loadCss = self.load.css('/administrator/components/com_customfilters/assets/css/formCitySeo.css');
-        Promise.all([AjaxPost , getModal /*, loadCss*/ ]).then(function (DataPromise){
+        var subformRepeatable = self.load.css('/media/system/js/subform-repeatable.js');
+        Promise.all([AjaxPost , getModal , subformRepeatable /*, loadCss*/ ]).then(function (DataPromise){
             var Html = DataPromise[0].data.form_html;
             var Modal = DataPromise[1]
 
             Modal.open(Html, {
-                baseClass: "addFilterCitySeo", // Класс основного элемента
+                baseClass: "addFilterCitySeo setting_city_modal", // Класс основного элемента
                 touch: false,
+                // Перед началом анимации открытия
+                beforeShow: function (instance, current) {},
+
+                // Когда контент загружен и анимирован
+                afterShow: function (instance, current) {
+                    var $subForm = $('.setting_city_modal').find('div.subform-repeatable')
+                    console.log( 'com_customfilters.administrator.core' , $subForm );
+
+
+
+                    // Modal.setTimeOut(8000); // Окно будет закрыто через 8 секунд
+                },
             });
             console.log('com_customfilters.administrator.core', DataPromise);
 
@@ -335,6 +426,8 @@ window.customfiltersAdminCore = function () {
                 Ajax.ReturnRespond = true;
                 // Отправить запрос
                 Ajax.send(data, 'customfiltersAdminCore', Params).then(function (r) {
+                    console.log( 'com_customfilters.administrator.core' , r ); 
+                    
                     resolve(r);
                 }, function (err) { console.error(err);   reject(err); })
             });

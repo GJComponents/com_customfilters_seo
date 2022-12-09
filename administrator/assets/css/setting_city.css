@@ -1,0 +1,36 @@
+.btn-toolbar #toolbar-plus-2{float: right;}
+.tab-content .right-bar{}
+.tab-content .right-bar .control-group {
+    /* border-bottom: 1px solid #ccc; */
+    padding: 0 0;
+}
+.tab-content .right-bar .control-group:nth-child(2){}
+.tab-content .right-bar .control-group:nth-child(2) > .control-label,
+.tab-content .right-bar .control-group:nth-child(3) > .control-label{
+    float: left;
+    margin-right: 10px;
+    margin-top: 5px;
+    min-width: 130px;
+}
+.tab-content .right-bar .control-group:nth-child(2) > .controls{}
+.tab-content .right-bar .btn-open_map_file{
+    margin-top: 25px;
+}  
+.city-statistic{}
+.setting_city_modal{}
+.name-element {
+    width: 100%;
+    float: left;
+    padding: 5px 0;
+}
+.name-element .control-group > div {
+    float: left;
+}
+.name-element .control-label {
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+#adminForm .table-city{
+
+}

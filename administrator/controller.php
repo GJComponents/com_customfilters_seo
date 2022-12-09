@@ -33,14 +33,17 @@ class CustomfiltersController extends JControllerLegacy
      */
     public function display($cachable = false, $urlparams = false)
     {
+	    // TODO - для разработки формы городов
+	    $doc = \Joomla\CMS\Factory::getDocument();
+	    $doc->addStyleSheet('/administrator/components/com_customfilters/assets/css/formCitySeo.css');
+
         $input = Factory::getApplication()->input;
         $view = $input->get('view', 'customfilters', '');
 
-        echo'<pre>';print_r( $view );echo'</pre>'.__FILE__.' '.__LINE__;
-
-		// TODO - для разработки формы городов
-		$doc = \Joomla\CMS\Factory::getDocument();
-	    $doc->addStyleSheet('/administrator/components/com_customfilters/assets/css/formCitySeo.css');
+	    if ( $doc->getType() != 'json')
+	    {
+//		    echo'<pre>';print_r( $view );echo'</pre>'.__FILE__.' '.__LINE__;
+	    }#END IF
 
 
         if ($view == 'customfilters' || $view == '') {
@@ -285,6 +288,8 @@ class CustomfiltersController extends JControllerLegacy
 		}
 		else
 		{
+
+
 			parent::display();
 		}
 	}
@@ -296,8 +301,8 @@ class CustomfiltersController extends JControllerLegacy
 		}
 		else
 		{
-
 			parent::display();
 		}
 	}
+
 }

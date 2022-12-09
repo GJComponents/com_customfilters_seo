@@ -1,0 +1,13 @@
+.setting_city_modal{}
+.name-element {
+    width: 100%;
+    float: left;
+    padding: 5px 0;
+}
+.name-element .control-group > div {
+    float: left;
+}
+.name-element .control-label {
+    margin-right: 10px;
+    margin-top: 5px;
+}

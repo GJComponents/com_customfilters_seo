@@ -7,7 +7,6 @@ JLoader::registerNamespace( 'GNZ11',JPATH_LIBRARIES.'/GNZ11',$reset=false,$prepe
 JLoader::register('seoTools_uri' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_uri.php');
 JLoader::register('seoTools_filters' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_filters.php');
 JLoader::register('seoTools_shortCode' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_shortCode.php');
-
 JLoader::register('CfInput' , JPATH_ROOT .'/components/com_customfilters/include/input.php');
 
 
@@ -39,10 +38,8 @@ class seoTools
      * @since    1.0.0
      */
     protected $settingSeoTable = '#__cf_customfields_setting_seo' ;
-
     /**
-     * Параметры компонента com_customfilters
-     * @var \Joomla\Registry\Registry
+     * @var \Joomla\Registry\Registry Параметры компонента com_customfilters
      * @since    1.0.0
      */
     protected $paramsComponent;
@@ -63,8 +60,7 @@ class seoTools
         $this->doc = JFactory::getDocument();
         $this->uri = Uri::getInstance();
 
-	    $seoTools_uri = seoTools_uri::instance();
-
+		seoTools_uri::instance();
 
 	    JTable::addIncludePath(JPATH_SITE.'/administrator/components/com_customfilters/tables');
 
@@ -81,70 +77,52 @@ class seoTools
 			    seoTools_logger::instance();
 			}#END IF
 	    }
-
-
-
-        //load model
-//        JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_customfilters/models/setting_seo.php');
-
-    }
+	}
 
 	/**
-	 * Route - ссылок для пагинации
-	 *
+	 * Pagination Route - ссылок для пагинации
 	 * @param $data
-	 *
 	 * @return void
 	 * @throws Exception
 	 * @since    1.0.0
 	 */
-    public function getPagesLinksData( $data ){
-
-        $data->all = $this->preparePaginationObj( $data->all );
-        $data->start = $this->preparePaginationObj( $data->start );
-        $data->previous = $this->preparePaginationObj( $data->previous );
-        $data->next = $this->preparePaginationObj( $data->next );
-        $data->end = $this->preparePaginationObj( $data->end );
-
-        foreach ( $data->pages as &$page )
-        {
-            $page = $this->preparePaginationObj( $page );
-        }
-//	    echo'<pre>';print_r( seoTools_uri::$arrUrlSef );echo'</pre>'.__FILE__.' '.__LINE__;
-//	    die(__FILE__ .' '. __LINE__ );
-
-        return $data ;
-    }
+	public function getPagesLinksData($data)
+	{
+		$data->all      = $this->preparePaginationObj($data->all);
+		$data->start    = $this->preparePaginationObj($data->start);
+		$data->previous = $this->preparePaginationObj($data->previous);
+		$data->next     = $this->preparePaginationObj($data->next);
+		$data->end      = $this->preparePaginationObj($data->end);
+		foreach ($data->pages as &$page)
+		{
+			$page = $this->preparePaginationObj($page);
+		}
+		return $data;
+	}
 
 	/**
 	 * Подготовить объект пагинации
-	 *
 	 * @param   \Joomla\CMS\Pagination\PaginationObject  $Object
-	 *
 	 * @return \Joomla\CMS\Pagination\PaginationObject
 	 * @throws Exception
 	 * @since    1.0.0
 	 */
 	protected function preparePaginationObj(\Joomla\CMS\Pagination\PaginationObject $Object): \Joomla\CMS\Pagination\PaginationObject
 	{
-
 		/**
 		 *   $Object->link string (/filtr/vodostochnye-sistemy/?custom_f_23[0]=d093d0bbd18fd0bdd186d0b5d0b2d0b0d18f&custom_f_10 .....)
 		 */
 		if (!empty($Object->link))
 		{
-
 			$link         = \seoTools_uri::getSefUlrOption($Object->link);
 			$Object->link = $link->sef_url;
-
-		}
-
+        }
 		return $Object;
 	}
 
     /**
      * Установить Мета данные для страницы в соответствии с включенными фильтрами
-     *
+     * ---
      * @param $res
      * @param $table
      * @return void
@@ -162,8 +140,6 @@ class seoTools
 			return;
 	    }#END IF
 
-
-		
         $vmCategoryId = $this->app->input->get('virtuemart_category_id' , [] , 'ARRAY') ;
 
         /**
@@ -174,17 +150,13 @@ class seoTools
 
         $filterOrdering = [];
 
-
         foreach ( $table as $key => $item)
         {
-
             $filter = $this->seoTools_filters->_getFilterById( $key );
             // Подготовить массив со значениями
             $filter->valueArr = self::prepareHex2binArr( $item );
             $filterOrdering[$filter->ordering] = $filter ;
         }
-
-
 
         $findReplaceArr = [
             '{{FILTER_LIST}}' => seoTools_shortCode::getFilterListText( $filterOrdering ) ,
@@ -192,19 +164,14 @@ class seoTools
             '{{CATEGORY_NAME}}' => $vmCategory->category_name ,
         ];
 
-
-	
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
         $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
 	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
 	    $this->app->set('filter_data_h1' ,  $default_h1_tag  );
 
-
-
         $default_title = $this->paramsComponent->get('default_title' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
         $default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );
 	    $default_title = $this->getLanguageText( $default_title );
-		
 
         $default_description = $this->paramsComponent->get('default_description' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
         $default_description = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_description );
@@ -213,11 +180,8 @@ class seoTools
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
 		    echo'<pre>description: ';print_r( $default_description );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
 
 		}
-		
-		
         $default_keywords = $this->paramsComponent->get('default_keywords' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
         $default_keywords = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_keywords );
 	    $default_keywords = $this->getLanguageText( $default_keywords );
@@ -262,39 +226,26 @@ class seoTools
 
 	/**
 	 * Добавить созданные ссылок для опций фильтра в '#__cf_customfields_setting_seo'
-	 * @param $optionsFilterArr
 	 *
+	 * @param $optionsFilterArr
 	 *
 	 * @since version
 	 */
 	public function updateSeoTable($optionsFilterArr)
 	{
-
-		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-			echo'<pre>';print_r( $optionsFilterArr );echo'</pre>'.__FILE__.' '.__LINE__;
-			die(__FILE__ .' '. __LINE__ );
-
-		}*/
-
-
-
 		// Исключаем ссылки для опций - индексирование которых запрещено
 		foreach ($optionsFilterArr as $i => &$item)
 		{
-			if ($item->option_sef_url->no_index) {
+			if ($item->option_sef_url->no_index)
+			{
 				unset($optionsFilterArr[$i]);
-            } #END IF
+			} #END IF
 		}#END FOREACH
-
-
 
 		if (empty($optionsFilterArr)) return; #END IF
 
-
-
 		// ключ кеша страницы
-		$optRegistry = new JRegistry( $optionsFilterArr );
+		$optRegistry = new JRegistry($optionsFilterArr);
 		$key         = md5($optRegistry->toString());
 
 
@@ -306,8 +257,6 @@ class seoTools
 		{
 			// сохраняем $optionsFilterArr в кэше
 			$cache->store($optionsFilterArr, $key);
-
-
 		}
 		else
 		{
@@ -315,13 +264,13 @@ class seoTools
 			{
 				$text = 'Обновление таблицы #__cf_customfields_setting_seo не требуется';
 				$this->app->enqueueMessage($text);
-            }
-
+			}
 			return;
 		}
 
-		if ( CF_FLT_DEBUG ){
-			seoTools_logger::add( 'UPD TBL - #__cf_customfields_setting_seo count (' .count($optionsFilterArr) .')'   );
+		if (CF_FLT_DEBUG)
+		{
+			seoTools_logger::add('UPD TBL - #__cf_customfields_setting_seo count (' . count($optionsFilterArr) . ')');
 		}
 
 		$columns = ['vmcategory_id', 'url_params', 'url_params_hash', 'sef_url', 'no_index'];
@@ -355,12 +304,8 @@ class seoTools
 			$text = 'Произведено обновление таблицы #__cf_customfields_setting_seo';
 			$text .= '<br>Добавлено|Обновлено ' . $countLines . ' значений.';
 			$this->app->enqueueMessage($text);
-
 		}
-
-
 	}
-
 
 	/**
 	 * Получить ссылку на текущую категорию Vm
@@ -408,7 +353,6 @@ class seoTools
 
 	    }#END IF
 
-
         foreach ( $valueCustomHashArr as $i => &$value ){
             $value = hex2bin( $value );
         }
@@ -418,10 +362,8 @@ class seoTools
 
 
 	/**
-	 * Очистить sef ссылку от лишних символов
-	 *
+	 * Очистить sef ссылку от лишних символов при создании ссылки или Alias
 	 * @param $sef_url
-	 *
 	 * @return array|string|string[]|null
 	 * @throws Exception
 	 * @since    1.0.0
@@ -434,9 +376,15 @@ class seoTools
         {
             $suffix = '.html' ;
             $sef_url = str_replace($suffix , '' , $sef_url ) ;
+		}#END IF
 
-        }#END IF
-        return preg_replace('/[^\/\-_\w\d]/i', '', $sef_url) . $suffix ;
+	    // TODO Gartes -- Добавил пропускать скобки "("  ")" -- При добавлении urlencode - перестает нормально работать
+	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+	    {
+//	        echo'<pre>';print_r( $sef_url );echo'</pre>'.__FILE__.' '.__LINE__;
+//	        echo'<pre>';print_r( urlencode( $sef_url ) );echo'</pre>'.__FILE__.' '.__LINE__;
+	    }
+        return preg_replace('/[^\/\-_\w\d\(\)]/i', '', $sef_url) . $suffix ;
     }
 
     /**

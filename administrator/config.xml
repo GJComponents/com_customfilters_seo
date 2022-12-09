@@ -3,8 +3,13 @@
 
 	<fieldset name="Basic" label="COM_CUSTOMFILTERS_BASIC_SETTINGS">
 
+		<!--
+		Использовать переменные со страниц Virtuemart
+		Автоматическое выделение категорий и производителей при навигации по страницам
+		-->
 		<field name="use_virtuemart_pages_vars" type="radio" default="1"
-			class="btn-group btn-group-yesno" label="COM_CUSTOMFILTERS_USE_VM_VARS_LABEL"
+			class="btn-group btn-group-yesno"
+			   label="COM_CUSTOMFILTERS_USE_VM_VARS_LABEL"
 			description="COM_CUSTOMFILTERS_USE_VM_VARS_DESC">
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
@@ -139,6 +144,20 @@
 			showon=""
 			hint=""
 			filter="raw" />
+		<field name="action_noindex"
+			type="list"
+			default="noindex,nofollow"
+			required=""
+			label="CONFIG_ACTION_NOINDEX"
+			description="CONFIG_ACTION_NOINDEX_DESC"
+			class="action_noindex "
+			multiple="false"
+			readonly=""
+			showon=""
+			filter="raw" >
+				<option value="noindex,nofollow">noindex,nofollow</option>
+				<option value="noindex,follow">noindex,follow</option>
+			</field>
 
 		<field name="on_show_children_category"
 			type="radio"

@@ -322,6 +322,15 @@ class cftools
             }
             self::$menuparams = $menuparams;
         }
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+
+//			echo'<pre>';print_r( $cfmenus[0]->id );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( self::$menuparams );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
+
         return self::$menuparams;
     }
 
@@ -356,16 +365,19 @@ class cftools
     }
 
     /**
+     * Функция для получения параметров компонента
+     * ---
      * Function to get the component's params
-     *
+     * @return Joomla\Registry\Registry - Настройки компонента com_customfilters
      * @since 1.9.0
      * @author Sakis Terz
      */
-    public static function getComponentparams()
+    public static function getComponentparams():Registry
     {
         if (empty(self::$componentparams)) {
             self::$componentparams = JComponentHelper::getParams('com_customfilters');
         }
+
         return self::$componentparams;
     }
 
@@ -437,6 +449,10 @@ class cftools
     }
 
     /**
+     *
+     * используется для преобразования шестнадцатеричного параметра пользовательского фильтра в обычную/десятичную строку
+     * Он также контролирует формат строки из соображений безопасности.
+     *
      * used to convert the hex custom filter option to normal/dec string
      * It controls also the string format for security reasons
      *
@@ -507,15 +523,25 @@ class cftools
     }
 
     /**
+     * Создать доц.
+     * массив с параметрами фильтра, использующий в качестве ключа значение id
+     * Также он преобразует специальные символы метки/имени в их html-эквиваленты
+     * ---
      * Create an assoc.
      * array with the filter options using as key the value id
      * Also it converts special characters of the label/name to their html equivelants
      *
-     * @param
-     *            array The object list with the values and the counter
-     * @return array values array using as key the value id. We need the key later to check the active/inactive options
+     * @param   array  $valList  Список объектов со значениями и счетчиком
+     *                           The object list with the values and the counter
+     *
+     * @return array | void
+     * Массив значений, используя в качестве ключа идентификатор значения.
+     * Нам понадобится ключ позже, чтобы проверить активные/неактивные параметры
+     * -----------------------------------------------------------
+     * values array using as key the value id. We need the key later to check the active/inactive options
+     * @since 3.9
      */
-    public static function arrayFromValList($valList)
+    public static function arrayFromValList( array $valList)
     {
         if (empty($valList)) {
             return;
@@ -523,6 +549,7 @@ class cftools
         $valArray = [];
 
         foreach ($valList as $val) {
+
             if (!empty($val->id)) {
                 if (!array_key_exists($val->id, $valArray)) {
                     if (!empty($val->name)) {
@@ -550,18 +577,18 @@ class cftools
     }
 
 	/**
-	 * Функция для получения фильтров Компонента из таблицы #__cf_customfields  /
+	 * Функция для получения фильтров Компонента из таблицы #__cf_customfields
+	 * ---
 	 * Function to get the existing custom filters
 	 *
-	 *
-	 * @param   string  $module_params
-	 * @param   bool    $published
+	 * @param   Joomla\Registry\Registry|string  $module_params  Параметры модуля
+	 * @param   bool                             $published      Опубликованные
 	 *
 	 * @return array|mixed
 	 * @throws Exception
 	 * @since 1.0.0
 	 */
-    public static function getCustomFilters( $module_params = '', $published = true )
+    public static function getCustomFilters( $module_params = '' , bool $published = true )
     {
 
         if (!empty($module_params)) {
@@ -647,6 +674,7 @@ class cftools
             {
 				$Code = $e->getCode();
 				switch ( $Code ){
+					// Если нет поля "ИСКЛЮЧЕНИЕ ИЗ SEO" - добавляем
 					case '1054':
 						$db = JFactory::getDbo();
 						$query='ALTER TABLE `#__cf_customfields` ADD `on_seo` int(11) NOT NULL DEFAULT "1" COMMENT "исключение из seo"';
@@ -664,13 +692,6 @@ class cftools
                 echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
                 die(__FILE__ .' '. __LINE__ );
             }
-
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//			    echo'<pre>';print_r( $cust_filters );echo'</pre>'.__FILE__.' '.__LINE__;
-//			    die(__FILE__ .' '. __LINE__ );
-
-			}
 
 	        foreach ( $cust_filters as &$filter)
 	        {
@@ -690,13 +711,13 @@ class cftools
             }
         }
 
-
         return self::$_customFilters[$store];
     }
 
 	/**
 	 * Загрузить все значения для фильтров
 	 *
+	 * @throws Exception
 	 * @since version
 	 */
 	public static function getCustomSelectValue( $filtersIds = [] ): array
@@ -704,6 +725,7 @@ class cftools
 		$db = JFactory::getDbo();
 		$Query = $db->getQuery( true ) ;
 		$select = [
+			$db->quoteName('virtuemart_customfield_id'),
 			$db->quoteName('virtuemart_custom_id'),
 			$db->quoteName('customfield_value'),
 		];
@@ -713,18 +735,35 @@ class cftools
         // TODO - Не работало на tekAktiv - с условием
 //		$Query->where( $db->quoteName( 'published' ) .'= 1 ');
 		$Query->group( $db->quoteName('customfield_value') );
+//		echo '<br>------------<br>Query Dump :'.__FILE__ .' '.__LINE__ .$Query->dump().'------------<br>';
 		$db->setQuery( $Query );
 		$res = $db->loadObjectList();
-        if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-        {
-//            echo '<br>------------<br>Query Dump :'.__FILE__ .' '.__LINE__ .$Query->dump().'------------<br>';
-        }
+		
+		
+		
+
 		$itemArr = [];
 		foreach ( $res as &$item )
 		{
 			$item->customfield_value_alias = \seoTools_uri::getStringSefUrl( $item->customfield_value );
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//				echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
+//				die(__FILE__ .' '. __LINE__ );
+			}
+
 			$itemArr[$item->customfield_value_alias] = $item ;
+			$itemArr[$item->customfield_value] = $item ;
 		}#END FOREACH
+
+		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
+		{
+			// Grey (Серый)
+//			echo '<pre>'; print_r($res); echo '</pre>'.__FILE__.' '.__LINE__;
+//			echo '<pre>'; print_r($itemArr); echo '</pre>'.__FILE__.' '.__LINE__;
+		}
+
+
 
 		return $itemArr ;
 	}
@@ -939,9 +978,12 @@ class cftools
     }
 
     /**
+     * Установить диапазон переменных
+     * --
      * set the range vars
      *
      * @param array $rangeVars
+     *
      * @since 1.9.0
      */
     public static function setRangeVars($rangeVars)

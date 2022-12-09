@@ -16,12 +16,13 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Layout\LayoutHelper;
 
+die(__FILE__ .' '. __LINE__ );
+
+
 ?>
 
 <form action="<?php echo Route::_('index.php?option=com_customfilters&view=customfilters'); ?>" method="post" name="adminForm" id="adminForm">
-    <div id="form_head">
-        <h1 class="title_form"><?= Text::_('COM_CUSTOMFILTERS_ADD_FILTER_CITY_SEO_FORM_HEAD') ?></h1>
-    </div>
+
     <div id="form_content">
         <ul class="nav nav-tabs" id="ID-Tabs-GroupTabs">
             <li class="active">
@@ -62,9 +63,10 @@ use Joomla\CMS\Layout\LayoutHelper;
     <input type="hidden" name="option" value="com_customfilters"/>
     <input type="hidden" name="task" value=""/>
     <input type="hidden" name="boxchecked" value="0"/>
+	<?= $this->form->renderFieldset('hidden_fields') ?>
 	<?php echo HTMLHelper::_('form.token'); ?>
 </form>
 
-<?php  echo $this->loadTemplate('update'); ?>
+<?php // echo $this->loadTemplate('update'); ?>
 
 

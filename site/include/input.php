@@ -28,12 +28,16 @@ class CfInput
 
     protected static $cfInputsPerFilter = array();
 
-    /***
-     * When the dependency works from top to bottom create an array with the selected options that each filter needs
-     *
-     * @param \stdClass $module
-     * @param bool $cached
-     */
+	/**
+	 * Когда зависимость работает сверху вниз, создайте массив с выбранными параметрами, которые нужны каждому фильтру.
+	 * When the dependency works from top to bottom create an array with the selected options that each filter needs
+	 *
+	 * @param   stdClass  $module
+	 * @param   bool      $cached
+	 *
+	 * @throws Exception
+	 * @since 3.9
+	 */
     public static function getInputsPerFilter($module = null, $cached=false)
     {
         if (empty($module)) {
@@ -80,15 +84,17 @@ class CfInput
     }
 
 	/**
+	 * Получить Массив опций выбранных фильтров
+	 * ---
 	 * Get the inputs
 	 *
 	 * @param   bool  $cached
 	 *
-	 * @return array|null
+	 * @return array|null Массив отмеченных опций фильтров
 	 * @throws Exception
 	 * @since    1.0.0
 	 */
-    public static function getInputs($cached = false)
+    public static function getInputs( bool $cached = false):?array
     {
         if (!isset(self::$cfInputs)) {
             $key = 'customfilters.input';
@@ -126,6 +132,7 @@ class CfInput
 
 	/**
 	 * Функция используется для получения и фильтрации всех входных данных, поступающих от модуля.
+	 * --
 	 * The function is used to get and filter all the inputs coming from the module
 	 *
 	 * @throws Exception
@@ -134,6 +141,7 @@ class CfInput
 	 */
     private function buildInputs(): array
     {
+
         $app = Factory::getApplication();
 	    /**
 	     * @var Joomla\CMS\Input\Input $jinput
@@ -144,20 +152,28 @@ class CfInput
 		// Парсим путь URL -- находим активные фильтры
 	    $this->parseUrlString();
 
+		// Параметры компонента com_customfilters
         $componentParams = \cftools::getComponentparams();
+	    /**
+	     * Автоматическое выделение категорий и производителей при навигации по страницам
+	     * ---
+	     * @var bool $use_vm_vars
+	     */
+		$use_vm_vars = $componentParams->get('use_virtuemart_pages_vars', true);
+	    /**
+	     * @var bool $reset_filters_on_new_search - Очищать фильтры после нового поиска
+	     */
+	    $reset_filters_on_new_search = $componentParams->get('keyword_search_clear_filters_on_new_search', true);
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//		 echo'<pre>';print_r( $componentParams );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
-
-		}
 
         $selected_flt = array();
         $rangeVars = array();
         $reset_all_filters = false;
         $component = $jinput->get('option', '', 'cmd');
-        $use_vm_vars = $componentParams->get('use_virtuemart_pages_vars', true);
+
+		/**
+	     * Если option - com_virtuemart - в фильтре будут отмечена текущая категория товара(ов)
+	     */
         if ($use_vm_vars && $component == 'com_virtuemart') {
             $use_vm_vars = true;
         } else {
@@ -174,10 +190,7 @@ class CfInput
                 $selected_flt['q'] = (string)$keyword;
             }
         }
-	    /**
-	     * @var bool $reset_filters_on_new_search - Очищать фильтры после нового поиска
-	     */
-        $reset_filters_on_new_search = $componentParams->get('keyword_search_clear_filters_on_new_search', true);
+
 
         if ($reset_filters_on_new_search) {
             $current_keyword = !empty($selected_flt['q']) ? $selected_flt['q'] : '';
@@ -192,11 +205,7 @@ class CfInput
 
         // --categories--
         if (($use_vm_vars == true || $component == 'com_customfilters') && $reset_all_filters == false) {
-            if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-            {
-//                die(__FILE__ .' '. __LINE__ );
 
-            }
 			$vm_cat_array = $jinput->get('virtuemart_category_id', array(), 'array');
             if ($vm_cat_array) {
                 $vm_cat_array = ArrayHelper::toInteger($vm_cat_array);
@@ -264,38 +273,28 @@ class CfInput
                 $selected_flt['stock'][0] = 1;
             }
         }
-		
 
-		
         // --custom filters--
         if ($reset_all_filters == false) {
 
 	        /**
-	         * @var array $published_cf - Все опубликованные фильтры
+	         * Все опубликованные фильтры
+	         * ---
+	         * @var array $published_cf
 	         */
             $published_cf = \cftools::getCustomFilters('');
-
-
 
             $var_name = '';
             foreach ($published_cf as $cf) {
 
-                if ($use_vm_vars == true || $component == 'com_customfilters') {
+                if ( $use_vm_vars || $component == 'com_customfilters') {
                     $var_name = 'custom_f_' . $cf->custom_id;
-
+					 
                     if (strpos($cf->disp_type, CfFilter::DISPLAY_INPUT_TEXT) === false
                         && strpos($cf->disp_type, CfFilter::DISPLAY_RANGE_SLIDER) === false
                         && strpos($cf->disp_type, CfFilter::DISPLAY_RANGE_DATES) === false) {
 
 	                    $custom_array = $jinput->get($var_name, array(), 'array');
-						
-						if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-						{
-//						    echo'<pre>';print_r( $var_name );echo'</pre>'.__FILE__.' '.__LINE__;
-//						    echo'<pre>';print_r( $custom_array );echo'</pre>'.__FILE__.' '.__LINE__;
-
-						}
-						
 
                         $c_array = [];
                         $data_type = 'string';
@@ -314,21 +313,20 @@ class CfInput
                                 }
                             } // sanitize the float numbers
                         }
-
+						 
                         // default data type is string
                         foreach ($custom_array as $cf_el) {
-                            // Only hexademical or Int inputs allowed
+                            // Разрешены только шестнадцатеричные или целочисленные входы
+	                        // Only hexademical or Int inputs allowed
                             $cf_el = (string)preg_replace('/[^A-F0-9]/i', '', $cf_el);
 
                             if (!empty($cf_el)) {
-                                // unecnode the value only if string
+	                            /**
+	                             * Преобразуем значение выбранной опции в строку
+	                             * unecnode значение, только если строка
+	                             * unecnode the value only if string
+	                             */
                                 $unencoded_value = \cftools::cfHex2bin($cf_el);
-
-//								 echo'<pre>';print_r( $cf_el );echo'</pre>'.__FILE__.' '.__LINE__;
-//								 echo'<pre>';print_r( $unencoded_value );echo'</pre>'.__FILE__.' '.__LINE__;
-//								 die(__FILE__ .' '. __LINE__ );
-
-
 
                                 // clean again the unencoded value this time
                                 $result = $filter->clean($unencoded_value, $data_type);
@@ -376,20 +374,19 @@ class CfInput
             }
         }
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//		    die(__FILE__ .' '. __LINE__ );
 
-		}
         \cftools::setRangeVars($rangeVars);
+
         return $selected_flt;
     }
 
 	/**
-	 * Парсим путь URL -- находим активные фильтры
+	 * Парсим путь URL -- находим активные фильтры и добавляем их в $app->input -- как если не использовалось SEO
+	 * ---
 	 *
 	 * @throws Exception
 	 * @since version
+	 * @auhtor Gartes
 	 */
 	public function parseUrlString()
 	{
@@ -408,7 +405,7 @@ class CfInput
 
 		// Удалить параметры пагинации
 		$path = preg_replace('/\/start=\d+/', '', $path);
- 
+
 		/**
 		 * @var array $findResultArr - массив выбранных
 		 */
@@ -417,13 +414,6 @@ class CfInput
 		 * @var array $filtersArr - массив фильтров у которых есть выбранные опции
 		 */
 		$filtersArr    = [];
-
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//		    echo'<pre>';print_r( $published_cf );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
-
-		}
 
 		// Перебираем опубликованные фильтры - находим фильтры
 		foreach ($published_cf as $item)
@@ -451,13 +441,10 @@ class CfInput
 
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
 
-
-		
 		// Если не нашли название фильтров в URL
 		if (empty($findResultArr)) return; #END IF
 
 		krsort($findResultArr);
-
 
 		$length     = 0;
 		$i          = 0;
@@ -476,13 +463,14 @@ class CfInput
 			$subStr = mb_substr($path, $start, $length);
 
 
-			// Находим двойные или более опции фильтра 
+
+			// Находим двойные или более опции фильтра
 			$arrValFilter = explode('-and-', $subStr);
 			// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
 			$arrValFilter = array_diff($arrValFilter, array(''));
 
 
-			
+
 			foreach ( $arrValFilter as $itemValF )
 			{
 				// Удалить слэши
@@ -492,10 +480,11 @@ class CfInput
 				$itemValF                 = str_replace($dataFilters->name, '', $itemValF);
 
 //				$itemValF                 = str_replace('-', '', $itemValF);
+
                 $itemValF = preg_replace('/^-/' , '' , $itemValF ) ;
-                
+
                 $dataFilters->value[] = $itemValF;
- 
+
 
 			}#END FOREACH
 
@@ -503,7 +492,6 @@ class CfInput
 			$length = $start;
 			$dataFiltersArr[] = $dataFilters;
 		}#END FOREACH
-
 
 		$selectFilterIds = [];
 
@@ -532,6 +520,9 @@ class CfInput
 			$key         = 'custom_f_' . $item->custom_id;
 			$optArr      = [];
 			$arrSetInput = [];
+
+
+
 			foreach ($item->optionSelected as $option)
 			{
 
@@ -539,9 +530,14 @@ class CfInput
 				{
                     $item->dataOptions[] =  $customSelectValueArr[$option];
 					$customfield_value = $customSelectValueArr[$option]->customfield_value;
+
+					// Преобразование двоичных данных в шестнадцатеричное представление
 					$optArr[]          = bin2hex($customfield_value);
+
+
 				}#END IF
 			}#END FOREACH
+
 			$app->input->set($key, $optArr);
 
 		}#END FOREACH
@@ -564,29 +560,21 @@ class CfInput
 		}#END FOREACH
 		$app->set('seoToolsActiveFilter.table' , $dataTable );
 
-
-        if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-        {
-//            echo'<pre>';print_r( $dataTable );echo'</pre>'.__FILE__.' '.__LINE__;
-//            echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//            die(__FILE__ .' '. __LINE__ );
-
-        }
-
 	}
 
-    /**
-     * Reorders the filters ordering array, setting also the existing custom fields in the order
-     *
-     * @param
-     *            Array The ordering of the filters
-     * @param
-     *            Array The selected filters
-     * @return Array
-     * @author Sakis Terz
-     * @since 1.6.0
-     */
-    public static function setCustomFiltersToOrder($filters_order, $selected_fl)
+	/**
+	 * Переупорядочивает массив упорядочивания фильтров, устанавливая также существующие настраиваемые поля в порядке
+	 * Reorders the filters ordering array, setting also the existing custom fields in the order
+	 *
+	 * @param   Array  $filters_order  Array The ordering of the filters
+	 * @param   Array  $selected_fl    Array The selected filters
+	 *
+	 * @return Array
+	 * @throws Exception
+	 * @since  1.6.0
+	 * @author Sakis Terz
+	 */
+    public static function setCustomFiltersToOrder( $filters_order, $selected_fl)
     {
         $custom_f_pos = array_search('custom_f', $filters_order);
         if ($custom_f_pos === false) {

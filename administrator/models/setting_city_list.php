@@ -67,10 +67,29 @@ class CustomfiltersModelSetting_city_list extends JModelList
 		{
 			if ($table->load($pk))
 			{
-				/*if ($this->canDelete($table))
+
+
+				if ( property_exists($table , 'statistic') )
 				{
-					$context = $this->option . '.' . $this->name;
-				}*/
+					$registry     = new Registry($table->statistic);
+					$table->statistic = $registry->toArray();
+				}
+				JLoader::registerNamespace( 'OsmapBackgroundHelper' , JPATH_ADMINISTRATOR . '/modules/mod_osmap_background_toolbar/helpers' , $reset = false , $prepend = false , $type = 'psr4' );
+				$ComFilterCity = new \OsmapBackgroundHelper\ComFilterCity();
+
+				// Удаляем файлы карты сайта с перестраиванием - sitemap-root.xml
+				if ( isset( $table->statistic['FilterArea'] ) )
+				{
+					$ComFilterCity->_removeSiteMapComponent(    $table->statistic['FilterArea'] , true ) ;
+				}#END IF
+
+				if ( isset( $table->statistic['FilterCustoms'] ) )
+				{
+					$ComFilterCity->_removeSiteMapComponent(    $table->statistic['FilterCustoms'] , true ) ;
+				}
+
+
+
 
 				try
 				{
@@ -169,9 +188,6 @@ class CustomfiltersModelSetting_city_list extends JModelList
     {
         $db = Factory::getDbo();
         $query = $db->getQuery(true);
-
-
-
 
         //table cf_customfields
         $query->select('sc.id AS id');

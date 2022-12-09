@@ -48,6 +48,14 @@ class CustomfiltersControllerSetting_city_list extends \Joomla\CMS\MVC\Controlle
 		{
 			$this->setMessage($model->getError(), 'error');
 		}#END IF
+		/**
+		 * @var CustomfiltersModelSetting_city $modelItem
+		 */
+		$modelItem = $this->getModel('Setting_city');
+		$modelItem->deleteFiltersCategories( $cid );
+
+
+
 		$this->setRedirect(
 			JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false)
 		);
@@ -176,13 +184,13 @@ class CustomfiltersControllerSetting_city_list extends \Joomla\CMS\MVC\Controlle
 	 * @param   string  $prefix  for the PHP class name.
 	 * @param   bool[]  $config
 	 *
-	 * @return CustomfiltersModelSetting_city_list
+	 * @return CustomfiltersModelSetting_city_list|CustomfiltersModelSetting_city
 	 * @since 1.0
 	 */
-    public function getModel( $name = 'Setting_city_list', $prefix = 'CustomfiltersModel', $config = ['ignore_request' => true] ): CustomfiltersModelSetting_city_list
+    public function getModel( $name = 'Setting_city_list', $prefix = 'CustomfiltersModel', $config = ['ignore_request' => true] )
     {
 	    /**
-	     * @var CustomfiltersModelSetting_city_list Object
+	     * @var CustomfiltersModelSetting_city_list | CustomfiltersModelSetting_city Object
 	     */
 		return parent::getModel($name, $prefix, $config);
     }

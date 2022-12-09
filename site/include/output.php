@@ -29,27 +29,27 @@ class CfOutput
     //cache for the encoded inputs
     protected $variable;
 
-    /**
-     * Gets the output (cached)
-     * Получает вывод (кэшируется)
-     *
-     * @param mixed $variable
-     * @return array
-     * @since 2.3.0
-     * @author Sakis Terz
-     */
-    public static function getOutput($variable, $escape = true, $perfilter = false)
+	/**
+	 * Получает вывод (кэшируется)
+	 * ---
+	 * Gets the output (cached)
+	 *
+	 * @param   array|string  $variable
+	 * @param   bool   $escape
+	 * @param   bool   $perfilter
+	 *
+	 * @return array|string
+	 * @since  2.3.0
+	 * @author Sakis Terz
+	 */
+    public static function getOutput( $variable , bool $escape = true, bool $perfilter = false)
     {
-
-
-
         $hash = md5(json_encode($variable) . $escape . $perfilter);
         if (!isset(self::$cfOutputs[$hash])) {
             $cfOutput = new CfOutput();
             $cfOutput->setVariable($variable);
             $cfOutput->setPerfilter($perfilter);
             $cfOutput->setEscape($escape);
-
 
             self::$cfOutputs[$hash] = $cfOutput->prepareVariables();
         }
@@ -58,20 +58,25 @@ class CfOutput
     }
 
     /**
+     * Устанавливает переменную в классе
+     * ---
      * Sets the variable inthe class
      *
-     * @param string $variable
+     * @param   string|array  $variable
      * @since    1.0.0
      */
-    public function setVariable($variable)
+    public function setVariable(  $variable)
     {
         $this->variable = $variable;
     }
 
     /**
+     * Устанавливает перфильтр в классе
+     * ---
      * Sets the perfilter inthe class
      *
      * @param mixed $variable
+     *
      * @since 2.1
      */
     public function setPerfilter($perfilter)

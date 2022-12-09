@@ -82,6 +82,7 @@ class CustomfiltersConfig
     /**
      * Возвращает тип продуктов, которые должны быть возвращены (родительский, дочерний, все),
      * на основе настройки отфильтрованных продуктов.
+     * ---
      * Return the type of products that should be returned (parent, child, all), based on the filtered products setting
      *
      * @return string (parent | child | all)

@@ -68,7 +68,16 @@ class CustomfiltersViewSetting_city_list extends HtmlView
      */
     public function display($tpl = null)
     {
+	    // Загрузка jui/jquery.min.js +  libraries/cms/html/jquery.php
+//	    JHtmlJquery::framework(false);
+	    // Загрузка  jui/jquery.ui.core.min.js + jquery.ui.sortable.min.js +
+//		JHtmlJquery::ui(array('core', 'sortable'));
+		// Управление subform-repeatable
+//	    \Joomla\CMS\HTML\HTMLHelper::script( 'system/subform-repeatable.js', array('version' => 'auto', 'relative' => true) );
 
+
+
+	    $this->document->addStyleSheet('/administrator/components/com_customfilters/assets/css/setting_city.css');
 	    /**
 	     * CustomfiltersModelSetting_city_list::getItems
 	     */
@@ -143,14 +152,26 @@ class CustomfiltersViewSetting_city_list extends HtmlView
 	        /**
 	         * Кнопка - добавить фильтр CITY SEO
 	         */
-	        JToolBarHelper::custom(
+	        /*JToolBarHelper::custom(
 				$task = 'add_filter_city_seo',
 		        $icon = 'plus-2',
 				$iconOver = 'plus-2',
 				$alt = 'COM_CUSTOMFILTERS_ADD_FILTER_CITY_SEO',
 				$listSelect = false
 	        );
-			$this->document->addStyleDeclaration('span.icon-plus-2:before{color: #378137;}');
+			*/
+	        // Стиль для зеленого плюса
+	        $this->document->addStyleDeclaration('span.icon-plus-2:before{color: #378137;}');
+	        /**
+	         * Кнопка - добавить фильтр CITY SEO - No Modal
+	         */
+	        $bar->appendButton(
+		        'Link',
+		        'plus-2' , // $icon
+		        'COM_CUSTOMFILTERS_ADD_FILTER_CITY_SEO', // $alt
+		        'index.php?option=com_customfilters&view=setting_city'
+	        );
+
         }
 
         if (Factory::getUser()->authorise('core.administrator', 'com_customfilters')) {
