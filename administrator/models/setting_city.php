@@ -69,22 +69,20 @@ class CustomfiltersModelSetting_city extends AdminModel
 		parent::__construct($config);
 	}
 
-	public function addToCartFilter( $ids )
+	/**
+	 *
+	 * @param $ids
+	 *
+	 * @return bool|Table|JTable
+	 * @since 3.9
+	 */
+	public function loadTableCityFilter( $ids )
 	{
 		$table = $this->getTable();
 		$table->load($ids);
 
 		return $table;
 
-
-		echo '<pre>';
-		print_r($params_customs);
-		echo '</pre>'.__FILE__.' '.__LINE__;
-
-		echo '<pre>';
-		print_r($table);
-		echo '</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
 
 	}
 
@@ -310,7 +308,7 @@ class CustomfiltersModelSetting_city extends AdminModel
 			$data = $data[ 'jform' ];
 		}#END IF
 
-		// Находим сохранненые города - и если они не переданы явно - добавляем из уже сохраненных
+		// Находим сохраненные города - и если они не переданы явно - добавляем из уже сохраненных
 		if ( $data[ 'id' ] )
 		{
 			$table = $this->getTable();

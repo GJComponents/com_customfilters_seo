@@ -382,8 +382,10 @@ window.customfiltersAdminCore = function () {
         Data.task = 'updateKnownLanguagesElement' ;
         Data.idField = $(El).closest('tr').find('input[name="cid[]"]').val();
         Data.status = El.value ;
+        Data.tbl = El.dataset.tbl ;
 
         self.AjaxPost( Data ).then(function (r){
+            self.renderMessages(r.messages)
             console.log( 'customfilters.administrator.core' , r );
 
         },function (err){console.log(err)});

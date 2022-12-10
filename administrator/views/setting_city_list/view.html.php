@@ -93,19 +93,30 @@ class CustomfiltersViewSetting_city_list extends HtmlView
 		// for Multilang Site
 	    if ( JLanguageMultilang::isEnabled() )
 	    {
-		    $this->knownLanguages = \Joomla\CMS\Language\LanguageHelper::getKnownLanguages( JPATH_SITE ) ;
-
+		    // Получить все установленные языки
+		    // $this->knownLanguages = \Joomla\CMS\Language\LanguageHelper::getKnownLanguages( JPATH_SITE ) ;
+		    // Получить все опубликованные языки
+		    $this->knownLanguages   = \Joomla\CMS\Language\LanguageHelper::getLanguages();
 			$AllLanguage  = [
-				'name' => 'All Language',
-				'tag' => '*',
+				'title' => 'All Language',
+				'sef' => '*',
 		    ];
 		    array_unshift($this->knownLanguages , $AllLanguage );
 	    }
+
+//		echo'<pre>';print_r( $this->knownLanguages );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
 
 
         // Check for errors.
         if (count($errors = $this->get('Errors')))
         {
+	        $errors = array_unique($errors);
+	        echo'<pre>';print_r( $errors );echo'</pre>'.__FILE__.' '.__LINE__;
+
+	        echo'<pre>';print_r( $this );echo'</pre>'.__FILE__.' '.__LINE__;
+	        echo'<pre>';print_r( $this->knownLanguages );echo'</pre>'.__FILE__.' '.__LINE__;
+	        die(__FILE__ .' '. __LINE__ );
             throw new Exception(implode("\n", $errors), 500);
         }
 

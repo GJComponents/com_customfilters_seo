@@ -198,9 +198,11 @@ class CustomfiltersModelSetting_city_list extends JModelList
 
 		// if false - field no SEF proc.
         $query->select('sc.on_seo AS on_seo');
-	    if ( JLanguageMultilang::isEnabled() )
+
+
+		if ( JLanguageMultilang::isEnabled() )
 	    {
-		    $query->select('cf.known_languages AS known_languages');
+		    $query->select('sc.known_languages AS known_languages');
 	    }
 
 

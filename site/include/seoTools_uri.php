@@ -1,6 +1,7 @@
 <?php
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Router\Route;
 
 /**
@@ -301,16 +302,60 @@ class seoTools_uri
 		{
 //		    echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
 //		    die(__FILE__ .' '. __LINE__ );
-
 		}
 
 		$juri = \Joomla\CMS\Uri\Uri::getInstance();
 		$path = $juri->getPath();
-		preg_match('/^\/.+\/(.+)\//i' , $path , $matches);
-		// Если название фильтра не нашли -
-		if ( !$matches[ 1 ] ) return $findResultArr; #END IF
 
-		$sef_alias = $matches[ 1 ];
+		// Для отладки рег выражений
+		// $path = '/result/stabilizatory-napryazheniya/moskva-i' ;
+
+		$sef_alias = false;
+		$matchesLang = '*' ;
+
+		// Если Multilanguage - перестраиваем регулярное выражение
+		if ( Multilanguage::isEnabled() )
+		{
+			// Получить все опубликованные языки
+			$languages = \Joomla\CMS\Language\LanguageHelper::getLanguages();
+
+			foreach ( $languages as $language )
+			{
+				$patern = '/^\/('.$language->sef.')\/.+/i';
+				preg_match( $patern , $path , $matches );
+
+				// Если нашли тэг языка
+				if ( isset( $matches[ 1 ] ) )
+				{
+					$matchesLang = $matches[ 1 ];
+					$patern      = '/^\/('.$matchesLang.')\/.+\/.+\/([^\/]+)\/?$/i';
+					preg_match( $patern , $path , $matches );
+					if ( $matches[ 2 ] )
+					{
+						$sef_alias = $matches[ 2 ];
+						break;
+					}#END IF
+
+				} #END IF
+
+			}#END FOREACH
+			if ( !$sef_alias )
+			{
+				// Если тэг языка не найден - ищем без него
+				$patern = '/^\/.+\/.+\/([^\/]+)\/?$/i';
+				preg_match( $patern , $path , $matches );
+				$sef_alias = $matches[ 1 ];
+			}#END IF
+
+		}
+		else
+		{
+			$patern = '/^\/.+\/.+\/([^\/]+)\/?$/i';
+			preg_match( $patern , $path , $matches );
+			// Если название фильтра не нашли -
+			if ( !$matches[ 1 ] ) return $findResultArr; #END IF
+			$sef_alias = $matches[ 1 ];
+		}
 
 		$db    = JFactory::getDbo();
 		$Query = $db->getQuery(true);
@@ -324,10 +369,17 @@ class seoTools_uri
 
 		// применить метод $db->quote -- к каждому элементу массива
 		$category_ids = array_map([ $db , 'quote' ] , $category_ids);
-		$Query->where(sprintf('cat.id_vm_category IN (%s)' , join(',' , $category_ids)));
-		$db->setQuery($Query);
+		$Query->where( sprintf('cat.id_vm_category IN (%s)' , join(',' , $category_ids)));
 
+		// Если Multilanguage - добавить выбор по языкам
+		if (  Multilanguage::isEnabled() )
+		{
+			$Query->where( $db->quoteName('known_languages') . '='. $db->quote( $matchesLang ) );
+		}#END IF
+
+		$db->setQuery($Query);
 		$res = $db->loadObject();
+
 
 		// Перебираем дополнительные настройки - вкладка params_customs
 		if ( !empty($res->params_customs) )
@@ -346,8 +398,9 @@ class seoTools_uri
 		$params = new \Joomla\Registry\Registry();
 		$params->loadString($res->params);
 		$paramsArr = $params->toArray();
+
 		// Поиск результатов в для списка Area-City
-		self::getLineArr($paramsArr[ 'use_city_setting' ] , $sef_alias);
+		self::getLineArr( $paramsArr[ 'use_city_setting' ] , $sef_alias);
 
 		if ( !empty(self::$LineArr) ) return self::$LineArr; #END IF
 	}
@@ -394,8 +447,16 @@ class seoTools_uri
 	 */
 	public static function getLineArr( $arr , $sef_alias )
 	{
+//		echo'<pre>';print_r( $arr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
 		foreach ( $arr as $key => $item )
 		{
+
+
+
 			$cloneItem = $item;
 			if ( is_array($item) && count($item) > 1 )
 			{
@@ -420,12 +481,18 @@ class seoTools_uri
 	 * @throws Exception
 	 * @since 3.9
 	 */
-	public static function getLinkFilterCategory( int $vmCategoryId ):string
+	public static function getLinkFilterCategory( int $vmCategoryId , $languagesTag = '*'  ):string
 	{
 		$uri                 = new \Joomla\Uri\Uri('index.php');
 		$q_array[ 'option' ] = 'com_customfilters';
 		$q_array[ 'view' ]   = 'products';
 		$q_array[ 'Itemid' ] = self::getItemIdComFilter();
+
+		if ( $languagesTag != '*' )
+		{
+			$q_array[ 'lang' ] = $languagesTag ;
+		}#END IF
+
 		$uri->setQuery($q_array);
 		$uri->setVar('virtuemart_category_id' , [ $vmCategoryId ]);
 

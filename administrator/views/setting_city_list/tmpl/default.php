@@ -206,7 +206,19 @@ if ($saveOrder) {
                     {
                         ?>
                         <td class="left">
-		                    <?php echo  HTMLHelper::_('select.genericlist', $this->knownLanguages,"known_languages[$item->id]",'class="inputbox knownLanguages" onchange="window.CustomfiltersAdminCore.updateKnownLanguagesElement(this)"  size="1" aria-labelledby="header-displaytype"', 'tag', 'name',$item->known_languages);?>
+		                    <?php echo  HTMLHelper::_(
+                                    'select.genericlist',
+                                    $this->knownLanguages ,
+                                    "known_languages[$item->id]",
+                                    'class="inputbox knownLanguages" '
+                                    .'onchange="window.CustomfiltersAdminCore.updateKnownLanguagesElement(this)"  '
+                                    .'data-tbl="#__cf_customfields_setting_city" '
+                                    .'size="1" '
+                                    .'aria-labelledby="header-displaytype"'  ,
+                                    'sef',
+                                    'title',
+                                    $item->known_languages
+                            );?>
                         </td>
                         <?php
                     }#END IF

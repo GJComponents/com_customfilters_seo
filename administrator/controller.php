@@ -11,6 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
 use Breakdesigns\Customfilters\Admin\Model\UpdateManager;
+use Joomla\CMS\Language\Text;
 use Joomla\Utilities\ArrayHelper;
 
 
@@ -235,6 +236,7 @@ class CustomfiltersController extends JControllerLegacy
 
 	/**
 	 * Изменение использования фильтра для языка (для всех -* | ru-RU | ua-UA) - Ajax Input
+	 * Используется для настройки основных фильтров - и фильтров по городам
 	 * @return void
 	 * @throws Exception
 	 * @since 3.9
@@ -250,11 +252,13 @@ class CustomfiltersController extends JControllerLegacy
 		// Должно быть допустимое значение первичного ключа.
 		$object->id = $app->input->get('idField' , 0 , 'INT' );
 		$object->known_languages =  $app->input->get('status' , 0  , 'STRING' ) ;
+		$table =  $app->input->get('tbl' , '#__cf_customfields'  , 'RAW' ) ;
 
 		// Update their details in the users table using id as the primary key.
-		$result = \Joomla\CMS\Factory::getDbo()->updateObject('#__cf_customfields', $object, 'id');
-		echo new JResponseJson( $result , JText::_('COM_COMPONENT_MY_TASK_ERROR'), false );
-        die( );
+		$result = \Joomla\CMS\Factory::getDbo()->updateObject( $table , $object, 'id');
+		$app->enqueueMessage(Text::_('COM_CUSTOMFILTERS_UPDATE_KNOWN_LANGUAGES_ELEMENT'));
+		echo new JResponseJson(  $result , null, false );
+        die();
 	}
 
 	/**
