@@ -17,7 +17,7 @@ CREATE TABLE `#__cf_customfields_setting_seo`(
      UNIQUE `url_params_hash`(`url_params_hash`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-ALTER TABLE `#__cf_customfields`
-    ADD `known_languages` VARCHAR(12) NOT NULL DEFAULT '*' COMMENT 'Выбор языка для поля' AFTER `on_seo`;
+-- ALTER TABLE `#__cf_customfields`
+--     ADD `known_languages` VARCHAR(12) NOT NULL DEFAULT '*' COMMENT 'Выбор языка для поля' AFTER `on_seo`;
 
  

@@ -243,6 +243,8 @@ class seoTools_uri
 			{
 				if ( CF_FLT_DEBUG )
 				{
+					JLoader::register('seoTools_logger' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_logger.php');
+					seoTools_logger::instance();
 					seoTools_logger::add('-- Не удалось найти название категории из пути ('.$path.')');
 				}
 			}#END IF
