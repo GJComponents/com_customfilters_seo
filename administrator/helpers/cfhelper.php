@@ -188,27 +188,36 @@ class cfHelper
         return $categoryTree;
     }
 
-    /**
-     * Get the custom filters select options
-     *
-     * @return array
-     * @since 1.0.0
-     */
-    public static function getCustomFiltersOptions($currentFilterId, $selected)
+	/**
+	 * Получите пользовательские фильтры
+	 * Get the custom filters select options
+	 *
+	 * @param   int  $currentFilterId
+	 * @param $selected
+	 *
+	 * @return array
+	 * @throws Exception
+	 * @since 1.0.0
+	 */
+    public static function getCustomFiltersOptions( int $currentFilterId, $selected = null ):array
     {
-        $options = [];
-        $customFilters = \cftools::getCustomFilters('', false);
-        foreach ($customFilters as $customFilter) {
-            // The current filter should not be there
-            if($currentFilterId == $customFilter->custom_id) {
-                continue;
-            }
-            $selectedStr = '';
-            if(is_array($selected) && in_array($customFilter->custom_id, $selected)) {
-                $selectedStr = 'selected';
-            }
-            $options[] = '<option value="'. $customFilter->custom_id.'" '.$selectedStr.'>'.$customFilter->custom_title.'</option>';
-        }
-        return $options;
+	    $options       = [];
+	    $customFilters = \cftools::getCustomFilters( '' , false );
+	    foreach ( $customFilters as $customFilter )
+	    {
+		    // The current filter should not be there
+		    if ( $currentFilterId == $customFilter->custom_id )
+		    {
+			    continue;
+		    }
+		    $selectedStr = '';
+		    if ( is_array( $selected ) && in_array( $customFilter->custom_id , $selected ) )
+		    {
+			    $selectedStr = 'selected';
+		    }
+		    $options[] = '<option value="'.$customFilter->custom_id.'" '.$selectedStr.'>'.$customFilter->custom_title.'</option>';
+	    }
+
+	    return $options;
     }
 }

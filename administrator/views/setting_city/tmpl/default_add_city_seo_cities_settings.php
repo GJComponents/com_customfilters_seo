@@ -29,10 +29,6 @@ foreach ($this->ListCity as $item)
 	$alias = $item['alias'];
 
 
-
-
-
-
 	/**
 	 * @var CustomfiltersModelSetting_city $ModelSetting_city
 	 */
@@ -40,13 +36,6 @@ foreach ($this->ListCity as $item)
 
 	$ModelSetting_city->getChildrenArea( $this->item->params['use_city_setting'] , $alias );
 	$area = $ModelSetting_city->ChildrenAreaData;
-
-//	echo'<pre>';print_r( $ModelSetting_city->ChildrenAreaData );echo'</pre>'.__FILE__.' '.__LINE__;
-//	echo'<pre>';print_r( $alias );echo'</pre>'.__FILE__.' '.__LINE__;
-//    echo'<pre>';print_r(  $area );echo'</pre>'.__FILE__.' '.__LINE__;
-//    echo'<pre>';print_r(  $this->item->params['use_city_setting'] );echo'</pre>'.__FILE__.' '.__LINE__;
-//    die(__FILE__ .' '. __LINE__ );
-
 
 
 	// Сбросить - количество активных дочерних регионов
@@ -57,15 +46,24 @@ foreach ($this->ListCity as $item)
 
 
 
+    echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
+
+
+
     ?>
 
 	<?= Behavior::addSlideCitySlider( $AccordionSelector , $item , $this->paramsCityList   )   ?>
 
-		<p>CONTENT - ONE SLIDER </p>
+    <?= Behavior::getMetaFormElementHtml( $item )?>
+
+		<p>CONTENT - ONE SLIDER !!!</p>
 	<?= Behavior::endSlide(); ?>
 
 	<?php
 }#END FOREACH
+
+
+die(__FILE__ .' '. __LINE__ );
 ?>
 
 <?= Behavior::endAccordion(); ?>

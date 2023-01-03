@@ -1,6 +1,8 @@
 <?php
 namespace FiltersSeoNamespace\Cms\Html ;
 
+use Joomla\CMS\Layout\LayoutHelper;
+
 /**
  * Переопределение класса JHtmlBootstrap - для создания аккордеона для городов
  * USE :
@@ -69,7 +71,27 @@ class Behavior extends \JHtmlBootstrap
 
 		return $html;
 	}
+	public static function getMetaFormElementHtml (array $item){
+		$layout    = new \JLayoutFile( 'form-meta-element' ,JPATH_ADMINISTRATOR . '/components/com_customfilters/layouts' );
 
+
+
+		$name = 'jform[params][use_city_setting]['.$item['alias'].'][use]';
+		$parentAlias = '';
+		if ( isset ($item['parentName']) )
+		{
+			$item['parentName'] = str_replace('[use]' , '' , $item['parentName'] );
+			$name =  $item['parentName'].'['.$item['alias'].'][use]' ;
+
+			$parentAlias = $item['parentAlias'];
+
+		}#END IF
+
+		$displayData = [ 'name' => $name , 'parentAlias' => $parentAlias];
+		# Расположение слоя
+		# /templates/bazvek/html/layouts/com_vikrentcar/tables/hours_payment.php
+		return LayoutHelper::render('form-meta-element', $displayData);
+	}
 	/**
 	 * Создание для слайда аккордеона городов кнопок использовать или нет
 	 * @param   array  $item
@@ -92,16 +114,17 @@ class Behavior extends \JHtmlBootstrap
 		
 
 
-		$html = '<div class="control-group">'
-			.'<div class="control-label">'
-				.'<label id="jform_use_virtuemart_pages_vars-lbl" for="jform_use_virtuemart_pages_vars" 
-						class="hasPopover" 
-						title="Использовать" 
-						data-content="Если включено будут использоваться все вложенные регионы.<br> Если отключено - нужно включать вложенные регионы" 
-						data-original-title="Использовать">
-						Использовать
-				</label>'
-			.'</div>' ;
+		$html = '<div class="control-group">' ;
+
+		$html .=    '<div class="control-label">'
+						.'<label id="jform_use_virtuemart_pages_vars-lbl" for="jform_use_virtuemart_pages_vars" 
+								class="hasPopover" 
+								title="Использовать" 
+								data-content="Если включено будут использоваться все вложенные регионы.<br> Если отключено - нужно включать вложенные регионы" 
+								data-original-title="Использовать">
+								Использовать
+						</label>'
+					.'</div>' ;
 
 		$html .= '<div class="controls">'
 			.'<fieldset id="jform_use_virtuemart_pages_vars-'.$item['alias'].'" 

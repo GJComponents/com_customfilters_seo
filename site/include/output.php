@@ -149,16 +149,18 @@ class CfOutput
         return $new_array;
     }
 
-    /**
-     * Some vars such as the custom filters values needs to be encoded
-     * This function is mainly called by the module that needs the values as output to check for the selected values
-     *
-     * @param array $array inputs
-     * @param string $var the name of the var
-     * @return array output
-     * @since 2.2.0
-     * @author Sakis Terz
-     */
+	/**
+	 * Some vars such as the custom filters values needs to be encoded
+	 * This function is mainly called by the module that needs the values as output to check for the selected values
+	 *
+	 * @param   array   $array  inputs
+	 * @param   string  $var    the name of the var
+	 *
+	 * @return array output
+	 * @throws Exception
+	 * @since  2.2.0
+	 * @author Sakis Terz
+	 */
     public function encodeVar($array, $var_name)
     {
         $store = md5(json_encode($array) . $var_name);

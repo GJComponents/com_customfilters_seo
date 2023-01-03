@@ -1,18 +1,25 @@
 @CHARSET "UTF-8";
+
 @font-face {
   font-family: 'icons';
-  src: url("../fonts/icomoon.eot") format("eot"), url("../fonts/icomoon.woff") format("woff"), url("../fonts/icomoon.ttf") format("truetype"); }
+  src: url('../fonts/icomoon.eot') format('eot'),
+  url('../fonts/icomoon.woff') format('woff'),
+  url('../fonts/icomoon.ttf') format('truetype');
+}
 
 .table {
   --checkbox-size: 1.8em;
-  --display-type-drop-down-width: 200px; }
+  --display-type-drop-down-width: 200px;
+}
 
 #customfilterlist tr:hover > td {
-  background-color: #e1e1e1; }
+  background-color: #e1e1e1;
+}
 
 /* Custom Checkboxes Styling */
 .cfCheckboxGroup {
-  margin-inline-start: calc(50% - var(--checkbox-size)); }
+  margin-inline-start: calc(50% - var(--checkbox-size));
+}
 
 .cfCheckboxGroup input {
   order: 1;
@@ -20,7 +27,8 @@
   right: 0;
   top: 50%;
   cursor: pointer;
-  clip: rect(1px, 1px, 1px, 1px); }
+  clip: rect(1px, 1px, 1px, 1px);
+}
 
 .cfCheckboxGroup label {
   width: var(--checkbox-size);
@@ -33,17 +41,21 @@
   cursor: pointer;
   overflow: hidden;
   border: 1px solid #ccc;
-  border-radius: 50%; }
+  border-radius: 50%;
+}
 
 .cfCheckboxGroup input:not(:checked) + label:hover {
   background-color: #ececec;
-  border: 1px solid #444; }
+  border: 1px solid #444;
+}
 
 .cfCheckboxGroup input:checked + label:hover {
-  background-color: #275927; }
+  background-color: #275927;
+}
 
 .cfCheckboxGroup input:checked ~ label {
-  background-color: #378137; }
+  background-color: #378137;
+}
 
 .cfCheckboxGroup input:checked ~ label::after {
   content: "";
@@ -56,123 +68,151 @@
   border-width: 0 3px 3px 0;
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
-  transform: rotate(45deg); }
+  transform: rotate(45deg);
+}
 
 .cfCheckboxGroup input:checked ~ label::after {
-  display: block; }
+  display: block;
+}
 
 .displayTypesFilter {
   /* Set it as important because Joomla sets width inline */
-  width: 200px !important; }
+  width: 200px !important;
+}
 
 .cfDisplayTypes {
-  width: var(--display-type-drop-down-width); }
+  width: var(--display-type-drop-down-width)
+}
 
 /* Set a max height for the description field. It can ruin the view, if too long */
 .cf-vm-customfield-desciption {
   max-height: 4em;
-  overflow-y: auto; }
+  overflow-y: auto;
+}
+
 
 .icon-48-custom_filters {
-  background-image: url(../images/cf_logo_48.png); }
+  background-image: url(../images/cf_logo_48.png);
+}
 
 .icon-custom_filters {
-  background-image: url(../images/cf_logo_14.png); }
+  background-image: url(../images/cf_logo_14.png);
+}
 
 #cf_info {
-  text-align: left; }
+  text-align: left;
+}
 
 #cf_versioninfo {
   min-width: 130px;
-  min-height: 10px; }
+  min-height: 10px;
+}
 
 #cfoutdated {
   color: #ff0000;
-  font-weight: bold; }
+  font-weight: bold;
+}
 
 #cfupdated {
-  color: #007236; }
+  color: #007236;
+}
 
 .cfversion_no {
   font-size: 1.2em;
-  font-weight: bold; }
+  font-weight: bold;
+}
 
 #cfupdate_toolbar {
   display: none;
-  margin-top: 15px; }
+  margin-top: 15px;
+}
 
 .cf_update_btn {
   display: block;
   float: left;
   margin-right: 10px;
-  text-align: center; }
+  text-align: center;
+}
 
 .order input {
-  width: 80% !important; }
+  width: 80% !important;
+}
 
 .icon-32-optimize {
-  background: url(../images/icon-32-optimize.png) top center no-repeat; }
+  background: url(../images/icon-32-optimize.png) top center no-repeat;
+}
 
 #cfOptimizerForm {
-  text-align: center; }
+  text-align: center;
+}
 
 #cfOptimizerForm #cf_optimizebtn {
   padding: 10px;
-  font-size: 1.3em; }
+  font-size: 1.3em;
+}
 
 #cfOptimizerForm #cf_optimizebtn:hover {
   background: #efefef;
-  cursor: pointer; }
+  cursor: pointer;
+}
 
 #optimizer_results {
   margin: 0px auto;
   height: auto;
   width: 80%;
   text-align: center;
-  padding: 10% 0; }
+  padding: 10% 0;
+}
 
 .cf_log_wrapper {
-  font-size: 1.3em; }
+  font-size: 1.3em;
+}
 
 .cf_log_wrapper .msg_precentage {
   font-size: 1.5em;
-  color: green; }
+  color: green;
+}
 
 .cf_spinner {
-  background: url(../images/spinner2.gif) center center no-repeat; }
+  background: url(../images/spinner2.gif) center center no-repeat;
+}
 
 #cf_copyright_footer {
-  margin-top: 5px; }
+  margin-top: 5px;
+}
 
 #cf_jed {
-  float: right; }
+  float: right;
+}
 
 /*Modal link*/
 .cf_adv_settings {
-  display: block; }
+  display: block;
+}
 
 /*General*/
 .cfdisplay {
-  display: block; }
+  display: block;
+}
 
 .cfhide {
-  display: none !important; }
+  display: none !important;
+}
 
 [data-icon]:before {
-  font-family: icons;
-  /* BYO icon font, mapped smartly */
+  font-family: icons; /* BYO icon font, mapped smartly */
   content: attr(data-icon);
-  speak: none;
-  /* Not to be trusted, but hey. */ }
+  speak: none; /* Not to be trusted, but hey. */
+}
 
-a.setting-filters {
-  color: #ccc;
-  display: block;
-  text-align: center;
-  margin-top: 10px;
-  font-size: 21px;
-  cursor: pointer; }
-  a.setting-filters span {
-    pointer-events: none; }
-
-/*# sourceMappingURL=display.css.map */
+a.setting-filters{
+    color: #ccc;
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 21px;
+    cursor: pointer;
+    span{
+      pointer-events: none;
+    }
+}

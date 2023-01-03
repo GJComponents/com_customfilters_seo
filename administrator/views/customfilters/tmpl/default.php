@@ -93,6 +93,9 @@ if ($saveOrder) {
 					<th width="12%" class="nowrap hidden-phone hidden-tablet">
                         <?php echo Text::_('CUSTOM_FIELD_DESCRIPTION'); ?>
 					</th>
+                    <!-- Setting Filter Head -->
+                    <th width="1%" style="min-width: 55px" class="nowrap center"></th>
+
 					<th>
                         <?php echo HTMLHelper::_('searchtools.sort', 'CUSTOM_FIELD_TYPE', 'vmc.field_type', $listDirn, $listOrder); ?>
 					</th>
@@ -127,9 +130,9 @@ if ($saveOrder) {
                     <th id="header-scrollbarafter" class="nowrap hidden-phone hidden-tablet">
                         <?php echo Text::_('COM_CUSTOMFILTERS_SCROLLBARAFTER');?>
 					</th>
-                    <th class="nowrap hidden-phone hidden-tablet">
-                        <?php echo Text::_('COM_CUSTOMFILTERS_ADV_SETTINGS');?>
-                    </th>
+                    <!--<th class="nowrap hidden-phone hidden-tablet">
+                        <?php /*echo Text::_('COM_CUSTOMFILTERS_ADV_SETTINGS');*/?>
+                    </th>-->
                     <th width="1%" class="nowrap hidden-phone hidden-tablet">
                         <?php echo HTMLHelper::_('searchtools.sort', 'COM_CUSTOMFILTERS_CUSTOM_ID', 'cf.vm_custom_id', $listDirn, $listOrder); ?>
 					</th>
@@ -210,7 +213,16 @@ if ($saveOrder) {
                             <?php echo $item->custom_descr ?>
                         </div>
 					</td>
-					<!-- Тип настраеваемого поля-->
+                    <!-- SETTING FILTERS-->
+                    <td class="left">
+                        <a title="Setting filter" class="setting-filters"
+                           data-evt="onLoadSettingFilter"
+                           data-custom_id="<?= $item->custom_id ?>">
+                            <span class="icon-cogs" ></span>
+                        </a>
+
+                    </td>
+                    <!-- Тип настраеваемого поля-->
                     <td class="left">
                         <?php echo $item->field_type_string ?>
 					</td>
@@ -229,10 +241,6 @@ if ($saveOrder) {
                         </td>
                         <?php
                     }#END IF
-
-
-//                    echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
-//                    die(__FILE__ .' '. __LINE__ );
 
 
                     ?>
@@ -275,20 +283,21 @@ if ($saveOrder) {
                                class="inputbox" size="5" maxlength="10" pattern="[\d.]+(px|em|rem|vw|vh|vmin|vmax|ex|cm|mm|pt|in|%){1}"
                                aria-labelledby="header-scrollbarafter" aria-details="Set the height, after which a scrollbar will be applied (e.g. 100px)."/>
 					</td>
-
-                    <td class="nowrap hidden-phone hidden-tablet">
-                        <button type="button" class="btn btn-small cf_adv_settings" id="show_popup<?php echo $item->id?>">
+                    <!-- ADV_SETTINGS -->
+                    <!--<td class="nowrap hidden-phone hidden-tablet">
+                        <button type="button" class="btn btn-small cf_adv_settings" id="show_popup<?php /*echo $item->id*/?>">
                             <span class="icon-eye"></span>
                             <span>
-                                <?php echo Text::_('COM_CUSTOMFILTERS_ADV_SETTINGS');?>
+                                <?php /*echo Text::_('COM_CUSTOMFILTERS_ADV_SETTINGS');*/?>
                             </span>
                         </button>
-                        <?php //load the settings popup
-                        require(dirname(__FILE__).DIRECTORY_SEPARATOR.'default_settings.php');?>
-                    </td>
+                        <?php /*//load the settings popup
+                        require(dirname(__FILE__).DIRECTORY_SEPARATOR.'default_settings.php');*/?>
+                    </td>-->
+
 
 					<td class="nowrap hidden-phone hidden-tablet center">
-                        <?php echo $item->custom_id ?>
+                        <?= $item->custom_id ?>
 					</td>
 
 				</tr>

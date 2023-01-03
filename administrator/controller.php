@@ -279,7 +279,16 @@ class CustomfiltersController extends JControllerLegacy
 			parent::display();
 		}
 	}
-
+	public function onAjaxLoadSettingFilter(){
+		if (!JSession::checkToken('get'))
+		{
+			echo new JResponseJson(null, JText::_('JINVALID_TOKEN'), true);
+		}
+		else
+		{
+			parent::display();
+		}
+	}
 	/**
 	 * Загрузить слайдер дочерних городов
 	 * @return void
@@ -292,8 +301,6 @@ class CustomfiltersController extends JControllerLegacy
 		}
 		else
 		{
-
-
 			parent::display();
 		}
 	}

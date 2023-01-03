@@ -49,11 +49,6 @@ class CustomfiltersModelSetting_seo extends AdminModel
         $form = $this->loadForm(
             'com_customfilters.setting_seo',
             'setting_seo', array('control' => 'jform', 'load_data' => $loadData));
-
-
-
-
-
         if (empty($form))
         {
             return false;

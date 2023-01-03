@@ -1,0 +1,17 @@
+.fancybox-container.setting_filter_modal .fancybox-content {
+  padding: 44px 6px 6px 6px;
+  width: 80%;
+  min-height: 450px; }
+
+form#setting_filter div.buttons-bar {
+  position: absolute;
+  bottom: 0;
+  right: 0; }
+
+form#setting_filter div.tab-content {
+  height: 100%; }
+
+form#setting_filter div.tab-pane {
+  height: 100%; }
+
+/*# sourceMappingURL=setting_filter.css.map */

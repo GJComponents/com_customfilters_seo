@@ -347,9 +347,9 @@ class seoTools
 			    die(__FILE__ .' '. __LINE__ );
 			}
 
-			echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
-			
-			die(__FILE__ .' '. __LINE__ );
+//			echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//
+//			die(__FILE__ .' '. __LINE__ );
 
 	    }#END IF
 

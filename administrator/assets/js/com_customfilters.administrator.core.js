@@ -64,8 +64,6 @@ window.customfiltersAdminCore = function () {
         this._params = Joomla.getOptions('customfiltersAdminCore', this.ParamsDefaultData);
         __v = self._params.development_on ? '' : '?v=' + self._params.__v;
 
-
-
         // Параметры Ajax Default
         this.setAjaxDefaultData();
         this.addEvtListener();
@@ -125,8 +123,11 @@ window.customfiltersAdminCore = function () {
             console.log( 'customfilters.administrator.core' , e.target.dataset.evt );
             switch (e.target.dataset.evt) {
                 case "loadChildrenArea" :
-                   self.loadChildrenArea( e.target );
+                    self.loadChildrenArea(e.target);
                     break;
+                case 'onLoadSettingFilter' :
+                    self.onLoadSettingFilter(e.target);
+                    break ;
             }
         });
         // Event - keyup
@@ -193,7 +194,70 @@ window.customfiltersAdminCore = function () {
             }
         };
     }
+    this.SettingFilterModal ;
+    /**
+     * Загрузить форму настроек фильтра 
+     */
+    this.onLoadSettingFilter = function (elem){
 
+        var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
+        Data.cid = + $(elem).closest('tr').find('input[name="cid[]"]').val() ;
+        Data.task = 'onAjaxLoadSettingFilter' ;
+        Data.view = 'setting_filter' ;
+        Data.custom_id = $(elem).data('custom_id') ;
+
+
+        var AjaxPost = self.AjaxPost( Data )
+        var getModal = self.__loadModul.Fancybox();
+        var Css = self.load.css('/administrator/components/com_customfilters/assets/css/setting_filter.css');
+
+        Promise.all([ AjaxPost , getModal , Css  ]).then(function (DataPromise){
+            var Html = DataPromise[0].data.html;
+            self.SettingFilterModal = DataPromise[1]
+
+            self.SettingFilterModal.open(Html, {
+                baseClass: "editSettingFilter setting_filter_modal", // Класс основного элемента
+                touch: false,
+                // Перед началом анимации открытия
+                beforeShow: function (instance, current) { },
+
+                // Когда контент загружен и анимирован
+                afterShow: function (instance, current) {
+                    self.checkBoxRadioInit('.setting_filter_modal');
+                    // var $select = $('.editSettingFilter').find('select').chosen();
+                    // console.log( 'com_customfilters.administrator.core::beforeShow' , $select );
+
+
+
+                    // Modal.setTimeOut(8000); // Окно будет закрыто через 8 секунд
+                },
+            });
+            console.log('com_customfilters.administrator.core', DataPromise);
+
+
+        },function (err){console.log(err)});
+
+        console.log( 'com_customfilters.administrator.core::onLoadSettingFilter' , elem );
+        console.log( 'com_customfilters.administrator.core::onLoadSettingFilter' , Data );
+        
+    }
+    /**
+     * Сохранение формы Параметров фильтра
+     *
+     */
+    this.onSaveSettingFilter = function (){
+        var $Form = $('#setting_filter')
+        var Data = JSON.parse(JSON.stringify( self.AjaxDefaultData ));
+        Data.formData = $Form.serialize();
+        Data.task = 'setting_filter.save' ;
+        Data.view = 'setting_filter' ;
+        self.SettingFilterModal
+        var AjaxPost = self.AjaxPost( Data );
+        Promise.all([ AjaxPost ]).then(function (DataPromise){
+            var resultAjax = DataPromise[0];
+            self.renderMessages(resultAjax.messages)
+        });
+    }
     /**
      * Ввод текста в поле - получение Translite
      * @param event

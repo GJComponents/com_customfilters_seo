@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <field name="alias"
+           type="text"
+           default=""
+           class="alias "
+           size="20"
+           readonly=""
+           required="1"
+           label="COM_CUSTOMFILTERS_SETTING_FILTER_FIELD_ALIAS"
+           description="COM_CUSTOMFILTERS_SETTING_FILTER_FIELD_ALIAS_DESC"
+           showon=""
+           hint=""
+           pattern="[A-Za-z\s0-9]+"
+           filter="raw"/>
+
+    <fieldset name="filter_exceptions" addfieldpath="/libraries/GNZ11/Extensions/Fields/virtuemart" >
+
+
+        <fields name="exceptions">
+            <!-- ! Требует наличие и подключения библиотеки GNZ11 -->
+            <!-- <fieldset addfieldpath="/libraries/GNZ11/Extensions/Fields/virtuemart" /> -->
+            <field name="categories"
+                   type="vmcategories"
+                   multiple="1"
+                   class="list_category chosen-select"
+                   label="SETTING_FILTER_LIST_CATEGORY"
+                   description="SETTING_FILTER_LIST_CATEGORY_DESC"
+                   showon=""
+                   hint=""
+                   filter="raw" />
+
+            <field name="values"
+                   type="vmseocustomfieldvalue"
+                   multiple="1"
+                   default=""
+                   class="vmseocustomfieldvalue chosen-select"
+                   size="20"
+                   readonly=""
+                   required=""
+                   label="SETTING_FILTER_VM_SEO_CUSTOMFIELD_VALUE"
+                   description="SETTING_FILTER_VM_SEO_CUSTOMFIELD_VALUE_DESC"
+                   showon=""
+                   hint=""
+                   pattern="[A-Za-z\s0-9]+"
+                   filter="raw" />
+
+        </fields>
+
+    </fieldset>
+    <fieldset name="advanced_settings">
+        <field name="limit_options_select_for_no_index"
+        	type="number"
+        	default="0"
+        	min="0"
+        	max="10"
+        	step="1"
+        	class="limit_options_select_for_no_index "
+        	size="20"
+        	readonly=""
+        	required=""
+        	label="COM_CUSTOMFILTERS_LIMIT_OPTIONS_SELECT_FOR_NO_INDEX"
+        	description="COM_CUSTOMFILTERS_LIMIT_OPTIONS_SELECT_FOR_NO_INDEX_DESC"
+        	showon=""
+        	hint=""
+        	filter="raw" />
+        <field name="use_only_one_opt"
+        	type="radio"
+        	default="0"
+        	readonly="0"
+        	label="COM_CUSTOMFILTERS_USE_ONLY_ONE_OPT"
+        	description="COM_CUSTOMFILTERS_USE_ONLY_ONE_OPT_DESC"
+        	class="btn-group btn-group-yesno"
+        	showon=""
+        	>
+        	<option value="1">JYES</option>
+        	<option value="0">JNO</option>
+        </field>
+		
+
+			
+		
+		<field name="display_if_filter_exist"
+			   type="customfiltersselect"
+			   multiple="1"
+			   default=""
+			   class="customfiltersselect chosen-select"
+			   size="20"
+			   readonly=""
+			   required=""
+			   label="SETTING_FILTER_DISPLAY_IF_FILTER_EXIST"
+			   description="SETTING_FILTER_DISPLAY_IF_FILTER_EXIST_DESC"
+			   showon=""
+			    />
+
+		<field name="conditional_operator"
+			type="list"
+			default="AND"
+			required=""
+			label="COM_CUSTOMFILTERS_DISPLAY_IF_SELECTED"
+			description="COM_CUSTOMFILTERS_DISPLAY_IF_SELECTED_DESC"
+			class="use_only_one_opt "
+			multiple="false"
+			readonly=""
+			showon=""
+			filter="raw" >
+
+				<option value="AND">COM_CUSTOMFILTERS_OPERATOR_AND</option>
+				<option value="OR">COM_CUSTOMFILTERS_OPERATOR_OR</option>
+			</field>
+
+
+        	
+    </fieldset>
+
+    <fieldset name="basic">
+
+    </fieldset>
+    <fieldset name="hidden_fields">
+
+    </fieldset>
+</form>

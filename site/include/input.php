@@ -122,6 +122,8 @@ class CfInput
                 self::$cfInputs = $cfinput->buildInputs();
             }
 
+
+
 	        $seoTools = new seoTools();
 	        $seoTools->setMetaData();
 
@@ -390,6 +392,7 @@ class CfInput
 	 */
 	public function parseUrlString()
 	{
+
 		$app  = \Joomla\CMS\Factory::getApplication();
 		$juri = JUri::getInstance();
 		$path = $juri->getPath();
@@ -462,8 +465,6 @@ class CfInput
 			//
 			$subStr = mb_substr($path, $start, $length);
 
-
-
 			// Находим двойные или более опции фильтра
 			$arrValFilter = explode('-and-', $subStr);
 			// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
@@ -477,7 +478,7 @@ class CfInput
 				$itemValF = str_replace('/', '', $itemValF);
 
 				// Удаляем название фильтра
-				$itemValF                 = str_replace($dataFilters->name, '', $itemValF);
+				$itemValF = str_replace($dataFilters->name, '', $itemValF);
 
 //				$itemValF                 = str_replace('-', '', $itemValF);
 
@@ -510,10 +511,26 @@ class CfInput
 			}#END FOREACH
 		}#END FOREACH
 
+
+
 		/**
 		 * @var array $customSelectValueArr - Массив всех значений для фильтров
 		 */
 		$customSelectValueArr = \cftools::getCustomSelectValue($selectFilterIds);
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+
+
+
+
+			//			$optionsHelper = \OptionsHelper::getInstance();
+//		    echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
+
+
+		}
+
 
 		foreach ($filtersArr as &$item)
 		{
@@ -521,15 +538,23 @@ class CfInput
 			$optArr      = [];
 			$arrSetInput = [];
 
-
-
 			foreach ($item->optionSelected as $option)
 			{
+				// Стальной Шелк
+				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+				{
+//				    echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
+//				    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
 
+				}
+				
 				if (array_key_exists( $option , $customSelectValueArr ))
 				{
                     $item->dataOptions[] =  $customSelectValueArr[$option];
 					$customfield_value = $customSelectValueArr[$option]->customfield_value;
+
+
+					$customfield_value = preg_replace('/[^\w\s\d\(\)\[\]\.,-]/iu' , '' , $customfield_value ) ;
 
 					// Преобразование двоичных данных в шестнадцатеричное представление
 					$optArr[]          = bin2hex($customfield_value);
@@ -541,6 +566,24 @@ class CfInput
 			$app->input->set($key, $optArr);
 
 		}#END FOREACH
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//		    die(__FILE__ .' '. __LINE__ );
+
+		}
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//				echo'<pre>';print_r( $published_cf );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $findResultArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $dataFiltersArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $selectFilterIds );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
 
 		$app->set('seoToolsActiveFilter' , $filtersArr );
 

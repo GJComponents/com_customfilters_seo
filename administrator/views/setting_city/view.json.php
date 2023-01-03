@@ -109,11 +109,6 @@ class CustomfiltersViewSetting_city extends HtmlView
 
 		}
 
-
-
-
-
-
 		/**
 		 * CustomfiltersModelSetting_city::getItem
 		 */

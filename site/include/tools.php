@@ -722,6 +722,9 @@ class cftools
 	 */
 	public static function getCustomSelectValue( $filtersIds = [] ): array
 	{
+		$app = \Joomla\CMS\Factory::getApplication();
+		$virtuemart_category_idArr = $app->input->get('virtuemart_category_id' , false , 'ARRAY');
+
 		$db = JFactory::getDbo();
 		$Query = $db->getQuery( true ) ;
 		$select = [
@@ -730,16 +733,39 @@ class cftools
 			$db->quoteName('customfield_value'),
 		];
 		$Query->select( $select );
-		$Query->from( $db->quoteName('#__virtuemart_product_customfields') );
-		$Query->where( $db->quoteName('virtuemart_custom_id') .'IN ( "'.implode('","' , $filtersIds  ).'")');
+		$Query->from( $db->quoteName('#__virtuemart_product_customfields' , 'cfp') );
+		$Query->innerJoin(
+			$db->quoteName('#__virtuemart_products' , 'p')
+			. 'ON'
+			. $db->quoteName('cfp.virtuemart_product_id') . '=' . $db->quoteName( 'p.virtuemart_product_id' )
+		);
+		$Query->innerJoin(
+			$db->quoteName('#__virtuemart_product_categories' , 'pc')
+			. 'ON'
+			. $db->quoteName('p.virtuemart_product_id') . '=' . $db->quoteName( 'pc.virtuemart_product_id' )
+		);
+		$where = [
+			$db->quoteName('cfp.virtuemart_custom_id') .'IN ( "'.implode('","' , $filtersIds  ).'")' ,
+			$db->quoteName( 'pc.virtuemart_category_id' ) .'IN ( "'.implode('","' , $virtuemart_category_idArr  ).'")',
+			$db->quoteName( 'cfp.published' ) .'= 1 ',
+			$db->quoteName( 'p.published' ) .'= 1 ',
+		];
+		$Query->where( $where );
         // TODO - Не работало на tekAktiv - с условием
-//		$Query->where( $db->quoteName( 'published' ) .'= 1 ');
-		$Query->group( $db->quoteName('customfield_value') );
-//		echo '<br>------------<br>Query Dump :'.__FILE__ .' '.__LINE__ .$Query->dump().'------------<br>';
+		$Query->group( $db->quoteName('cfp.customfield_value') );
 		$db->setQuery( $Query );
 		$res = $db->loadObjectList();
-		
-		
+
+		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
+		{
+//			echo '<br>------------<br>Query Dump :'.__FILE__.' '.__LINE__.$Query->dump().'------------<br>';
+//			echo '<br>------------<br>Query Dump :'.__FILE__.' '.__LINE__ .'<br>' . $res.'<br>' . '------------<br>';
+//			echo'<pre>';print_r( $app->input->get('virtuemart_category_id') );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $res );echo'</pre>'.__FILE__.' '.__LINE__;
+
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
 		
 
 		$itemArr = [];
