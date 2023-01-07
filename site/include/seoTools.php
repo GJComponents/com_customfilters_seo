@@ -488,8 +488,16 @@ class seoTools
 			// Проверка - если есть выбранные фильтры запрещенные для индексации
 		    if ( !$item->on_seo ) return true ; #END IF
 
+if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+{
+
+//	echo'<pre>';print_r( $params );echo'</pre>'.__FILE__.' '.__LINE__;
+//	die(__FILE__ .' '. __LINE__ );
+
+}
+
 			// Если количество выбранных опций для фильтра больше чем установлено в расширенных настройках фильтра
-		    if ( $params->limit_options_select_for_no_index && count( $inputs[$keyInput] ) > $params->limit_options_select_for_no_index )
+		    if ( isset( $params->limit_options_select_for_no_index ) && count( $inputs[$keyInput] ) > $params->limit_options_select_for_no_index )
 				return true ; #END IF
 
 

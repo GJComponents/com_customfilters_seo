@@ -521,9 +521,6 @@ class CfInput
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
 
-
-
-
 			//			$optionsHelper = \OptionsHelper::getInstance();
 //		    echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
 //		    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;

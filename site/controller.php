@@ -38,6 +38,30 @@ class CustomfiltersController extends JControllerLegacy
      */
     function display($cachable = false, $urlparams = false)
     {
+	    $cachable = true ;
+	    if ( !$urlparams )
+	    {
+		    $app = \Joomla\CMS\Factory::getApplication();
+		    $juri = \Joomla\CMS\Uri\Uri::getInstance();
+		    $filterUrl = $juri->getPath();
+		    $app->input->set('filter-url' , md5( $filterUrl ) );
+
+		    $urlparams = [
+			    'Itemid' => 'INT',
+			    'virtuemart_category_id' => 'ARRAY',
+			    'virtuemart_manufacturer_id' => 'ARRAY',
+			    'filter-url' => 'STRING',
+		    ];
+
+	    }#END IF
+
+		// Отключить CACH -  для DEV
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+			$cachable = false ;
+		}
+		
+
         $input = JFactory::getApplication()->input;
         $viewName = $input->get('view', $this->default_view);
         if ($viewName != 'module' && $viewName != 'products')
@@ -52,6 +76,7 @@ class CustomfiltersController extends JControllerLegacy
      * (non-PHPdoc)
      *
      * @see JControllerLegacy::getModel()
+     * @since 3.9
      */
     public function getModel($name = 'Products', $prefix = 'customfiltersModel', $config = array('ignore_request' => true))
     {

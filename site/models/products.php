@@ -107,7 +107,12 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         $this->menuparams = cftools::getMenuparams();
         $this->moduleparams = cftools::getModuleparams();
         $this->componentparams = CustomfiltersConfig::getInstance();
-        $this->cfinputs = CfInput::getInputs();
+
+
+		$this->cfinputs = CfInput::getInputs();
+//		echo'<pre>';print_r( $this->cfinputs );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
         $this->vmVersion = VmConfig::getInstalledVersion();
         $this->currentLangPrefix = cftools::getCurrentLanguagePrefix();
         $this->defaultLangPrefix = cftools::getDefaultLanguagePrefix();
@@ -161,6 +166,9 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         $nbrReturnProducts = false,
         $langFields = array()
     ) {
+
+
+
 
         if ($this->moduleparams->get('cf_profiler', 0)) {
             $profiler = JProfiler::getInstance('application');
@@ -246,13 +254,13 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         //generate Custom fields filter
         $customFilters = $this->published_cf;
 
+
+
         if (!empty($customFilters)) {
 	        /**
 	         * @var JDatabaseQueryMysqli $query
 	         */
             $query = $queryBuilder->getQuery();
-
-
 
 			foreach ($customFilters as $cf) {
                 $cf_name = 'custom_f_' . $cf->custom_id;
@@ -374,7 +382,9 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
         $queryBuilder->setOrder($this->getState('filter_order'), $this->getState('filter_order_Dir'));
 
-        /**
+
+
+	    /**
          * Установка limitstart (номера страницы) в пагинации
          */
         $uri = JUri::getInstance();
@@ -386,18 +396,10 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         }
         $this->setState('list.limitstart' , $limitstart  ) ;
 
-
-
-
-
         // List state information
         // Установка $limitstart - для пагинации
         $limit = $this->getState('list.limit', 5);
         $limitstart = $this->getState('list.limitstart', 0);
-
-
-
-
 
 
         //fetch the product ids
@@ -409,12 +411,12 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 	        $cache = \JFactory::getCache('com_customfilters_seo_info_product', '');
 	        $cache_id = md5( (string)$query ) ;
 
-	        $InfoProducts = $cache->get( $cache_id  ) ;
-
 	        $seoTools_products = new seoTools_info_product();
+
 			if ( !$InfoProducts = $cache->get( $cache_id  ) )
 	        {
-				$InfoProducts = $seoTools_products->getInfoProducts($query);
+		        $InfoProducts = $seoTools_products->getInfoProducts($query);
+
 		        // сохраняем $InfoProducts в кэше
 		        $cache->store( $InfoProducts, $cache_id );
 	        }

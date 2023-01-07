@@ -36,6 +36,7 @@ class seoTools_info_product
 		$siteLang = strtolower(strtr($siteLang, '-', '_'));
 		$db = JFactory::getDbo();
 
+
 		$select = [
 			$db->quoteName('p_p.product_price'),
 			$db->quoteName('ml.mf_name'),
@@ -43,6 +44,13 @@ class seoTools_info_product
 //			$db->quoteName('MAX(p_p.product_price)' , 'largest_price' ),
 		];
 		$query->select($select);
+
+		$query->leftJoin(
+			$db->quoteName('#__virtuemart_product_prices' , 'p_p')
+			.' ON '
+			.$db->quoteName('p_p.virtuemart_product_id') . ' = ' . $db->quoteName('p.virtuemart_product_id')
+		);
+
 		$query->leftJoin(
 				$db->quoteName('#__virtuemart_product_manufacturers' , 'm')
 			.' ON '
@@ -55,7 +63,24 @@ class seoTools_info_product
 		);
 		$db->setQuery($query , 0 , 10 );
 
-		return $db->loadObjectList();
+
+		try
+		{
+		    // Code that may throw an Exception or Error.
+			$resultObjectList = $db->loadObjectList() ;
+		    // throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+		}
+		catch (\Exception $e)
+		{
+		    // Executed only in PHP 5, will not be reached in PHP 7
+		    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+		    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+		    die(__FILE__ .' '. __LINE__ );
+		}
+
+
+
+		return $resultObjectList ;
 
 	}
 

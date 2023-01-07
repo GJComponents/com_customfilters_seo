@@ -354,8 +354,9 @@ class seoTools_uri
 		{
 			$patern = '/^\/.+\/.+\/([^\/]+)\/?$/i';
 			preg_match( $patern , $path , $matches );
+
 			// Если название фильтра не нашли -
-			if ( !$matches[ 1 ] ) return $findResultArr; #END IF
+			if ( !isset( $matches[ 1 ] ) ) return $findResultArr; #END IF
 			$sef_alias = $matches[ 1 ];
 		}
 
