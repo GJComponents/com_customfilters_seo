@@ -103,6 +103,7 @@ class ProductsQueryBuilder
     /**
      *
      * @return ProductsQueryBuilder
+     * @since 3.9
      */
     protected function setTablesMap()
     {
@@ -168,6 +169,7 @@ class ProductsQueryBuilder
     	if(!isset($this->query)) {
     		$this->setQuery();
     	}
+
         return $this->query;
     }
 

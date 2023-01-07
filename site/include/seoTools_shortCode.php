@@ -19,7 +19,8 @@ class seoTools_shortCode
      * @return string
      * @since    1.0.0
      */
-    public static function getFilterListText($filterOrdering){
+    public static function getFilterListText($filterOrdering):string
+    {
         $FILTER_LIST_text = '';
         // Перебираем фильтры -- составляем описание для включенных фильтров
         $filterCount = 0 ;
@@ -48,25 +49,24 @@ class seoTools_shortCode
      */
     public static function getFilterValueListText($filterOrdering){
         $FILTER_LIST_text = '';
-
         $filterCount = 0 ;
-
-
         foreach ($filterOrdering as $iOr => $filter ){
-
             $valueCount = 0;
             foreach ( $filter->valueArr as $item)
             {
-
                 if ( $valueCount ) $FILTER_LIST_text .= ', ';
                 $FILTER_LIST_text .= $item ;
                 $valueCount++;
             }
-
             $filterCount++;
             if ($filterCount < count( $filterOrdering ) ) $FILTER_LIST_text .= ', ';
         }
         return $FILTER_LIST_text ;
     }
+
+	public static function getResultDescription($dataArr){
+
+		return  $dataArr ;
+	}
 
 }

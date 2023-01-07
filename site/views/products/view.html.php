@@ -124,11 +124,10 @@ class CustomfiltersViewProducts extends cfView
 	    }
 	    $this->prepareDocument();
 
-		// Если в настройках компонента com_customfilters - не отображать описание категории
-	    if ( !$paramsComponent->get('on_description_vm_category' , 1 ) )
-	    {
-		    $this->category->category_description = null ;
-	    }#END IF
+
+
+
+
 
 		// on_description_vm_category
 
@@ -155,6 +154,38 @@ class CustomfiltersViewProducts extends cfView
         $ids = $this->get('ProductListing');
 
         $this->products = $this->productModel->getProducts($ids);
+
+
+	    // Если в настройках компонента com_customfilters - не отображать описание категории
+	    $on_description_vm_category = $paramsComponent->get('on_description_vm_category' , 1 );
+	    if ( !$on_description_vm_category )
+	    {
+		    $this->category->category_description = null ;
+	    }else if ($on_description_vm_category == 2 ){
+		    JLoader::register('seoTools_shortCode' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_shortCode.php');
+			$app = \Joomla\CMS\Factory::getApplication();
+		    $CountProductResult = $app->get('CountProductResult' , false ) ;
+		    $this->category->category_description = $CountProductResult ;
+
+		    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		    {
+			    $this->category->category_description = seoTools_shortCode::getResultDescription( $CountProductResult );
+				echo'<pre>';print_r( $this->category->category_description );echo'</pre>'.__FILE__.' '.__LINE__;
+				die(__FILE__ .' '. __LINE__ );
+		    }
+	    }#END IF
+
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//		    echo'<pre>';print_r( count( $this->products ) );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r(   $this->products   );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r( $ids );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    die(__FILE__ .' '. __LINE__ );
+
+		}
+
+
         $this->productModel->addImages($this->products);
         /**
          * @var CustomfiltersModelProducts Object
@@ -252,6 +283,8 @@ class CustomfiltersViewProducts extends cfView
             (JPATH_BASE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_virtuemart' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'category' . DIRECTORY_SEPARATOR . 'tmpl'));
         $layout = $this->menuParams->get('cfresults_layout');
         $this->setLayout($layout);
+
+
 
         // load the virtuemart language files
         if (method_exists('VmConfig', 'loadJLang')) {

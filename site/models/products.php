@@ -183,12 +183,14 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
             return [];
         }
 
-
-
+	    /**
+	     * @var ProductsQueryBuilder $queryBuilder
+	     */
         $queryBuilder = new ProductsQueryBuilder(
 			$this->componentparams->getFilteredProductsType(),
             $this->componentparams->getReturnedProductsType()
         );
+
 
 
 
@@ -202,11 +204,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
                 $profiler->mark('After Keyword Search');
             }
         }
-
-
-
-
-
 
         //generate categories filter query
         if (isset($this->cfinputs['virtuemart_category_id'])) {
@@ -250,16 +247,12 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         $customFilters = $this->published_cf;
 
         if (!empty($customFilters)) {
+	        /**
+	         * @var JDatabaseQueryMysqli $query
+	         */
             $query = $queryBuilder->getQuery();
 
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//			    echo'<pre>';print_r( (string)$query );echo'</pre>'.__FILE__.' '.__LINE__;
-//			    echo'<pre>';print_r( $customFilters );echo'</pre>'.__FILE__.' '.__LINE__;
-//			    echo'<pre>';print_r( $this->cfinputs );echo'</pre>'.__FILE__.' '.__LINE__;
-//			    die(__FILE__ .' '. __LINE__ );
 
-			}
 
 			foreach ($customFilters as $cf) {
                 $cf_name = 'custom_f_' . $cf->custom_id;
@@ -340,6 +333,8 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
             }
         }
 
+
+
         // find the common product ids between all the varriables/intersection
         if (!empty($where_product_ids)) {
             $common_prod_ids = $this->intersectProductIds($where_product_ids);
@@ -404,9 +399,46 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
 
 
+
         //fetch the product ids
         try {
             $query = $queryBuilder->create();
+
+			// получить информацию о всех найденных товарах - в результатах фильтрации
+	        JLoader::register('seoTools_info_product' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_info_product.php');
+	        $cache = \JFactory::getCache('com_customfilters_seo_info_product', '');
+	        $cache_id = md5( (string)$query ) ;
+
+	        $InfoProducts = $cache->get( $cache_id  ) ;
+
+	        $seoTools_products = new seoTools_info_product();
+			if ( !$InfoProducts = $cache->get( $cache_id  ) )
+	        {
+				$InfoProducts = $seoTools_products->getInfoProducts($query);
+		        // сохраняем $InfoProducts в кэше
+		        $cache->store( $InfoProducts, $cache_id );
+	        }
+	        $seoTools_products->setDescriptionProductResult( $InfoProducts );
+
+
+	        if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+	        {
+
+//				die(__FILE__ .' '. __LINE__ );
+
+//		        $seoTools_products = new seoTools_info_product();
+//		        $InfoProducts = $seoTools_products->getInfoProducts($query);
+
+//				echo'<pre>';print_r( $InfoProducts );echo'</pre>'.__FILE__.' '.__LINE__;
+//				die(__FILE__ .' '. __LINE__ );
+
+//				$db->setQuery($query );
+//		        $product_ids = $db->loadColumn();
+
+
+
+	        }
+
             $db->setQuery($query, $limitstart, $limit);
             $product_ids = $db->loadColumn();
         } catch (\RuntimeException $e) {
@@ -416,8 +448,11 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
                 'customfilters'
             );
         }
+        catch ( Exception $e )
+        {
+        }
 
-        //count the results
+	    //count the results
         try {
             $db->setQuery('SELECT FOUND_ROWS()');
             $this->total = $db->loadResult();

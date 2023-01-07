@@ -174,6 +174,38 @@
 		</field>
 
 		<field name="on_description_vm_category"
+			type="list"
+			default=""
+			required=""
+			label="CONFIG_ON_DESCRIPTION_VM_CATEGORY"
+			description="CONFIG_ON_DESCRIPTION_VM_CATEGORY_DESC"
+			class="on_description_vm_category "
+			multiple="0"
+			readonly=""
+			showon=""
+			filter="raw" >
+				<option value="">Please Select</option>
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+				<option value="2">CONFIG_ON_DESCRIPTION_VM_CATEGORY_GENERATE</option>
+			</field>
+
+		<field name="template_description_result"
+			type="textarea"
+			default="{{CATEGORY_NAME}} - {{COUNT_PRODUCT}} - {{MANUFACTURERS_LIST}} - {{MIN_PRICE}} - {{MAX_PRICE}}"
+			class="template_description_result "
+			rows="5"
+			cols="4"
+			readonly=""
+			required=""
+			label="CONFIG_TEMPLATE_DESCRIPTION_RESULT"
+			description="CONFIG_TEMPLATE_DESCRIPTION_RESULT_DESC"
+			showon="on_description_vm_category:2"
+			hint=""
+			filter="raw" />
+
+
+		<!--<field name="on_description_vm_category"
 			type="radio"
 			default="1"
 			readonly="0"
@@ -185,7 +217,7 @@
 			>
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
-		</field>
+		</field>-->
 
 		<field name="default_h1_tag"
 			type="textarea"
