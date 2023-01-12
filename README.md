@@ -7,6 +7,8 @@ INSTALL : <br>
 [Component - Filter-Seo.zip](https://github.com/GJComponents/com_customfilters_seo/archive/refs/heads/main.zip)<br>
 Модуль для вывода фильтров <br>
 [Module - mod_cf_filtering.zip](https://github.com/GJModules/mod_cf_filtering/archive/refs/heads/main.zip)<br>
+Модуль навигации (хлебные крошки) для CfFilter-Seo <br>
+[Module - mod_cf_breadcrumbs.zip](https://github.com/GJModules/mod_cf_breadcrumbs/archive/refs/heads/main.zip)<br>
 
 
 Создание карты <br>

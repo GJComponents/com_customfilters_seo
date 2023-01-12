@@ -21,7 +21,7 @@ defined('_JEXEC') or die();
 // Include dependancies
 jimport('joomla.application.component.controller');
 
-class CustomfiltersController extends JControllerLegacy
+class CustomfiltersController extends \Joomla\CMS\MVC\Controller\BaseController
 {
 
     protected $default_view = 'products';
@@ -36,8 +36,9 @@ class CustomfiltersController extends JControllerLegacy
      *
      * @see JControllerLegacy::display()
      */
-    function display($cachable = false, $urlparams = false)
+    function display( $cachable = false, $urlparams = false)
     {
+
 	    $cachable = true ;
 	    if ( !$urlparams )
 	    {
@@ -47,9 +48,9 @@ class CustomfiltersController extends JControllerLegacy
 		    $app->input->set('filter-url' , md5( $filterUrl ) );
 
 		    $urlparams = [
-			    'Itemid' => 'INT',
-			    'virtuemart_category_id' => 'ARRAY',
-			    'virtuemart_manufacturer_id' => 'ARRAY',
+//			    'Itemid' => 'INT',
+//			    'virtuemart_category_id' => 'ARRAY',
+//			    'virtuemart_manufacturer_id' => 'ARRAY',
 			    'filter-url' => 'STRING',
 		    ];
 
@@ -58,7 +59,7 @@ class CustomfiltersController extends JControllerLegacy
 		// Отключить CACH -  для DEV
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
-			$cachable = false ;
+//			$cachable = false ;
 		}
 		
 
@@ -68,8 +69,8 @@ class CustomfiltersController extends JControllerLegacy
             $viewName = $this->default_view;
         $input->set('view', $viewName);
 
-        parent::display($cachable, $urlparams);
-        return $this;
+        parent::display( $cachable, $urlparams);
+//        return $this;
     }
 
     /**
@@ -78,7 +79,7 @@ class CustomfiltersController extends JControllerLegacy
      * @see JControllerLegacy::getModel()
      * @since 3.9
      */
-    public function getModel($name = 'Products', $prefix = 'customfiltersModel', $config = array('ignore_request' => true))
+    public function getModel( $name = 'Products', $prefix = 'customfiltersModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
 

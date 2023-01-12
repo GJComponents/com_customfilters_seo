@@ -50,6 +50,12 @@ class seoTools
 	protected $seoTools_filters;
 
 	/**
+	 * Массив замены для описания фильтров
+	 * @since 3.9
+	 * @var
+	 */
+	public static $findReplaceArr = [] ;
+	/**
 	 * @throws Exception
 	 * @since 3.9
 	 */
@@ -131,38 +137,16 @@ class seoTools
     public function setMetaData(   ){
 
 		$DataFilters = $this->app->get('seoToolsActiveFilter' );
-	    /**
-	     * @var array $table - выбранные опции в фильтрах
-	     */
-		$table = $this->app->get('seoToolsActiveFilter.table' );
-	    if ( !$table )
+
+	    $findReplaceArr = $this->getReplaceFilterDescriptionArr();
+	    if ( !$findReplaceArr )
 	    {
 			return;
 	    }#END IF
 
-        $vmCategoryId = $this->app->input->get('virtuemart_category_id' , [] , 'ARRAY') ;
 
-        /**
-         * @var VirtueMartModelCategory
-         */
-        $categoryModel = VmModel::getModel('category');
-        $vmCategory = $categoryModel->getCategory($vmCategoryId[0] );
 
-        $filterOrdering = [];
 
-        foreach ( $table as $key => $item)
-        {
-            $filter = $this->seoTools_filters->_getFilterById( $key );
-            // Подготовить массив со значениями
-            $filter->valueArr = self::prepareHex2binArr( $item );
-            $filterOrdering[$filter->ordering] = $filter ;
-        }
-
-        $findReplaceArr = [
-            '{{FILTER_LIST}}' => seoTools_shortCode::getFilterListText( $filterOrdering ) ,
-            '{{FILTER_VALUE_LIST}}' => seoTools_shortCode::getFilterValueListText( $filterOrdering ) ,
-            '{{CATEGORY_NAME}}' => $vmCategory->category_name ,
-        ];
 
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
         $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
@@ -186,12 +170,75 @@ class seoTools
         $default_keywords = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_keywords );
 	    $default_keywords = $this->getLanguageText( $default_keywords );
 
-
         $this->doc->setTitle($default_title );
         $this->doc->setDescription( $default_description );
         $this->doc->setMetaData( 'keywords', $default_keywords );
 
     }
+
+
+	/**
+	 * Установить описание фильтров
+	 *
+	 * @param   array  $dataArray
+	 *
+	 * @return void
+	 * @since 3.9
+	 */
+	public function setReplaceFilterDescriptionArr( array $dataArray ){
+		self::$findReplaceArr =  array_merge( self::$findReplaceArr , $dataArray );
+	}
+	/**
+	 * @return array|false
+	 * @since 3.9
+	 *
+	 */
+	public function getReplaceFilterDescriptionArr(){
+
+		if ( !empty( self::$findReplaceArr ) )
+		{
+			return self::$findReplaceArr ;
+		}#END IF
+
+		/**
+		 * @var array $table - выбранные опции в фильтрах
+		 */
+		$table = $this->app->get('seoToolsActiveFilter.table' );
+		if ( !$table )
+		{
+			return false ;
+		}#END IF
+
+		$vmCategoryId = $this->app->input->get('virtuemart_category_id' , [] , 'ARRAY') ;
+
+		/**
+		 * @var VirtueMartModelCategory
+		 */
+		$categoryModel = VmModel::getModel('category');
+		$vmCategory = $categoryModel->getCategory($vmCategoryId[0] );
+
+		$filterOrdering = [];
+
+		foreach ( $table as $key => $item)
+		{
+			$filter = $this->seoTools_filters->_getFilterById( $key );
+			// Подготовить массив со значениями
+			$filter->valueArr = self::prepareHex2binArr( $item );
+			$filterOrdering[$filter->ordering] = $filter ;
+		}
+
+		$findReplaceArr = [
+			'{{FILTER_LIST}}' => seoTools_shortCode::getFilterListText( $filterOrdering ) ,
+			'{{FILTER_VALUE_LIST}}' => seoTools_shortCode::getFilterValueListText( $filterOrdering ) ,
+			'{{CATEGORY_NAME}}' => $vmCategory->category_name ,
+		];
+		$this->setReplaceFilterDescriptionArr( $findReplaceArr );
+		return $findReplaceArr ;
+
+
+
+
+	}
 
 	/**
 	 * Создание SEF URL - Для опции фильтра

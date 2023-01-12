@@ -448,30 +448,38 @@ class seoTools_uri
 	 * @return false
 	 * @since 3.9
 	 */
-	public static function getLineArr( $arr , $sef_alias )
+	public static function getLineArr( $arr , $sef_alias ):bool
 	{
 //		echo'<pre>';print_r( $arr );echo'</pre>'.__FILE__.' '.__LINE__;
 //		echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
 //		die(__FILE__ .' '. __LINE__ );
 
-
-		foreach ( $arr as $key => $item )
+		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
+			echo'<pre>';print_r( $arr );echo'</pre>'.__FILE__.' '.__LINE__;
+			die(__FILE__ .' '. __LINE__ );
 
+		}*/
 
-
-			$cloneItem = $item;
-			if ( is_array($item) && count($item) > 1 )
+		if (is_array($arr) || is_object($arr))
+		{
+			foreach ( $arr as $key => $item )
 			{
-				self::getLineArr($item , $sef_alias);
-			}#END IF
 
-			if ( $key == $sef_alias )
-			{
-				self::$LineArr = $key;
-			}#END IF
+				$cloneItem = $item;
+				if ( is_array($item) && count($item) > 1 )
+				{
+					self::getLineArr($item , $sef_alias);
+				}#END IF
 
-		}#END FOREACH
+				if ( $key == $sef_alias )
+				{
+					self::$LineArr = $key;
+				}#END IF
+
+			}#END FOREACH
+		}
+
 		return false;
 	}
 

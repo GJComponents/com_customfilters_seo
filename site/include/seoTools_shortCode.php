@@ -64,6 +64,37 @@ class seoTools_shortCode
         return $FILTER_LIST_text ;
     }
 
+	public static function getResultFilterCountProduct($dataArr):string
+	{
+		$titles = array(' %d товар', ' %d товара', ' %d товаров');
+		return  \GNZ11\Document\Text::declOfNum ( $dataArr['count_Product'] , $titles );
+
+	}
+
+	public static function getResultFilterRangePrice($dataArr){
+		$min_Price = round( $dataArr['min_Price'] )  ;
+		$max_Price = round( $dataArr['max_Price'] )  ;
+		//create a currency object which will be used later
+		if (!class_exists('CurrencyDisplay')) {
+			require_once(JPATH_VM_ADMIN . '/helpers/currencydisplay.php');
+		}
+		$vmCurrencyHelper = CurrencyDisplay::getInstance();
+		$min_Price = $vmCurrencyHelper->priceDisplay( $min_Price ) ;
+		$max_Price = $vmCurrencyHelper->priceDisplay( $max_Price ) ;
+
+		return \Joomla\CMS\Language\Text::sprintf( 'COM_FILTER_PRICE_RANGE' , $min_Price , $max_Price  ) ;
+
+	}
+	public static function getResultFilterPrice($price){
+		if (!class_exists('CurrencyDisplay')) {
+			require_once(JPATH_VM_ADMIN . '/helpers/currencydisplay.php');
+		}
+		$vmCurrencyHelper = CurrencyDisplay::getInstance();
+		return $vmCurrencyHelper->priceDisplay( $price ) ;
+	}
+
+
+
 	public static function getResultDescription($dataArr){
 
 		return  $dataArr ;

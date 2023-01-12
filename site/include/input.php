@@ -534,31 +534,34 @@ class CfInput
 			$key         = 'custom_f_' . $item->custom_id;
 			$optArr      = [];
 			$arrSetInput = [];
-
-			foreach ($item->optionSelected as $option)
+			if (is_array($item->optionSelected) || is_object($item->optionSelected))
 			{
-				// Стальной Шелк
-				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+				foreach ($item->optionSelected as $option)
 				{
+					// Стальной Шелк
+					if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+					{
 //				    echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
 //				    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
 
-				}
-				
-				if (array_key_exists( $option , $customSelectValueArr ))
-				{
-                    $item->dataOptions[] =  $customSelectValueArr[$option];
-					$customfield_value = $customSelectValueArr[$option]->customfield_value;
+					}
+
+					if (array_key_exists( $option , $customSelectValueArr ))
+					{
+						$item->dataOptions[] =  $customSelectValueArr[$option];
+						$customfield_value = $customSelectValueArr[$option]->customfield_value;
 
 
-					$customfield_value = preg_replace('/[^\w\s\d\(\)\[\]\.,-]/iu' , '' , $customfield_value ) ;
+						$customfield_value = preg_replace('/[^\w\s\d\(\)\[\]\.,-]/iu' , '' , $customfield_value ) ;
 
-					// Преобразование двоичных данных в шестнадцатеричное представление
-					$optArr[]          = bin2hex($customfield_value);
+						// Преобразование двоичных данных в шестнадцатеричное представление
+						$optArr[]          = bin2hex($customfield_value);
 
 
-				}#END IF
-			}#END FOREACH
+					}#END IF
+				}#END FOREACH
+			}
+
 
 			$app->input->set($key, $optArr);
 
@@ -568,19 +571,7 @@ class CfInput
 //		    die(__FILE__ .' '. __LINE__ );
 
 		}
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//				echo'<pre>';print_r( $published_cf );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $findResultArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $dataFiltersArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $selectFilterIds );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
 
-		}
 
 		$app->set('seoToolsActiveFilter' , $filtersArr );
 
@@ -590,13 +581,17 @@ class CfInput
 		$dataTable = [] ;
 		foreach ( $filtersArr as $items)
 		{
-			foreach ( $items->dataOptions as $optionSelected)
+			if (is_array($items->dataOptions) || is_object($items->dataOptions))
 			{
+				foreach ( $items->dataOptions as $optionSelected)
+				{
 //				$key = 'custom_f_' . $optionSelected->virtuemart_custom_id  ;
-				$key = 'custom_f_' . $items->custom_id  ;
+					$key = 'custom_f_' . $items->custom_id  ;
 
-				$dataTable[$key][] = bin2hex( $optionSelected->customfield_value );
-			}#END FOREACH
+					$dataTable[$key][] = bin2hex( $optionSelected->customfield_value );
+				}#END FOREACH
+			}
+
 		}#END FOREACH
 		$app->set('seoToolsActiveFilter.table' , $dataTable );
 

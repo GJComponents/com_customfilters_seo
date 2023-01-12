@@ -52,8 +52,9 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
     protected $context = 'com_customfilters.products';
     protected $productIdsFromSearch;
     /**
-     *
-     * @var \CustomfiltersConfig
+     * Параметры компонента com_customfilters
+     * @var CustomfiltersConfig
+     * @since 3.9
      */
     protected $componentparams;
 
@@ -108,10 +109,21 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         $this->moduleparams = cftools::getModuleparams();
         $this->componentparams = CustomfiltersConfig::getInstance();
 
+		/// Кешируем результат метода CfInput::getInputs();
+	    $juri = \Joomla\CMS\Uri\Uri::getInstance();
+	    $filterUrl = $juri->getPath();
+	    $cacheId = md5( $filterUrl ) ;
 
-		$this->cfinputs = CfInput::getInputs();
+	    $cache = JFactory::getCache('com_customfilters-Inputs');
+	    $this->cfinputs =  $cache->get( ['CfInput', 'getInputs'] , [] , $cacheId  );
+
 //		echo'<pre>';print_r( $this->cfinputs );echo'</pre>'.__FILE__.' '.__LINE__;
 //		die(__FILE__ .' '. __LINE__ );
+
+
+//		$this->cfinputs = CfInput::getInputs();
+	    ///  END Кешируем  результат метода CfInput::getInputs();
+
 
         $this->vmVersion = VmConfig::getInstalledVersion();
         $this->currentLangPrefix = cftools::getCurrentLanguagePrefix();
@@ -148,283 +160,330 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         return $this->sortSearchListQuery($onlyPublished, false, $group, $nbrReturnProducts);
     }
 
-    /**
-     * Returns the product ids after running the filtering sql queries
-     * Overriddes the function defined in the com_virtuemart/models/product.php
-     *
-     * @param boolen $onlyPublished only the published products
-     * @param string $group indicates some predefined groups
-     * @param int $nbrReturnProducts
-     * @return  array  product ids
-     * @since   1.0
-     * @todo    Avoid joins if only 1 filter is selected. Just get the product id from it's table
-     */
-    public function sortSearchListQuery(
-        $onlyPublished = true,
-        $virtuemart_category_id = false,
-        $group = false,
-        $nbrReturnProducts = false,
-        $langFields = array()
-    ) {
+	/**
+	 * Returns the product ids after running the filtering sql queries
+	 * Overriddes the function defined in the com_virtuemart/models/product.php
+	 *
+	 * @param   boolen  $onlyPublished  only the published products
+	 * @param   string  $group          indicates some predefined groups
+	 * @param   int     $nbrReturnProducts
+	 *
+	 * @return  array  product ids
+	 * @throws Exception
+	 * @since   1.0
+	 * @todo    Avoid joins if only 1 filter is selected. Just get the product id from it's table
+	 */
+	public function sortSearchListQuery( $onlyPublished = true , $virtuemart_category_id = false , $group = false ,
+	                                     $nbrReturnProducts = false ,
+	                                     $langFields = array()
+	)
+	{
+
+
+		if ( $this->moduleparams->get( 'cf_profiler' , 0 ) )
+		{
+			$profiler = JProfiler::getInstance( 'application' );
+			$profiler->mark( 'start' );
+		}
+
+		$app               = Factory::getApplication();
+		$db                = Factory::getDbo();
+		$where_product_ids = [];
+
+		/**
+		 * Создает регистратор для этого расширения
+		 * Creates a logger for that extension
+		 */
+		\cftools::addLogger();
+
+
+		$resetType = $this->componentparams->get( 'reset_results' , 0 );
+		if ( $resetType == 0 && empty( $this->cfinputs ) )
+		{
+			return [];
+		}
+
+		/**
+		 * @var ProductsQueryBuilder $queryBuilder
+		 */
+		$queryBuilder = new ProductsQueryBuilder(
+			$this->componentparams->getFilteredProductsType() ,
+			$this->componentparams->getReturnedProductsType()
+		);
+
+		//keyword search
+		if ( !empty( $this->cfinputs[ 'q' ] ) )
+		{
+			$where_product_ids[] = $this->getProductIdsFromSearch();
+			if ( empty( $where_product_ids ) )
+			{
+				return [];
+			}
+			if ( !empty( $profiler ) )
+			{
+				$profiler->mark( 'After Keyword Search' );
+			}
+		}
+
+		//generate categories filter query
+		if ( isset( $this->cfinputs[ 'virtuemart_category_id' ] ) )
+		{
+			$vm_categories = $this->cfinputs[ 'virtuemart_category_id' ];
+			if ( isset( $vm_categories[ 0 ] ) )
+			{
+				$queryBuilder->setWhere( 'p_c.virtuemart_category_id' , $vm_categories );
+			}
+		}
+
+		//generate manufacturers filter query
+		if ( isset( $this->cfinputs[ 'virtuemart_manufacturer_id' ] ) )
+		{
+			$vm_manufacturers = $this->cfinputs[ 'virtuemart_manufacturer_id' ];
+			if ( isset( $vm_manufacturers[ 0 ] ) )
+			{
+				$queryBuilder->setWhere( 'p_m.virtuemart_manufacturer_id' , $vm_manufacturers );
+			}
+		}
+
+		//generate price filter query
+		if ( isset( $this->cfinputs[ 'price' ][ 0 ] ) )
+		{
+			$price_from = $this->cfinputs[ 'price' ][ 0 ];
+		}
+		if ( isset( $this->cfinputs[ 'price' ][ 1 ] ) )
+		{
+			$price_to = $this->cfinputs[ 'price' ][ 1 ];
+		}
+
+		if ( !empty( $price_from ) || !empty( $price_to ) )
+		{
+			$productIdsByPrice = $this->getProductIdsByPrice();
+			if ( !empty( $productIdsByPrice ) )
+			{
+				$where_product_ids[] = $productIdsByPrice;
+			}
+			else
+			{
+				if ( is_array( $productIdsByPrice ) )
+				{
+					return [];
+				}
+			}
+			if ( !empty( $profiler ) )
+			{
+				$profiler->mark( 'After Price Range Search' );
+			}
+		}
+
+		//generate Custom fields filter
+		$customFilters = $this->published_cf;
+
+		if ( !empty( $customFilters ) )
+		{
+			/**
+			 * @var JDatabaseQueryMysqli $query
+			 */
+			$query = $queryBuilder->getQuery();
+
+			foreach ( $customFilters as $cf )
+			{
+				$cf_name = 'custom_f_'.$cf->custom_id;
+
+				//if not range
+				if ( $cf->disp_type != 5 && $cf->disp_type != 6 && $cf->disp_type != 8 )
+				{
+					if ( !isset( $this->cfinputs[ $cf_name ] ) )
+					{
+						continue;
+					}
+
+					//set the selected cfs
+					$selected_cf   = $this->cfinputs[ $cf_name ];
+					$custom_search = [];
+
+					//not plugin
+					if ( $cf->field_type != 'E' )
+					{
+						$product_customvalues_table = '`#__virtuemart_product_customfields`';
+						foreach ( $selected_cf as $cf_value )
+						{
+							if ( isset( $cf_value ) )
+							{
+								$custom_search[] = "(".$cf_name.'.customfield_value ='.$db->quote( $cf_value ,
+										true ).' AND '.$cf_name.'.virtuemart_custom_id='.(int) $cf->custom_id.")";
+							}
+						}
+						if ( !empty( $custom_search ) )
+						{
+							$where[] = " (".implode( ' OR ' , $custom_search ).") ";
+						}
+					} //plugins
+					else
+					{
+						//if the plugin has not declared the necessary params go to the next selected vars
+						if ( empty( $cf->pluginparams ) )
+						{
+							continue;
+						}
+
+						//get vars from plugins
+						$product_customvalues_table = $cf->pluginparams->product_customvalues_table;
+						$sel_field                  = $cf->pluginparams->filter_by_field;
+						$filter_data_type           = $cf->pluginparams->filter_data_type;
+						$cf_values                  = $selected_cf;
+
+						//string escape and quote each value
+						if ( $filter_data_type == 'string' )
+						{
+							foreach ( $cf_values as $cf_val )
+							{
+								if ( isset( $cf_val ) )
+								{
+									$custom_search[] = $cf_name.'.'.$sel_field.' = '.$db->quote( $cf_val , true );
+								}
+							}
+
+							if ( !empty( $custom_search ) )
+							{
+								if ( $cf->pluginparams->product_customvalues_table == $cf->pluginparams->customvalues_table )
+								{
+									$where[] = '(('.implode( ' OR ' ,
+											$custom_search ).") AND {$cf_name}.virtuemart_custom_id=".(int) $cf->custom_id.")";
+								}
+								else
+								{
+									$where[] = '('.implode( ' OR ' , $custom_search ).")";
+								}
+							}
+						} //if not string is number and already filtered in the input
+						else
+						{
+							if ( !empty( $cf_values ) )
+							{
+								$where[] = $cf_name.'.'.$sel_field.' IN ('.implode( ',' , $cf_values ).')';
+							}
+						}
+					}
+					$query->where( $where );
+					$query->innerJoin( $product_customvalues_table.' AS '.$cf_name.' ON '.$cf_name.'.virtuemart_product_id=p.virtuemart_product_id' );
+
+				} //range
+				else
+				{
+					$productIdsByCF = $this->getProductIdsByCfRange( $cf );
+					if ( !empty( $productIdsByCF ) )
+					{
+						$where_product_ids[] = $productIdsByCF;
+					}
+					elseif ( is_array( $productIdsByCF ) )
+					{
+						return [];
+					}//there is range set but no product found
+					if ( !empty( $profiler ) )
+					{
+						$profiler->mark( 'After Range Search Custom Filter:'.$cf->custom_id );
+					}
+				}
+			}
+		}
+
+		// find the common product ids between all the varriables/intersection
+		if ( !empty( $where_product_ids ) )
+		{
+			$common_prod_ids = $this->intersectProductIds( $where_product_ids );
+			if ( !empty( $common_prod_ids ) )
+			{
+				$queryBuilder->setWhere( 'p.virtuemart_product_id' , $common_prod_ids );
+			} // no product found
+			else
+			{
+				return [];
+			}
+		}
+
+		//display products in specific shoppers
+		$virtuemart_shoppergroup_ids = cftools::getUserShopperGroups();
+		if ( is_array( $virtuemart_shoppergroup_ids ) && $this->componentparams->get( 'products_multiple_shoppers' , 0 ) )
+		{
+			$queryBuilder->getQuery()->where( '(s.`virtuemart_shoppergroup_id` IN ('.implode( ',' ,
+					$virtuemart_shoppergroup_ids ).') OR'.' (s.`virtuemart_shoppergroup_id`) IS NULL )' );
+			$queryBuilder->setJoin( 's' );
+		}
+
+		//stock controls
+		if ( !VmConfig::get( 'use_as_catalog' , 0 ) )
+		{
+			if ( \VmConfig::get( 'stockhandle' , 'none' ) == 'disableit_children' )
+			{
+				$queryBuilder->getQuery()->where( '(p.`product_in_stock` - p.`product_ordered` >0 OR children.`product_in_stock` - children.`product_ordered` >0)' );
+				$queryBuilder->setJoin( 'children' );
+			}
+			else
+			{
+				if ( \VmConfig::get( 'stockhandle' , 'none' ) == 'disableit' )
+				{
+					$queryBuilder->getQuery()->where( 'p.`product_in_stock` - p.`product_ordered` >0' );
+				} // there is no stock check. Use the stock filter
+				elseif ( isset( $this->cfinputs[ 'stock' ] ) && reset( $this->cfinputs[ 'stock' ] ) == 1 )
+				{
+					$queryBuilder->getQuery()->where( 'p.`product_in_stock` - p.`product_ordered` >0' );
+				}
+			}
+		}
+
+		$queryBuilder->setOrder( $this->getState( 'filter_order' ) , $this->getState( 'filter_order_Dir' ) );
+
+
+		/**
+		 * Установка limitstart (номера страницы) в пагинации
+		 */
+		$uri  = JUri::getInstance();
+		$path = $uri->getPath();
+
+		preg_match( '/\/start=(\d+)/' , $path , $matches );
+		$limitstart = 0;
+		if ( !empty( $matches ) )
+		{
+			$limitstart = $matches[ 1 ];
+		}
+		$this->setState( 'list.limitstart' , $limitstart );
+
+		// List state information
+		// Установка $limitstart - для пагинации
+		$limit      = $this->getState( 'list.limit' , 5 );
+		$limitstart = $this->getState( 'list.limitstart' , 0 );
+
+
+		//fetch the product ids
+		try
+		{
+			$query = $queryBuilder->create();
+
+			if ( $this->componentparams->get('on_description_vm_category' , 0 ) == 2 )
+			{
+				// получить информацию о всех найденных товарах - в результатах фильтрации
+				JLoader::register( 'seoTools_info_product' , JPATH_ROOT.'/components/com_customfilters/include/seoTools_info_product.php' );
+				/**
+				 * @var Joomla\CMS\Cache\Controller\CallbackController $cache
+				 */
+				$cache = JFactory::getCache('com_customfilters-seoTools_info_product::getInfoProducts');
+				$cacheId = seoTools_info_product::getCacheId();
+				$dataArr =  $cache->get( ['seoTools_info_product', 'getInfoProducts'] , [$query] , $cacheId  );
+				$seoTools_info_product = new seoTools_info_product();
+				$seoTools_info_product->setDescriptionProductResult( $dataArr );
+				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+				{
 
 
 
+				}
 
-        if ($this->moduleparams->get('cf_profiler', 0)) {
-            $profiler = JProfiler::getInstance('application');
-            $profiler->mark('start');
-        }
-
-        $app = Factory::getApplication();
-        $db = Factory::getDbo();
-        $where_product_ids = [];
-
-	    /**
-	     * Создает регистратор для этого расширения
-	     * Creates a logger for that extension
-	     */
-        \cftools::addLogger();
-
-
-        $resetType = $this->componentparams->get('reset_results', 0);
-        if ($resetType == 0 && empty($this->cfinputs)) {
-            return [];
-        }
-
-	    /**
-	     * @var ProductsQueryBuilder $queryBuilder
-	     */
-        $queryBuilder = new ProductsQueryBuilder(
-			$this->componentparams->getFilteredProductsType(),
-            $this->componentparams->getReturnedProductsType()
-        );
+			}#END IF
 
 
 
-
-        //keyword search
-        if (!empty($this->cfinputs['q'])) {
-            $where_product_ids[] = $this->getProductIdsFromSearch();
-            if (empty($where_product_ids)) {
-                return [];
-            }
-            if (!empty($profiler)) {
-                $profiler->mark('After Keyword Search');
-            }
-        }
-
-        //generate categories filter query
-        if (isset($this->cfinputs['virtuemart_category_id'])) {
-            $vm_categories = $this->cfinputs['virtuemart_category_id'];
-            if (isset($vm_categories[0])) {
-                $queryBuilder->setWhere('p_c.virtuemart_category_id', $vm_categories);
-            }
-        }
-
-        //generate manufacturers filter query
-        if (isset($this->cfinputs['virtuemart_manufacturer_id'])) {
-            $vm_manufacturers = $this->cfinputs['virtuemart_manufacturer_id'];
-            if (isset($vm_manufacturers[0])) {
-                $queryBuilder->setWhere('p_m.virtuemart_manufacturer_id', $vm_manufacturers);
-            }
-        }
-
-        //generate price filter query
-        if (isset($this->cfinputs['price'][0])) {
-            $price_from = $this->cfinputs['price'][0];
-        }
-        if (isset($this->cfinputs['price'][1])) {
-            $price_to = $this->cfinputs['price'][1];
-        }
-
-        if (!empty($price_from) || !empty($price_to)) {
-            $productIdsByPrice = $this->getProductIdsByPrice();
-            if (!empty($productIdsByPrice)) {
-                $where_product_ids[] = $productIdsByPrice;
-            } else {
-                if (is_array($productIdsByPrice)) {
-                    return [];
-                }
-            }
-            if (!empty($profiler)) {
-                $profiler->mark('After Price Range Search');
-            }
-        }
-
-        //generate Custom fields filter
-        $customFilters = $this->published_cf;
-
-
-
-        if (!empty($customFilters)) {
-	        /**
-	         * @var JDatabaseQueryMysqli $query
-	         */
-            $query = $queryBuilder->getQuery();
-
-			foreach ($customFilters as $cf) {
-                $cf_name = 'custom_f_' . $cf->custom_id;
-
-                //if not range
-                if ($cf->disp_type != 5 && $cf->disp_type != 6 && $cf->disp_type != 8) {
-                    if (!isset($this->cfinputs[$cf_name])) {
-                        continue;
-                    }
-
-                    //set the selected cfs
-                    $selected_cf = $this->cfinputs[$cf_name];
-                    $custom_search = [];
-
-                    //not plugin
-                    if ($cf->field_type != 'E') {
-                        $product_customvalues_table = '`#__virtuemart_product_customfields`';
-                        foreach ($selected_cf as $cf_value) {
-                            if (isset($cf_value)) {
-                                $custom_search[] = "(" . $cf_name . '.customfield_value =' . $db->quote($cf_value,
-                                        true) . ' AND ' . $cf_name . '.virtuemart_custom_id=' . (int)$cf->custom_id . ")";
-                            }
-                        }
-                        if (!empty($custom_search)) {
-                            $where[] = " (" . implode(' OR ', $custom_search) . ") ";
-                        }
-                    } //plugins
-                    else {
-                        //if the plugin has not declared the necessary params go to the next selected vars
-                        if (empty($cf->pluginparams)) {
-                            continue;
-                        }
-
-                        //get vars from plugins
-                        $product_customvalues_table = $cf->pluginparams->product_customvalues_table;
-                        $sel_field = $cf->pluginparams->filter_by_field;
-                        $filter_data_type = $cf->pluginparams->filter_data_type;
-                        $cf_values = $selected_cf;
-
-                        //string escape and quote each value
-                        if ($filter_data_type == 'string') {
-                            foreach ($cf_values as $cf_val) {
-                                if (isset($cf_val)) {
-                                    $custom_search[] = $cf_name . '.' . $sel_field . ' = ' . $db->quote($cf_val, true);
-                                }
-                            }
-
-                            if (!empty($custom_search)) {
-                                if ($cf->pluginparams->product_customvalues_table == $cf->pluginparams->customvalues_table) {
-                                    $where[] = '((' . implode(' OR ',
-                                            $custom_search) . ") AND {$cf_name}.virtuemart_custom_id=" . (int)$cf->custom_id . ")";
-                                } else {
-                                    $where[] = '(' . implode(' OR ', $custom_search) . ")";
-                                }
-                            }
-                        } //if not string is number and already filtered in the input
-                        else {
-                            if (!empty($cf_values)) {
-                                $where[] = $cf_name . '.' . $sel_field . ' IN (' . implode(',', $cf_values) . ')';
-                            }
-                        }
-                    }
-                    $query->where($where);
-                    $query->innerJoin($product_customvalues_table . ' AS ' . $cf_name . ' ON ' . $cf_name . '.virtuemart_product_id=p.virtuemart_product_id');
-
-                } //range
-                else {
-                    $productIdsByCF = $this->getProductIdsByCfRange($cf);
-                    if (!empty($productIdsByCF)) {
-                        $where_product_ids[] = $productIdsByCF;
-                    } elseif (is_array($productIdsByCF)) {
-                        return [];
-                    }//there is range set but no product found
-                    if (!empty($profiler)) {
-                        $profiler->mark('After Range Search Custom Filter:' . $cf->custom_id);
-                    }
-                }
-            }
-        }
-
-
-
-        // find the common product ids between all the varriables/intersection
-        if (!empty($where_product_ids)) {
-            $common_prod_ids = $this->intersectProductIds($where_product_ids);
-            if (!empty($common_prod_ids)) {
-                $queryBuilder->setWhere('p.virtuemart_product_id', $common_prod_ids);
-            } // no product found
-            else {
-                return [];
-            }
-        }
-
-
-
-
-        //display products in specific shoppers
-        $virtuemart_shoppergroup_ids = cftools::getUserShopperGroups();
-        if (is_array($virtuemart_shoppergroup_ids) && $this->componentparams->get('products_multiple_shoppers', 0)) {
-            $queryBuilder->getQuery()->where('(s.`virtuemart_shoppergroup_id` IN (' . implode(',',
-                    $virtuemart_shoppergroup_ids) . ') OR' . ' (s.`virtuemart_shoppergroup_id`) IS NULL )');
-            $queryBuilder->setJoin('s');
-        }
-
-        //stock controls
-        if (!VmConfig::get('use_as_catalog', 0)) {
-            if (\VmConfig::get('stockhandle', 'none') == 'disableit_children') {
-                $queryBuilder->getQuery()->where('(p.`product_in_stock` - p.`product_ordered` >0 OR children.`product_in_stock` - children.`product_ordered` >0)');
-                $queryBuilder->setJoin('children');
-            } else {
-                if (\VmConfig::get('stockhandle', 'none') == 'disableit') {
-                    $queryBuilder->getQuery()->where('p.`product_in_stock` - p.`product_ordered` >0');
-                } // there is no stock check. Use the stock filter
-                elseif (isset($this->cfinputs['stock']) && reset($this->cfinputs['stock']) == 1) {
-                    $queryBuilder->getQuery()->where('p.`product_in_stock` - p.`product_ordered` >0');
-                }
-            }
-        }
-
-        $queryBuilder->setOrder($this->getState('filter_order'), $this->getState('filter_order_Dir'));
-
-
-
-	    /**
-         * Установка limitstart (номера страницы) в пагинации
-         */
-        $uri = JUri::getInstance();
-        $path = $uri->getPath();
-        preg_match('/\/start=(\d+)/', $path , $matches );
-        $limitstart = 0 ;
-        if ( !empty($matches)  ){
-            $limitstart = $matches[1];
-        }
-        $this->setState('list.limitstart' , $limitstart  ) ;
-
-        // List state information
-        // Установка $limitstart - для пагинации
-        $limit = $this->getState('list.limit', 5);
-        $limitstart = $this->getState('list.limitstart', 0);
-
-
-        //fetch the product ids
-        try {
-            $query = $queryBuilder->create();
-
-			// получить информацию о всех найденных товарах - в результатах фильтрации
-	        JLoader::register('seoTools_info_product' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_info_product.php');
-	        $cache = \JFactory::getCache('com_customfilters_seo_info_product', '');
-	        $cache_id = md5( (string)$query ) ;
-
-	        $seoTools_products = new seoTools_info_product();
-
-			if ( !$InfoProducts = $cache->get( $cache_id  ) )
-	        {
-		        $InfoProducts = $seoTools_products->getInfoProducts($query);
-
-		        // сохраняем $InfoProducts в кэше
-		        $cache->store( $InfoProducts, $cache_id );
-	        }
-	        $seoTools_products->setDescriptionProductResult( $InfoProducts );
-
-
-	        if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-	        {
+			if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
+			{
 
 //				die(__FILE__ .' '. __LINE__ );
 
@@ -438,40 +497,46 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 //		        $product_ids = $db->loadColumn();
 
 
+			}
 
-	        }
+			$db->setQuery( $query , $limitstart , $limit );
+			$product_ids = $db->loadColumn();
+		}
+		catch ( \RuntimeException $e )
+		{
+			Log::add(
+				sprintf( 'Failed to return products: %s' , $e->getMessage() ) ,
+				Log::ERROR ,
+				'customfilters'
+			);
+		}
+		catch ( Exception $e )
+		{
+		}
 
-            $db->setQuery($query, $limitstart, $limit);
-            $product_ids = $db->loadColumn();
-        } catch (\RuntimeException $e) {
-            Log::add(
-                sprintf('Failed to return products: %s', $e->getMessage()),
-                Log::ERROR,
-                'customfilters'
-            );
-        }
-        catch ( Exception $e )
-        {
-        }
+		//count the results
+		try
+		{
+			$db->setQuery( 'SELECT FOUND_ROWS()' );
+			$this->total = $db->loadResult();
+		}
+		catch ( \RuntimeException $e )
+		{
+			Log::add(
+				sprintf( 'Failed to count products: %s' , $e->getMessage() ) ,
+				Log::ERROR ,
+				'customfilters'
+			);
+		}
 
-	    //count the results
-        try {
-            $db->setQuery('SELECT FOUND_ROWS()');
-            $this->total = $db->loadResult();
-        } catch (\RuntimeException $e) {
-            Log::add(
-                sprintf('Failed to count products: %s', $e->getMessage()),
-                Log::ERROR,
-                'customfilters'
-            );
-        }
+		$app->setUserState( "com_customfilters.product_ids" , $product_ids );
+		if ( !empty( $profiler ) )
+		{
+			$profiler->mark( 'Finish Filtering/Search' );
+		}
 
-        $app->setUserState("com_customfilters.product_ids", $product_ids);
-        if (!empty($profiler)) {
-            $profiler->mark('Finish Filtering/Search');
-        }
-        return $product_ids;
-    }
+		return $product_ids;
+	}
 
     /**
      * Function that handles the keyword search

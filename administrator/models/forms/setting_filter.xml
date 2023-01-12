@@ -14,7 +14,8 @@
            pattern="[A-Za-z\s0-9]+"
            filter="raw"/>
 
-    <fieldset name="filter_exceptions" addfieldpath="/libraries/GNZ11/Extensions/Fields/virtuemart" >
+    <fieldset name="filter_exceptions"
+			  addfieldpath="/libraries/GNZ11/Extensions/Fields/virtuemart" >
 
 
         <fields name="exceptions">

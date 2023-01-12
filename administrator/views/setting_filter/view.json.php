@@ -65,8 +65,6 @@ class customfiltersViewSetting_filter extends HtmlView
 		switch ( $task )
 		{
 
-
-
 			case 'onAjaxSave':
 			case 'save' : // Сохранение 
 				$app      = \Joomla\CMS\Factory::getApplication();

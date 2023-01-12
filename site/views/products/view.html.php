@@ -52,7 +52,6 @@ class CustomfiltersViewProducts extends cfView
         $app = Factory::getApplication();
 	    $paramsComponent = ComponentHelper::getParams('com_customfilters');
 
-
         $this->show_prices = (int)VmConfig::get('show_prices', 1);
         $this->addHelperPath(JPATH_VM_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'helpers');
         $this->load();
@@ -88,11 +87,6 @@ class CustomfiltersViewProducts extends cfView
             $category_haschildren = false;
         }
 
-
-
-
-
-
         $categoryModel = VmModel::getModel('category');
 		/**@var TableCategories $category */
         $category = $categoryModel->getCategory($this->categoryId);
@@ -123,11 +117,6 @@ class CustomfiltersViewProducts extends cfView
 		    $mainframe->set('setTemplate', $template);
 	    }
 	    $this->prepareDocument();
-
-
-
-
-
 
 		// on_description_vm_category
 
@@ -161,17 +150,39 @@ class CustomfiltersViewProducts extends cfView
 	    if ( !$on_description_vm_category )
 	    {
 		    $this->category->category_description = null ;
-	    }else if ($on_description_vm_category == 2 ){
+	    }
+
+		else if ($on_description_vm_category == 2 ){
 		    JLoader::register('seoTools_shortCode' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_shortCode.php');
 			$app = \Joomla\CMS\Factory::getApplication();
-		    $CountProductResult = $app->get('CountProductResult' , false ) ;
-		    $this->category->category_description = $CountProductResult ;
+			$template = $app->getTemplate(true);
+			$templateName = $template->template ;
+		    $ResultFilterDescription = $app->get('ResultFilterDescription' , false ) ;
 
-		    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			$layout_ResultFilterDescription = [];
+			foreach ( $ResultFilterDescription as $key => $item )
+			{
+				$key = str_replace(['{{','}}'] , '' , $key);
+				$key = mb_strtolower ($key ) ;
+				$layout_ResultFilterDescription[ $key ] = $item ;
+			}#END FOREACH
+
+			$layout_ResultFilterDescription['category_description'] = $this->category->category_description ;
+
+			$layout    = new \Joomla\CMS\Layout\FileLayout( 'filterResultDesc' ,JPATH_ROOT.'/components/com_customfilters/layouts' );
+			$layout->addIncludePaths(JPATH_THEMES . '/' . $templateName . '/html/com_customfilters/layouts' );
+			$this->category->category_description  =   $layout->render( $layout_ResultFilterDescription );
+
+
+
+
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		    {
-			    $this->category->category_description = seoTools_shortCode::getResultDescription( $CountProductResult );
-				echo'<pre>';print_r( $this->category->category_description );echo'</pre>'.__FILE__.' '.__LINE__;
-				die(__FILE__ .' '. __LINE__ );
+//			    $result_description = seoTools_shortCode::getResultDescription( $ResultFilterDescription );
+//				echo'<pre>';print_r($ResultFilterDescription  );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r($layout_ResultFilterDescription  );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $layout );echo'</pre>'.__FILE__.' '.__LINE__;
+//				die(__FILE__ .' '. __LINE__ );
 		    }
 	    }#END IF
 
@@ -241,18 +252,15 @@ class CustomfiltersViewProducts extends cfView
         $this->add_product_link = '';
 
 
-
-
-
         /**
          * @var cfPagination Object my model's pagination
          */
         $this->vmPagination = $model->getPagination(true);
 
-
-
         $this->perRow = $this->menuParams->get('prod_per_row', 3);
         $this->orderByList = $this->get('OrderByList');
+
+
 
 
 
