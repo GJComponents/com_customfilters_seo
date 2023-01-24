@@ -45,6 +45,7 @@ class customfiltersViewSetting_filter extends HtmlView
 	protected $form;
 
 	/**
+	 * Создание формы - настроек для фильтра
 	 * @throws Exception
 	 * @since 3.9
 	 */
@@ -58,9 +59,6 @@ class customfiltersViewSetting_filter extends HtmlView
 		$app    = Factory::getApplication();
 		$task   = $app->input->get( 'task' , false , 'STRING' );
 		$layout = $app->input->get( 'layout' , $tpl , 'STRING' );
-
-
-
 
 		switch ( $task )
 		{
@@ -97,6 +95,9 @@ class customfiltersViewSetting_filter extends HtmlView
 		 */
 		$this->item = $this->get( 'Item' );
 //		$this->CustomFieldValue = $model->getCustomFieldValue( );
+
+
+
 
 		/**
 		 * customfiltersModelSetting_filter::getForm

@@ -10,7 +10,7 @@ defined('_JEXEC') or die;
 
 use FiltersSeoNamespace\Cms\Html\Behavior;
 
-
+$doc = \Joomla\CMS\Factory::getDocument();
 $parentAlias = \Joomla\CMS\Factory::getApplication()->input->get('parentAlias' , false , 'STRING');
 $parentName = \Joomla\CMS\Factory::getApplication()->input->get('parentName' , false , 'STRING');
 
@@ -21,6 +21,11 @@ $AccordionSelector = 'city_controls' . (!$parentAlias?:'-'.$parentAlias) ;
 
 <?php echo Behavior::startAccordion( $AccordionSelector , array('active' => 'warning0')); ?>
 <?php
+
+$aliasArr = [
+	'kiev',
+];
+
 
 foreach ($this->ListCity as $item)
 {
@@ -45,15 +50,37 @@ foreach ($this->ListCity as $item)
 	$item['ActiveChildArea'] = $ModelSetting_city->ActiveChildArea ;
 
 
+	if ( isset( $this->paramsCityList[$alias] ) )
+	{
+		$item['params'] = $this->paramsCityList[$alias] ;
+	}#END IF
 
-    echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
 
+//    echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
+//    echo'<pre>';print_r( $this->paramsCityList );echo'</pre>'.__FILE__.' '.__LINE__;
+//    echo'<pre>';print_r( $alias );echo'</pre>'.__FILE__.' '.__LINE__;
+//    die(__FILE__ .' '. __LINE__ );
 
 
     ?>
 
-	<?= Behavior::addSlideCitySlider( $AccordionSelector , $item , $this->paramsCityList   )   ?>
 
+	<?= Behavior::addSlideCitySlider( $AccordionSelector , $item /*, $this->paramsCityList */  )   ?>
+    
+    <?php
+
+
+
+	if ( $doc->_type == 'json' && !in_array( $item['alias'] , $aliasArr ) )
+	{
+//		echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
+//        die(__FILE__ .' '. __LINE__ );
+
+	}#END IF
+
+
+    ?>
+    
     <?= Behavior::getMetaFormElementHtml( $item )?>
 
 		<p>CONTENT - ONE SLIDER !!!</p>
@@ -63,7 +90,6 @@ foreach ($this->ListCity as $item)
 }#END FOREACH
 
 
-die(__FILE__ .' '. __LINE__ );
 ?>
 
 <?= Behavior::endAccordion(); ?>

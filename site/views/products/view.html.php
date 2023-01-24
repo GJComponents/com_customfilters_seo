@@ -41,6 +41,12 @@ class CustomfiltersViewProducts extends cfView
     public $show_prices;
 
 	/**
+	 * @since 3.9
+	 * @var string - Canonical URL
+	 */
+	public $canonical_url ;
+
+	/**
 	 * Display function of the view
 	 *
 	 * @throws Exception
@@ -89,6 +95,14 @@ class CustomfiltersViewProducts extends cfView
 
         $categoryModel = VmModel::getModel('category');
 		/**@var TableCategories $category */
+
+	    if ( !$this->categoryId )
+	    {
+		    $this->categoryId = ShopFunctionsF::getLastVisitedCategoryId();
+	    }#END IF
+
+
+	    
         $category = $categoryModel->getCategory($this->categoryId);
         $catImgAmount = VmConfig::get('catimg_browse', 1) ? VmConfig::get('catimg_browse', 1) : 1;
         $categoryModel->addImages($category, $catImgAmount);
@@ -100,9 +114,11 @@ class CustomfiltersViewProducts extends cfView
             $categoryModel->addImages($category->children, $catImgAmount);
         }
 
+
+
         // triggers a content plugn for that category
         if (VmConfig::get('enable_content_plugin', 0) && method_exists('shopFunctionsF', 'triggerContentPlugin')) {
-            shopFunctionsF::triggerContentPlugin($category, 'category', 'category_description');
+            shopFunctionsF::triggerContentPlugin( $category, 'category', 'category_description');
         }
 
 
@@ -132,8 +148,6 @@ class CustomfiltersViewProducts extends cfView
          */
         $this->productModel = VmModel::getModel('product');
 
-
-
         // rating
         $ratingModel = VmModel::getModel('ratings');
         $this->showRating = $ratingModel->showRating();
@@ -151,7 +165,6 @@ class CustomfiltersViewProducts extends cfView
 	    {
 		    $this->category->category_description = null ;
 	    }
-
 		else if ($on_description_vm_category == 2 ){
 		    JLoader::register('seoTools_shortCode' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_shortCode.php');
 			$app = \Joomla\CMS\Factory::getApplication();
@@ -172,31 +185,9 @@ class CustomfiltersViewProducts extends cfView
 			$layout    = new \Joomla\CMS\Layout\FileLayout( 'filterResultDesc' ,JPATH_ROOT.'/components/com_customfilters/layouts' );
 			$layout->addIncludePaths(JPATH_THEMES . '/' . $templateName . '/html/com_customfilters/layouts' );
 			$this->category->category_description  =   $layout->render( $layout_ResultFilterDescription );
-
-
-
-
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		    {
-//			    $result_description = seoTools_shortCode::getResultDescription( $ResultFilterDescription );
-//				echo'<pre>';print_r($ResultFilterDescription  );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r($layout_ResultFilterDescription  );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $layout );echo'</pre>'.__FILE__.' '.__LINE__;
-//				die(__FILE__ .' '. __LINE__ );
-		    }
+ 
 	    }#END IF
-
-
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//		    echo'<pre>';print_r( count( $this->products ) );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r(   $this->products   );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r( $ids );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
-
-		}
-
-
+  
         $this->productModel->addImages($this->products);
         /**
          * @var CustomfiltersModelProducts Object
@@ -260,10 +251,6 @@ class CustomfiltersViewProducts extends cfView
         $this->perRow = $this->menuParams->get('prod_per_row', 3);
         $this->orderByList = $this->get('OrderByList');
 
-
-
-
-
         parent::display($tpl);
 
         if (empty($this->products)) {
@@ -280,6 +267,9 @@ class CustomfiltersViewProducts extends cfView
         $this->setCanonical();
         $this->setMeta();
         $this->setTitle();
+        $this->setPathWay();
+
+
 
         /*
          * Load scripts and styles
@@ -302,6 +292,63 @@ class CustomfiltersViewProducts extends cfView
             $language->load('com_virtuemart');
         }
     }
+
+	/**
+	 * Установка хлебных крошек - Навигация сайта
+	 * @throws Exception
+	 * @since 3.9
+	 */
+	protected function setPathWay()
+	{
+		// Get the PathWay object from the application
+		$app     = JFactory::getApplication();
+		/**
+		 * @var Joomla\Registry\Registry $paramsComponent
+		 */
+		$paramsComponent = ComponentHelper::getParams('com_customfilters');
+		/**
+		 * @var Joomla\CMS\Pathway\SitePathway $pathway
+		 */
+		$pathway           = $app->getPathway();
+		/**
+		 * @var Joomla\CMS\Menu\SiteMenu $menu
+		 */
+		$menu = $app->getMenu();
+		/**
+		 * @var int  $shop_root_page - Главная страница магазина - из настроек компонента фильтра
+		 */
+		$shop_root_page = $paramsComponent->get('shop_root_page');
+
+		/**
+		 * @var Joomla\CMS\Menu\MenuItem $root_pageItem - Получить пункт меню главной страницы магазина
+		 */
+		$root_pageItem = $menu->getItem( $shop_root_page );
+
+		$PathwayArr = [] ;
+		$rootPage = new stdClass();
+		$rootPage->name = $root_pageItem->title ;
+		$rootPage->link = $root_pageItem->link ;
+		$PathwayArr[] = $rootPage ;
+
+		foreach ( $this->category->parents as $parent )
+		{
+			$pathwayDataCategory       = new stdClass();
+			$pathwayDataCategory->name = $parent->category_name;
+			$pathwayDataCategory->link = 'index.php?option=com_virtuemart&view=category&virtuemart_category_id='.$parent->virtuemart_category_id.'&virtuemart_manufacturer_id=0';
+			$PathwayArr[] = $pathwayDataCategory ;
+		}#END FOREACH
+		
+//		echo'<pre>';print_r( $PathwayArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $this->category );echo'</pre>'.__FILE__.' '.__LINE__;
+
+		$pathway->setPathway( $PathwayArr  );
+
+
+
+	}
+
+
+
 
     /**
      * Set the meta tags
@@ -415,8 +462,6 @@ class CustomfiltersViewProducts extends cfView
             }
         }
 
-
-
         if (!empty($currentlink)) {
             // Route::TLS_IGNORE introduced in 3.9.7
             $tls = defined("Route::TLS_IGNORE") ? Route::TLS_IGNORE : 0;
@@ -436,14 +481,6 @@ class CustomfiltersViewProducts extends cfView
                     unset($this->document->_links[$key]);
                 }
             }
-		
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-			    // echo'<pre>';print_r( ini_get('max_execution_time') );echo'</pre>'.__FILE__.' '.__LINE__;
-				// die(__FILE__ .' '. __LINE__ );
-//			cvet-citrine-and-naznachenie-krovlya-and-zvukoizolyaciya-db-33
-			    
-			}
 
 
 	        /**
@@ -463,7 +500,8 @@ class CustomfiltersViewProducts extends cfView
 				}
                 $this->document->setMetaData('robots' , $action_noindex );
 
-            }else{
+            }
+			else{
 
 			    $this->document->setMetaData('robots' , 'index,follow' );
 			    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
@@ -478,19 +516,19 @@ class CustomfiltersViewProducts extends cfView
             }#END IF
 
 	        // Удалить параметры пагинации
-	        $canonical_url = preg_replace('/\/start=\d+/', '', $canonical_url);
-			
+	        $this->canonical_url = preg_replace('/\/start=\d+/', '', $canonical_url);
+
 			
 			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 			{
-			    echo'<pre> canonical: ';print_r( $canonical_url );echo'</pre>'.__FILE__.' '.__LINE__;
+			    echo'<pre> canonical: ';print_r( $this->canonical_url );echo'</pre>'.__FILE__.' '.__LINE__;
 //				die(__FILE__ .' '. __LINE__ );
 
 			    
 			}
 
             // add a new one
-            $this->document->_links[$canonical_url] = array(
+            $this->document->_links[$this->canonical_url] = array(
                 'relType' => 'rel',
                 'relation' => 'canonical',
                 'attribs' => ''

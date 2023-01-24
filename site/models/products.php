@@ -114,12 +114,23 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 	    $filterUrl = $juri->getPath();
 	    $cacheId = md5( $filterUrl ) ;
 
-	    $cache = JFactory::getCache('com_customfilters-Inputs');
-	    $this->cfinputs =  $cache->get( ['CfInput', 'getInputs'] , [] , $cacheId  );
+		if ($_SERVER['REMOTE_ADDR'] !=  DEV_IP )
+		{
+			$cache = JFactory::getCache('com_customfilters-Inputs');
+			$this->cfinputs =  $cache->get( ['CfInput', 'getInputs'] , [] , $cacheId  );
+		}
+		else
+		{
+			$this->cfinputs = CfInput::getInputs();
+		}
 
-//		echo'<pre>';print_r( $this->cfinputs );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
 
+//			echo'<pre>';print_r( $this->cfinputs );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
 
 //		$this->cfinputs = CfInput::getInputs();
 	    ///  END Кешируем  результат метода CfInput::getInputs();

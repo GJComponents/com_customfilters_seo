@@ -1,0 +1,113 @@
+.table-city{
+    .accordion-heading{
+        position: relative;
+    }
+    div.btn-wrapper.add-area{
+        display: inline-block;
+        position: absolute;
+        top: 12px;
+    }
+    .line-toolbar{
+        float: right;
+        margin: 0;
+        margin: 0px;
+        padding: 6px 8px 2px 0;
+        box-sizing: inherit;
+    }
+    .statistic-area{
+        font-size: 10px;
+        color: #5c5c5c;
+
+    }
+    .vrap-meta{
+        .control-group{
+
+        }
+    }
+}
+.addFilterCitySeo{}
+.addFilterCitySeo{
+    /* width: 60%; */
+    /* height: 80%; */
+    /* padding: 0px 20px 10px; */
+} 
+
+
+
+
+
+.addFilterCitySeo #form_head{
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 5px;
+} 
+.addFilterCitySeo #form_head h1{
+    font-size: 1.3em;
+}
+.addFilterCitySeo #form_content{
+    /* height: calc(100% - 100px); */
+}
+.addFilterCitySeo #form_content .tab-content{
+    /* height: calc(100% - 50px); */
+    /* overflow: auto; */
+}
+.addFilterCitySeo #form_content .tab-pane{
+    height: 100%;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading{
+
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .accordion-toggle{
+    /* width: calc(100% - 8px); */
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading a{
+    display: inline-block;
+    /* background: green; */
+    /* height: 100px; */
+    width: calc(100% - 300px);
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .control-group {
+    float: right;
+    margin: 0;
+    margin: 0px;
+    padding: 6px 8px 2px 0;
+    box-sizing: inherit;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .control-group .control-label{
+    float: left;
+    margin-top: 2px;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .control-group .controls{
+    float: left;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .control-group .control-label label{
+    font-size: 10px;
+    margin: 0 5px 0 0;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .control-group .label{
+
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .controls .btn-group.btn-group-yesno{
+    width: 50px;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .controls .btn-group.btn-group-yesno > .btn{
+    font-size: 10px;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .controls fieldset.btn-group-yesno input[type=radio][disabled=disabled] + label{
+    color: #ccc;  
+    cursor: default;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .controls fieldset.btn-group-yesno input[type=radio][disabled=disabled] + label.btn-success {
+    background-color: #759f75;
+}
+.addFilterCitySeo #form_content .tab-pane .accordion-heading .controls fieldset.btn-group-yesno input[type=radio][disabled=disabled] + label.btn-danger {
+    background-color: #a67674;
+}
+
+/*---------------------- FOOTER --------------------------------- */
+
+.addFilterCitySeo #form_footer{
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+    margin-top: 5px;
+}
+

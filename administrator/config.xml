@@ -3,6 +3,12 @@
 
 	<fieldset name="Basic" label="COM_CUSTOMFILTERS_BASIC_SETTINGS">
 
+
+		<field name="shop_root_page"
+			   type="menuitem"
+			   default=""
+			   label="COM_CUSTOMFILTERS_ROOT_SHOP_PAGE"
+			   description="COM_CUSTOMFILTERS_ROOT_SHOP_PAGE_DESC" />
 		<!--
 		Использовать переменные со страниц Virtuemart
 		Автоматическое выделение категорий и производителей при навигации по страницам

@@ -28,8 +28,7 @@ window.customfiltersAdminCore = function () {
                     passiveSupported = true;
                 }
             }));
-    } catch (err) {
-    }
+    } catch (err) {  }
     this.__type = false;
     this.__plugin = false;
     this.__name = false;
@@ -149,6 +148,9 @@ window.customfiltersAdminCore = function () {
         {
             console.log( 'com_customfilters.administrator.core' , task );
             switch (task) {
+                case 'setting_city.add_area_base':
+                    self.onAddAreaBase();
+                    break ;
                 case 'add_filter_city_seo':
                     self.addFilterCitySeo();
                     break
@@ -194,6 +196,96 @@ window.customfiltersAdminCore = function () {
             }
         };
     }
+    this.onAddAreaBase = function (){
+        var Data = JSON.parse( JSON.stringify( self.AjaxDefaultData ) );
+        Data.task = 'onAjaxAddAreaBase' ;
+        Data.view = 'setting_city' ;
+
+        var AjaxPost = self.AjaxPost( Data )
+        var getModal = self.__loadModul.Fancybox();
+
+        Promise.all([AjaxPost , getModal  ]).then(function (DataPromise){
+            var Html = DataPromise[0].data.form_html;
+            var Modal = DataPromise[1]
+
+            Modal.open( Html, {
+                baseClass: "addFilterCitySeo form-add-area-base devBridge-AutoComplete", // Класс основного элемента
+                touch: false,
+                // Перед началом анимации открытия
+                beforeShow: function (instance, current) {},
+
+                // Когда контент загружен и анимирован
+                afterShow: function (instance, current) {},
+
+                /**
+                 * Init AutoComplete
+                 * ---
+                 * для запуска этого метода параметр baseClass должен содержать класс "devBridge-AutoComplete"
+                 * @param FancyBox - объект модального окна
+                 * @param current - текущее модальное окно
+                 */
+                onInitAutoComplete : function ( FancyBox, current ) {
+                    var $ = jQuery ,
+                        $Form ,
+                        $inputParentId ,
+                        $AutoCompleteElem ;
+
+                    // Находим требуемый элемент
+                    $Form = $(current.$content[0]).find('#add-area-form')
+                    $AutoCompleteElem = $Form.find('[name="jform[parent_area]"]')
+                    $inputParentId = $Form.find('[name="jform[parent_id]"]')
+
+                    Data.task = 'onAjaxGetParentsAreaAutoComplete' ;
+
+                    // Запускаем devBridgeAutocomplete на найденном элементе
+                    $AutoCompleteElem.devbridgeAutocomplete({
+                        dataType : 'json',
+                        serviceUrl: '/administrator/index.php?option=com_customfilters&view=setting_city',
+                        params : Data ,
+                        transformResult: function(response) {
+                            return {
+                                suggestions: response.data
+                            };
+                        }, 
+                         
+                        /**
+                         * Функция обратного вызова вызывается, когда пользователь выбирает предложение из списка.
+                         * this внутренний обратный вызов относится к вводу HtmlElement.
+                         * @param suggestion
+                         */
+                        onSelect: function (suggestion) {
+                            $inputParentId.val( suggestion.data )
+                            // alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+                        }
+                    });
+                }
+            });
+            console.log('com_customfilters.administrator.core', DataPromise);
+
+
+        },function (err){console.log(err)});
+    }
+    /**
+     * Сохранить новый регион
+     * @param el_btn
+     */
+    this.onSaveNewArea = function (el_btn){
+        var $Form = $(el_btn).closest('form#add-area-form')
+        var Data = JSON.parse( JSON.stringify( self.AjaxDefaultData ) );
+        Data.task = 'onAjaxSaveNewArea' ;
+        Data.view = 'setting_city' ;
+        Data.formData = $Form.serialize() ;
+
+        var AjaxPost = self.AjaxPost( Data )
+        Promise.all([ AjaxPost  ,  ]).then(function (PromiseResult){
+            var saveResult = PromiseResult[0] ;
+                 console.log( 'com_customfilters.administrator.core::' , saveResult );
+                self.renderMessages(saveResult.messages) ;
+        },function (err){console.log(err)});
+        console.log( 'com_customfilters.administrator.core::onSaveNewArea' , el_btn );
+        
+    }
+    
     this.SettingFilterModal ;
     /**
      * Загрузить форму настроек фильтра 

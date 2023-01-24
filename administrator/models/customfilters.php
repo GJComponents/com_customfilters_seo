@@ -228,11 +228,14 @@ class CustomfiltersModelCustomfilters extends JModelList
      */
     public function getItems()
     {
+
         $items = parent::getItems();
         $customFieldsTypes = $this->getField_types();
 
-
-
+		$app = \Joomla\CMS\Factory::getApplication();
+		$view = $app->input->get('view' , false , 'STRING') ;
+//		echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
 
 	    // Выборка для фильтров Городов
 	    $db = Factory::getDbo();
@@ -243,17 +246,27 @@ class CustomfiltersModelCustomfilters extends JModelList
 	    ];
 	    $Query->where($where);
 	    $db->setQuery($Query);
-	    $resArrCityFiler = $db->loadObjectList();
-	    foreach ( $resArrCityFiler as $item)
+//	    $resArrCityFiler = $db->loadObjectList();
+
+		/*foreach ( $resArrCityFiler as $item)
 	    {
 		    $items[] = $item ;
-	    }#END FOREACH
+	    }#END FOREACH*/
 
+//		echo'<pre>';print_r( $resArrCityFiler );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $items );echo'</pre>'.__FILE__.' '.__LINE__;
 		
 
+
         foreach ($items as &$item) {
+
+//	        echo'<pre>';print_r( $item  );echo'</pre>'.__FILE__.' '.__LINE__;
+//	        die(__FILE__ .' '. __LINE__ );
+
             $params = new Registry;
             $params->loadString($item->params);
+
+
             $item->smart_search = $params->get('smart_search', 0);
             $item->expanded = $params->get('expanded', 1);
             $item->scrollbar_after = $params->get('scrollbar_after', '');

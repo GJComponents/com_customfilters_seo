@@ -52,8 +52,17 @@ class CustomfiltersModelSetting_city extends AdminModel
 	 * @since 3.9
 	 * @var int - Количество населенных пунктов
 	 */
-	protected $countCity = 0;
+	protected $countCity = 0;/**
+ * @since 3.9
+ * @var
+ */
+	private $ArrData;
 
+	/**
+	 * @since 3.9
+	 * @var Registry - Параметры компонента com_customfilters
+	 */
+	protected $paramsComponent ;
 	/**
 	 * Constructor.
 	 *
@@ -66,7 +75,9 @@ class CustomfiltersModelSetting_city extends AdminModel
 	public function __construct( $config = [] )
 	{
 		Table::addIncludePath(JPATH_SITE.'/administrator/components/com_customfilters/tables');
+		JLoader::register('HelperSetting_city' , JPATH_ADMINISTRATOR . '/components/com_customfilters/helpers/HelperSetting_city.php');
 		parent::__construct($config);
+		$this->paramsComponent = JComponentHelper::getParams('com_customfilters');
 	}
 
 	/**
@@ -83,7 +94,6 @@ class CustomfiltersModelSetting_city extends AdminModel
 
 		return $table;
 
-
 	}
 
 	/**
@@ -97,6 +107,14 @@ class CustomfiltersModelSetting_city extends AdminModel
 		return \GNZ11\Document\Text::rus2translite($string);
 	}
 
+	/**
+	 * Получить список городов из таблицы #__cf_customfields_city для родительского регион parentRegion
+	 * @param $area_id
+	 *
+	 * @return array|mixed|void
+	 * @throws Exception
+	 * @since 3.9
+	 */
 	public function getListCity( $area_id = false )
 	{
 		$parentRegion = \Joomla\CMS\Factory::getApplication()->input->get('parentRegion' , 0 , 'INT');
@@ -122,9 +140,7 @@ class CustomfiltersModelSetting_city extends AdminModel
 			}#END IF
 			// Executed only in PHP 5, will not be reached in PHP 7
 			echo 'Выброшено исключение: ' , $e->getMessage() , "\n";
-			echo '<pre>';
-			print_r($e);
-			echo '</pre>'.__FILE__.' '.__LINE__;
+			echo '<pre>'; print_r($e); echo '</pre>'.__FILE__.' '.__LINE__;
 			die(__FILE__.' '.__LINE__);
 		}
 
@@ -171,9 +187,10 @@ class CustomfiltersModelSetting_city extends AdminModel
 
 			$Query->values($values);
 		}//foreach
-		$Query->insert($db->quoteName($this->cityTableName))->columns($db->quoteName($columns));
+		$Query->insert($db->quoteName($this->cityTableName))
+			->columns($db->quoteName($columns));
 		$db->setQuery($Query);
-		echo $Query->dump();
+//		echo $Query->dump();
 		$db->execute();
 	}
 
@@ -228,11 +245,11 @@ class CustomfiltersModelSetting_city extends AdminModel
 			// Если название города - делаем Alias
 			if ( $key == 'name' )
 			{
-				$alias = \GNZ11\Document\Text::rus2translite($content);
-				$alias = preg_replace('/[^A-Z0-9]/i' , '-' , $alias);
-				$alias = str_replace('--' , '-' , $alias);
-				$alias = preg_replace('/-$/i' , '' , $alias);
-				$alias = mb_strtolower($alias);
+
+
+
+				$alias = $this->createCityAlias( $content ) ;
+
 				// для того что бы алиас был уникальным
 				if ( key_exists($alias , $this->ArrAlias) )
 				{
@@ -261,34 +278,134 @@ class CustomfiltersModelSetting_city extends AdminModel
 		});
 	}
 
+	/**
+	 * Создание Alias для названия городов
+	 *
+	 * @param   string  $content
+	 *
+	 * @return string
+	 * @since 3.9
+	 */
+	protected function createCityAlias( string $content ){
+		$alias = \GNZ11\Document\Text::rus2translite($content);
+		$alias = preg_replace('/[^A-Z0-9]/ui' , '_' , $alias);
+		$alias = str_replace('__' , '_' , $alias);
+		$alias = preg_replace('/_$/i' , '' , $alias);
+
+		return mb_strtolower( $alias );
+	}
 	protected $resArray = [];
 
-	public function _getOneLevelParams( $array , $key = false )
-	{
-		if ( is_array($array) )
+	/**
+	 * Установить META Params по умолчанию
+	 * @param $cityList
+	 *
+	 * @return array|mixed
+	 * @since 3.9
+	 */
+	public function _setDefaultParams( $cityList ){
+
+
+		foreach ( $cityList as $item )
 		{
 
+			$alias = $item['alias'] ;
+			$this->resArray[$alias] = $this->addDefaultParamsCity( $item );
+
+		}#END FOREACH
+
+		return $this->resArray ;
+		
+	}
+
+	/**
+	 * Добавить параметры по умолчанию для одного города
+	 * @param $city
+	 *
+	 * @return void
+	 * @since 3.9
+	 */
+	public function addDefaultParamsCity($city){
+		$default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+		$default_title = $this->paramsComponent->get('default_title' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+		$default_description = $this->paramsComponent->get('default_description' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+		$default_keywords = $this->paramsComponent->get('default_keywords' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+		$resArray['use'] = 0  ;
+		$resArray['default_h1_tag'] = $default_h1_tag  ;
+		$resArray['default_title'] = $default_title  ;
+		$resArray['default_description'] = $default_description ;
+		$resArray['default_keywords'] = $default_keywords  ;
+		return $resArray ;
+	}
+
+
+	/**
+	 * Создать одно уровневый массив с настройками для городов|регионов
+	 * @param $array
+	 * @param $key
+	 *
+	 * @return array|mixed
+	 * @since 3.9
+	 */
+	public function _getOneLevelParams( $array , $aliasCity = false )
+	{
+		$this->resArray = HelperSetting_city::getOneLevelParams( $array );
+		return  $this->resArray ;
+
+		$default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+		$default_title = $this->paramsComponent->get('default_title' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+		$default_description = $this->paramsComponent->get('default_description' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+		$default_keywords = $this->paramsComponent->get('default_keywords' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
+
+		if ( is_array($array) )
+		{
 			foreach ( $array as $key => $below )
 			{
-
-				if ( isset($below[ 'use' ]) )
+				if ( !isset(  $below[ 'use' ] ) )
 				{
-					$this->resArray[ $key ] = $below[ 'use' ];
+					$below[ 'use' ] = 0 ;
+				}#END IF
+
+
+				$this->resArray[ $key ]['use'] = $below[ 'use' ];
+				$this->resArray[ $key ]['default_h1_tag'] = trim( ($below[ 'default_h1_tag' ] ?? $default_h1_tag) ) ;
+				$this->resArray[ $key ]['default_title'] = trim( ($below[ 'default_title' ] ?? $default_title) )  ;
+				$this->resArray[ $key ]['default_description'] = trim( ($below[ 'default_description' ] ?? $default_description) ) ;
+				$this->resArray[ $key ]['default_keywords'] = trim( ($below[ 'default_keywords' ] ?? $default_keywords) ) ;
+
+
+				echo'<pre>';print_r( $key );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $below );echo'</pre>'.__FILE__.' '.__LINE__;
+
+				if ( isset( $below[ 'use' ] ) )
+				{
+
 				}
 				else
 				{
-					$this->resArray[ $key ] = 'NOT';
+//					$this->resArray[ $key ] = 'NOT';
 				}#END IF
+
 				$this->_getOneLevelParams($below , $key);
 
 			}
-		}
+		} else if ( empty($array) )
+		{
+//			$this->resArray[ $key ]['use'] = 0 ;
+//			$this->resArray[ $key ]['default_h1_tag'] = trim( $default_h1_tag ) ;
+//			$this->resArray[ $key ]['default_title'] = trim( $default_title )  ;
+//			$this->resArray[ $key ]['default_description'] = trim( $default_description ) ;
+//			$this->resArray[ $key ]['default_keywords'] = trim( $default_keywords ) ;
+		}#END IF
 
 		return $this->resArray;
 	}
 
 	/**
-	 * Сохранение данных формы
+	 * Сохранение данных формы Настройка городов
+	 *
+	 * @param   array  $data
+	 *
 	 * @return bool
 	 * @throws Exception
 	 * @since 3.9
@@ -308,6 +425,10 @@ class CustomfiltersModelSetting_city extends AdminModel
 			$data = $data[ 'jform' ];
 		}#END IF
 
+//		echo'<pre>';print_r( $data );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
 		// Находим сохраненные города - и если они не переданы явно - добавляем из уже сохраненных
 		if ( $data[ 'id' ] )
 		{
@@ -320,7 +441,6 @@ class CustomfiltersModelSetting_city extends AdminModel
 
 			$savedData = $data[ 'params' ][ 'use_city_setting' ];
 
-
 			foreach ( $savedData as $parenArea => &$savedDatum )
 			{
 				if ( isset($use_city_setting[ $parenArea ]) && count($savedDatum) == 1 )
@@ -332,8 +452,32 @@ class CustomfiltersModelSetting_city extends AdminModel
 			$data[ 'params' ][ 'use_city_setting' ] = $savedData;
 		}#END IF
 
+		$test = new  \Joomla\Registry\Registry( ) ;
+		$test->loadArray( $data[ 'params' ][ 'use_city_setting' ]  );
+		$dataString = $test->toString('JSON') ;
+		$dataString = str_replace( ['{{' , '}}'] , ['>>>>' , '<<<<'] , $dataString );
 
-		$resultSave = parent::save($data);
+//		echo'<pre>';print_r( $dataString );echo'</pre>'.__FILE__.' '.__LINE__;
+
+		/*$dataString = '{
+			"ukraina":{
+				"use":"0",
+				"default_h1_tag":">>>>CATEGORY_NAME<<<< - >>>>FILTER_VALUE_LIST<<<<" , 
+				"default_title":">>>>CATEGORY_NAME<<<< >>>>FILTER_VALUE_LIST<<<<" , 
+				"default_description":">>>>CATEGORY_NAME<<<< >>>>FILTER_VALUE_LIST<<<< " ,
+				"default_keywords":">>>>CATEGORY_NAME<<<< >>>>FILTER_VALUE_LIST<<<< " 
+			}
+		}';*/
+
+		$test = new  \Joomla\Registry\Registry(  ) ;
+//		$test->loadString( $dataString ) ;
+//		$data[ 'params' ][ 'use_city_setting' ] = $test->toArray();
+//		echo'<pre>';print_r(  $test );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r(  $data );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
+		$resultSave = parent::save( $data );
 
 		/**
 		 * Получаем данные после сохранения
@@ -446,6 +590,7 @@ class CustomfiltersModelSetting_city extends AdminModel
 		$properties = $table->getProperties(1);
 		$item       = ArrayHelper::toObject($properties , '\JObject');
 
+		// TODO INFO - Поле 'params' в таблице #__cf_customfields_setting_city - Должно иметь тип LONGTEXT
 		if ( property_exists($item , 'params') )
 		{
 			$registry     = new Registry($item->params);
@@ -504,6 +649,7 @@ class CustomfiltersModelSetting_city extends AdminModel
 	 *
 	 * @return  array  The default data is an empty array.
 	 *
+	 * @throws Exception
 	 * @since   1.6
 	 */
 	protected function loadFormData()
@@ -521,7 +667,7 @@ class CustomfiltersModelSetting_city extends AdminModel
 	public $ActiveChildArea = 0 ;
 
 	/**
-	 * Почитать - количество активных дочерних регионов
+	 * Посчитать - количество активных дочерних регионов
 	 * @param $area
 	 *
 	 * @return void
@@ -529,10 +675,10 @@ class CustomfiltersModelSetting_city extends AdminModel
 	 */
 	public  function getActiveChildArea( $area )
 	{
-
 		foreach (  $area as $keyArea => $itemArea )
 		{
 			if ( $keyArea == 'use' ) continue ; #END IF
+
 			if ( is_array( $itemArea ) && count($itemArea) == 1 && isset($itemArea['use']) && $itemArea['use'] == 1 )
 			{
 				$this->ActiveChildArea ++ ;
@@ -551,8 +697,6 @@ class CustomfiltersModelSetting_city extends AdminModel
 	public function getChildrenArea($cityParam , $area ){
 		foreach (  $cityParam as $keyArea => $item )
 		{
-
-
 			if ( $area == $keyArea )  {
 				$this->ChildrenAreaData = $item ;
 				return  ;
@@ -565,5 +709,99 @@ class CustomfiltersModelSetting_city extends AdminModel
 			}#END IF
 
 		}#END FOREACH
+	}
+
+	/**
+	 * Получить список подсказок AutoComplete для выбора родительского региона|города
+	 *
+	 * @param   string  $string  Строка для поиска
+	 *
+	 * @return array
+	 * @since 3.9
+	 */
+	public function getParentsAreaAutoComplete( string $string):array
+	{
+		$db = JFactory::getDbo();
+		$Query = $db->getQuery(true);
+		$Query->select([
+			$db->quoteName('id' , 'data'),
+			$db->quoteName('name' , 'value'),
+		]);
+		$Query->from( $db->quoteName( $this->cityTableName ) );
+		$Query->where([
+			$db->quoteName('name') . 'LIKE ' . $db->quote($string . '%'),
+		]);
+		$db->setQuery($Query);
+		return $db->loadObjectList();
+	}
+
+	/**
+	 * Сохранить новый регион
+	 *
+	 * @param   array  $data
+	 *
+	 * @return bool - TRUE - при удачном сохранении
+	 * @throws Exception
+	 * @since 3.9
+	 */
+	public function saveNewArea( array $data = [] ):bool
+	{
+		$app = \Joomla\CMS\Factory::getApplication();
+		$db    = JFactory::getDbo();
+
+		$Query = $db->getQuery( true );
+		$Query->select( 'MAX('.$db->quoteName('id').')' );
+		$Query->from(  $db->quoteName( $this->cityTableName )  ) ;
+		$db->setQuery( $Query );
+		$maxCityId = $db->loadResult();
+		$maxCityId ++ ;
+
+		if ( !$data['parent_id'] && $data['parent_area']  )
+		{
+			$app->enqueueMessage('Название родительского региона нужно выбрать из списка!');
+			return false ;
+		}#END IF
+
+		if ( !$data['parent_id'] && !$data['parent_area']  ) $data['parent_id'] = 0 ; #END IF
+
+		if ( $data['name'] && !$data['alias']  )
+		{
+			$data['alias'] = $this->createCityAlias(  $data['name'] ) ;
+		}else{
+			$app->enqueueMessage('Название региона - обязательно!' , 'error' );
+			return false ;
+		}#END IF
+
+
+		$Query = $db->getQuery( true );
+		$columns = [ 'id' , 'parent_id' , 'name' , 'alias' ];
+		$values =
+			 $db->quote( $maxCityId  ).","
+			.$db->quote( $data[ 'parent_id' ] ).","
+			.$db->quote( $data[ 'name' ] ).","
+			.$db->quote( $data[ 'alias' ] );
+
+		$Query->values( $values );
+
+		$Query->insert( $db->quoteName( $this->cityTableName ) )
+			->columns( $db->quoteName( $columns ) );
+		$db->setQuery( $Query );
+//		echo $Query->dump();
+        try
+        {
+            // Code that may throw an Exception or Error.
+	        $db->execute();
+            // throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+        }
+        catch (\Exception $e)
+        {
+	        if ( $e->getCode() == 1062 )
+	        {
+				$app->enqueueMessage('Поле с псевдонимом "' .$data[ 'alias' ] .'" уже существует.' , 'error' );
+				return false ;
+	        }#END IF
+        }
+
+		return true ;
 	}
 }

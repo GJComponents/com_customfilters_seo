@@ -39,27 +39,39 @@ class CustomfiltersController extends \Joomla\CMS\MVC\Controller\BaseController
     function display( $cachable = false, $urlparams = false)
     {
 
+
 	    $cachable = true ;
+//	    $cachable = false ;
 	    if ( !$urlparams )
 	    {
 		    $app = \Joomla\CMS\Factory::getApplication();
+			$view = $app->input->get('view' , false , 'STRING');
+
 		    $juri = \Joomla\CMS\Uri\Uri::getInstance();
 		    $filterUrl = $juri->getPath();
 		    $app->input->set('filter-url' , md5( $filterUrl ) );
-
+            
 		    $urlparams = [
-//			    'Itemid' => 'INT',
-//			    'virtuemart_category_id' => 'ARRAY',
-//			    'virtuemart_manufacturer_id' => 'ARRAY',
+			    'Itemid' => 'INT',
+			    'virtuemart_category_id' => 'ARRAY',
+			    'virtuemart_manufacturer_id' => 'ARRAY',
 			    'filter-url' => 'STRING',
+			    'module_id' => 'INT',
 		    ];
+		    if ( $view == 'module' )
+		    {
+//				echo'<pre>';print_r( $view );echo'</pre>'.__FILE__.' '.__LINE__;
+				
+			    $cachable = false ;
+		    }#END IF
+
 
 	    }#END IF
 
-		// Отключить CACH -  для DEV
+		// Отключить CACHE -  для DEV
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
-//			$cachable = false ;
+			$cachable = false ;
 		}
 		
 

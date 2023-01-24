@@ -94,8 +94,10 @@ class CfInput
 	 * @throws Exception
 	 * @since    1.0.0
 	 */
-    public static function getInputs( bool $cached = false):?array
+    public static function getInputs( bool $cached = false ):?array
     {
+
+
         if (!isset(self::$cfInputs)) {
             $key = 'customfilters.input';
             $app = Factory::getApplication();
@@ -116,6 +118,8 @@ class CfInput
                     self::$cfInputs = $inputs;
                 }
             }
+
+
 
            if(self::$cfInputs === null) {
                 $cfinput = new \CfInput();
@@ -150,6 +154,8 @@ class CfInput
 	     */
 		$jinput = $app->input;
         $filter = InputFilter::getInstance();
+
+
 
 		// Парсим путь URL -- находим активные фильтры
 	    $this->parseUrlString();
@@ -401,6 +407,9 @@ class CfInput
 		 * @var array $category_ids - массив категорий
 		 */
 		$category_ids = $app->input->get('virtuemart_category_id' , [] , 'ARRAY');
+
+
+
 		/**
 		 * @var array $published_cf - Все опубликованные фильтры
 		 */
@@ -408,6 +417,9 @@ class CfInput
 
 		// Удалить параметры пагинации
 		$path = preg_replace('/\/start=\d+/', '', $path);
+
+
+
 
 		/**
 		 * @var array $findResultArr - массив выбранных
@@ -422,25 +434,28 @@ class CfInput
 		foreach ($published_cf as $item)
 		{
 
-			$needle     = '-and-' . $item->sef_url;
-			$pos        = strripos($path, $needle);
-
-			// Поиск вхождения после первого фильтра
-			if ($pos)
-			{
-				$findResultArr[$pos] = $needle;
-				$filtersArr[] = $item;
-			}  #END IF
-
 			// Поиск вхождения первого фильтра
-			$needle = '/' . $item->sef_url;
-			$pos    = strripos($path, $needle);
-			if ($pos)
-			{
-				$findResultArr[$pos] = $needle;
+			$needle =   $item->sef_url . '-'   ;
+			$needleRegExp = '/' . preg_quote($needle ) . '/u';
+			preg_match( $needleRegExp , $path , $matches , PREG_OFFSET_CAPTURE ) ;
+
+			if ( isset( $matches[0] ) )
+			{ 
+				$pos    = strripos($path, $item->sef_url );
+				$findResultArr[$pos] = $item->sef_url ;
 				$filtersArr[]        = $item;
-			} #END IF
+			}#END IF
+
 		}#END FOREACH
+
+
+		// Если данных о включенных фильтрах нет - Ищем данный в фильтрах городах
+		if ( empty($findResultArr) )
+		{
+			seoTools_uri::findCityFilters( $category_ids , $findResultArr );
+		}#END IF
+
+
 
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
 
@@ -448,6 +463,9 @@ class CfInput
 		if (empty($findResultArr)) return; #END IF
 
 		krsort($findResultArr);
+
+
+
 
 		$length     = 0;
 		$i          = 0;
@@ -464,13 +482,12 @@ class CfInput
 			$i++;
 			//
 			$subStr = mb_substr($path, $start, $length);
+			
 
 			// Находим двойные или более опции фильтра
 			$arrValFilter = explode('-and-', $subStr);
 			// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
 			$arrValFilter = array_diff($arrValFilter, array(''));
-
-
 
 			foreach ( $arrValFilter as $itemValF )
 			{
@@ -479,8 +496,6 @@ class CfInput
 
 				// Удаляем название фильтра
 				$itemValF = str_replace($dataFilters->name, '', $itemValF);
-
-//				$itemValF                 = str_replace('-', '', $itemValF);
 
                 $itemValF = preg_replace('/^-/' , '' , $itemValF ) ;
 
@@ -494,11 +509,16 @@ class CfInput
 			$dataFiltersArr[] = $dataFilters;
 		}#END FOREACH
 
+
+
+
 		$selectFilterIds = [];
 
 		// Добавить выбранные опции к объекту фильтра
 		foreach ($filtersArr as &$filter)
 		{
+			$filter->optionSelected = [];
+			$filter->dataOptions = [];
 			foreach ($dataFiltersArr as $item)
 			{
 				if ($item->name == $filter->sef_url)
@@ -506,10 +526,10 @@ class CfInput
 					$filter->optionSelected = $item->value;
 					$selectFilterIds[]      = $filter->custom_id;
 
-
 				}#END IF
 			}#END FOREACH
 		}#END FOREACH
+
 
 
 
@@ -518,31 +538,22 @@ class CfInput
 		 */
 		$customSelectValueArr = \cftools::getCustomSelectValue($selectFilterIds);
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-
-			//			$optionsHelper = \OptionsHelper::getInstance();
-//		    echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
-
-
-		}
-
-
+		// Определение Value для выбранных опций
 		foreach ($filtersArr as &$item)
 		{
 			$key         = 'custom_f_' . $item->custom_id;
 			$optArr      = [];
 			$arrSetInput = [];
-			if (is_array($item->optionSelected) || is_object($item->optionSelected))
+
+			if ( isset( $item->optionSelected ) && is_array($item->optionSelected) || is_object($item->optionSelected))
 			{
 				foreach ($item->optionSelected as $option)
 				{
 					// Стальной Шелк
 					if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 					{
-//				    echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
-//				    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//					    echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
+//					    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
 
 					}
 
@@ -551,27 +562,29 @@ class CfInput
 						$item->dataOptions[] =  $customSelectValueArr[$option];
 						$customfield_value = $customSelectValueArr[$option]->customfield_value;
 
-
-						$customfield_value = preg_replace('/[^\w\s\d\(\)\[\]\.,-]/iu' , '' , $customfield_value ) ;
+						$customfield_value = preg_replace('/[^\w\s\d\(\)\[\]\.,-®]/iu' , '' , $customfield_value ) ;
+//						echo'<pre>';print_r( $customfield_value );echo'</pre>'.__FILE__.' '.__LINE__;
 
 						// Преобразование двоичных данных в шестнадцатеричное представление
 						$optArr[]          = bin2hex($customfield_value);
 
-
 					}#END IF
 				}#END FOREACH
 			}
-
-
 			$app->input->set($key, $optArr);
 
 		}#END FOREACH
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+
+		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
-//		    die(__FILE__ .' '. __LINE__ );
+			echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
+			echo'<pre>';print_r( $category_ids );echo'</pre>'.__FILE__.' '.__LINE__;
+			echo'<pre>';print_r( $findResultArr );echo'</pre>'.__FILE__.' '.__LINE__;
+			echo'<pre>';print_r( $dataFiltersArr );echo'</pre>'.__FILE__.' '.__LINE__;
+			echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
+			die(__FILE__ .' '. __LINE__ );
 
-		}
-
+		}*/
 
 		$app->set('seoToolsActiveFilter' , $filtersArr );
 

@@ -134,40 +134,52 @@ class seoTools
      * @return void
      * @since    1.0.0
      */
-    public function setMetaData(   ){
+    public function setMetaData(){
 
 		$DataFilters = $this->app->get('seoToolsActiveFilter' );
-
 	    $findReplaceArr = $this->getReplaceFilterDescriptionArr();
-	    if ( !$findReplaceArr )
+
+		
+		$DataFiltersCity = $this->app->get('seoToolsActiveFilterCity' , false  );
+		if ( $DataFiltersCity )  $findReplaceArr = $this->getReplaceFilterDescriptionArr(true , $DataFiltersCity ); #END IF
+		
+
+
+	    if ( !$findReplaceArr   )
 	    {
 			return;
 	    }#END IF
 
-
-
-
+		
 
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
-        $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
+	    if ( isset( $DataFiltersCity['default_h1_tag'] ) ) $default_h1_tag = $DataFiltersCity['default_h1_tag'] ; #END IF
+
+	    $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
 	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
-	    $this->app->set('filter_data_h1' ,  $default_h1_tag  );
+		$this->app->set('filter_data_h1' ,  $default_h1_tag  );
+
 
         $default_title = $this->paramsComponent->get('default_title' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
-        $default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );
+	    if ( isset( $DataFiltersCity['default_title'] ) ) $default_title = $DataFiltersCity['default_title'] ; #END IF
+		$default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );
 	    $default_title = $this->getLanguageText( $default_title );
-
-        $default_description = $this->paramsComponent->get('default_description' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
-        $default_description = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_description );
-	    $default_description = $this->getLanguageText( $default_description );
-		
+			
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
-		    echo'<pre>description: ';print_r( $default_description );echo'</pre>'.__FILE__.' '.__LINE__;
-
+		    echo'<pre>';print_r( $default_title );echo'</pre>'.__FILE__.' '.__LINE__;
+		    
 		}
+		
+	    $default_description = $this->paramsComponent->get('default_description' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
+	    if ( isset( $DataFiltersCity['default_description'] ) ) $default_description = $DataFiltersCity['default_description'] ; #END IF
+	    $default_description = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_description );
+	    $default_description = $this->getLanguageText( $default_description );
+
+
         $default_keywords = $this->paramsComponent->get('default_keywords' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
-        $default_keywords = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_keywords );
+	    if ( isset( $DataFiltersCity['default_keywords'] ) ) $default_keywords = $DataFiltersCity['default_keywords'] ; #END IF
+		$default_keywords = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_keywords );
 	    $default_keywords = $this->getLanguageText( $default_keywords );
 
         $this->doc->setTitle($default_title );
@@ -189,27 +201,38 @@ class seoTools
 		self::$findReplaceArr =  array_merge( self::$findReplaceArr , $dataArray );
 	}
 	/**
+	 * Получить массив для замены в метаданных
 	 * @return array|false
 	 * @since 3.9
 	 *
 	 */
-	public function getReplaceFilterDescriptionArr(){
+	public function getReplaceFilterDescriptionArr( $onlyCity = false , $DataFiltersCity = false ){
 
 		if ( !empty( self::$findReplaceArr ) )
 		{
 			return self::$findReplaceArr ;
 		}#END IF
 
-		/**
-		 * @var array $table - выбранные опции в фильтрах
-		 */
-		$table = $this->app->get('seoToolsActiveFilter.table' );
-		if ( !$table )
-		{
-			return false ;
-		}#END IF
-
 		$vmCategoryId = $this->app->input->get('virtuemart_category_id' , [] , 'ARRAY') ;
+
+		// Если создаем значения замены для фильтров
+		if ( !$onlyCity )
+		{
+			/**
+			 * @var array $table - выбранные опции в фильтрах
+			 */
+			$table = $this->app->get('seoToolsActiveFilter.table' );
+			if ( !$table ) return false ; #END IF
+
+			foreach ( $table as $key => $item)
+			{
+				$filter = $this->seoTools_filters->_getFilterById( $key );
+				// Подготовить массив со значениями
+				$filter->valueArr = self::prepareHex2binArr( $item );
+				$filterOrdering[$filter->ordering] = $filter ;
+			}
+
+		}#END IF
 
 		/**
 		 * @var VirtueMartModelCategory
@@ -219,21 +242,23 @@ class seoTools
 
 		$filterOrdering = [];
 
-		foreach ( $table as $key => $item)
-		{
-			$filter = $this->seoTools_filters->_getFilterById( $key );
-			// Подготовить массив со значениями
-			$filter->valueArr = self::prepareHex2binArr( $item );
-			$filterOrdering[$filter->ordering] = $filter ;
-		}
+
 
 		$findReplaceArr = [
 			'{{FILTER_LIST}}' => seoTools_shortCode::getFilterListText( $filterOrdering ) ,
 			'{{FILTER_VALUE_LIST}}' => seoTools_shortCode::getFilterValueListText( $filterOrdering ) ,
 			'{{CATEGORY_NAME}}' => $vmCategory->category_name ,
 		];
+
+		// Если создаем значения замены для фильтров городов
+		if ( $onlyCity )
+		{
+			$findReplaceArr['{{TEXT_PROP}}'] = !isset($DataFiltersCity['text_prop']) ?$DataFiltersCity['name']:$DataFiltersCity['text_prop'] ;
+			$findReplaceArr['{{FILTER_VALUE_LIST}}'] = !isset($DataFiltersCity['name']) ? $DataFiltersCity['text_prop'] :$DataFiltersCity['name'] ;
+			unset( $findReplaceArr['{{FILTER_LIST}}'] );
+		}#END IF
 		$this->setReplaceFilterDescriptionArr( $findReplaceArr );
-		return $findReplaceArr ;
+ 		return $findReplaceArr ;
 
 
 
@@ -325,10 +350,15 @@ class seoTools
 		$this->db   = JFactory::getDBO();
 		$query      = $this->db->getQuery(true);
 		$countLines = 0;
+
 		foreach ($optionsFilterArr as $options)
 		{
+			if ( !is_array( $options->option_sef_url->vmcategory_id ) )
+			{
+				$options->option_sef_url->vmcategory_id = [ $options->option_sef_url->vmcategory_id ] ;
+			}#END IF
 			$values =
-				$this->db->quote($options->option_sef_url->vmcategory_id) . ","
+				$this->db->quote($options->option_sef_url->vmcategory_id[0]) . ","
 				. $this->db->quote($options->option_sef_url->url_params) . ","
 				. $this->db->quote($options->option_sef_url->url_params_hash) . ","
 				. $this->db->quote($options->option_sef_url->sef_url) . ","
@@ -339,6 +369,8 @@ class seoTools
 		}#END FOREACH
 		$query->insert($this->db->quoteName('#__cf_customfields_setting_seo'))
 			->columns($this->db->quoteName($columns));
+
+
 
 		$this->db->setQuery(
 		// Заменяет INSERT INTO на другой запрос
@@ -371,7 +403,8 @@ class seoTools
 
 
     /**
-     * Подготовить массив со значениями
+     * Преобразовать массив со значениями в формате Hex -> в символы
+     *  etc/ 5a2d4c6f636b => Z-Lock
      * @param $valueCustomHashArr
      * @return array
      * @since    1.0.0
@@ -393,10 +426,6 @@ class seoTools
 			    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
 			    die(__FILE__ .' '. __LINE__ );
 			}
-
-//			echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//
-//			die(__FILE__ .' '. __LINE__ );
 
 	    }#END IF
 
@@ -507,48 +536,22 @@ class seoTools
 
 		}#END FOREACH
 
-
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//			echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
-
-		}
-
-
-
 	    foreach ( $result as $item)
 	    {
 		    $keyInput = 'custom_f_' . $item->custom_id ;
-			$params = json_decode( $item->params ) ;
-
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//			    echo'<pre>';print_r( $params );echo'</pre>'.__FILE__.' '.__LINE__;
-//			    die(__FILE__ .' '. __LINE__ );
-
-			}
+		    $paramsRegistry = new JRegistry($item->params) ; 
 
 			// Если фильтр использовать только как единственный
-		    if ( $params->use_only_one_opt && count( $result ) > 1 ) return true ; #END IF
+		    if ( $paramsRegistry->get('use_only_one_opt' , 0 ) && count( $result ) > 1 ) return true ; #END IF
 
 			// Проверка - если есть выбранные фильтры запрещенные для индексации
 		    if ( !$item->on_seo ) return true ; #END IF
 
-if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-{
-
-//	echo'<pre>';print_r( $params );echo'</pre>'.__FILE__.' '.__LINE__;
-//	die(__FILE__ .' '. __LINE__ );
-
-}
-
 			// Если количество выбранных опций для фильтра больше чем установлено в расширенных настройках фильтра
-		    if ( isset( $params->limit_options_select_for_no_index ) && count( $inputs[$keyInput] ) > $params->limit_options_select_for_no_index )
+		    $limit_options_select_for_no_index = $paramsRegistry->get('limit_options_select_for_no_index' , 0 ) ;
+		    if ( $limit_options_select_for_no_index && count( $inputs[$keyInput] ) > $limit_options_select_for_no_index )
 				return true ; #END IF
 
-
-			
 		}#END FOREACH
 
 

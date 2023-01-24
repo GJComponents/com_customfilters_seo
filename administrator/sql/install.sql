@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS `#__cf_customfields_setting_city` (
     `on_seo` int(11) NOT NULL DEFAULT '1',
     `known_languages` varchar(12) NOT NULL DEFAULT '*' ,
     `type_id` varchar(12) NOT NULL DEFAULT '13',
-    `params` text NOT NULL,
-    `params_customs` text NOT NULL,
+    `params` longtext NOT NULL,
+    `params_customs` longtext NOT NULL,
     `statistic` text NOT NULL COMMENT 'статистика данных',
     `data_type` varchar(12) NOT NULL DEFAULT 'string',
     PRIMARY KEY (`id`)

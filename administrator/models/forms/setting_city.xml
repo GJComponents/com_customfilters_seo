@@ -143,44 +143,96 @@
 				max="10"
 		>
 			<form>
-				 <field name="text_prop"
-				 	type="text"
-				 	default=""
-				 	class="text_prop translite"
-				 	size="20"
-				 	readonly=""
-				 	required="1"
-				 	label="SETTING_CITY_TEXT_PROP"
-				 	description="SETTING_CITY_TEXT_PROP_DESC"
-				 	showon=""
-				 	hint=""
-				 	pattern="[A-Za-zА-Яа-я\s0-9-_]+"
-				 	filter="raw" />
-			<field name="sef_alias"
-				type="text"
-				default=""
-				class="sef_alias "
-				size="20"
-				readonly="1"
-				required="1"
-				label="SETTING_CITY_SEF_ALIAS"
-				description="SETTING_CITY_SEF_ALIAS_DESC"
-				showon=""
-				hint=""
-				pattern="[a-z0-9-_]+"
-				filter="raw" />
-
-
-
+				<field name="text_prop"
+					   type="text"
+					   default=""
+					   class="text_prop translite span12"
+					   size="20"
+					   readonly=""
+					   required="1"
+					   label="SETTING_CITY_TEXT_PROP"
+					   description="SETTING_CITY_TEXT_PROP_DESC"
+					   showon=""
+					   hint=""
+					   pattern="[A-Za-zА-Яа-я\s0-9-_]+"
+					   filter="raw"/>
+				<field name="sef_alias"
+					   type="text"
+					   default=""
+					   class="sef_alias span12"
+					   size="20"
+					   readonly="1"
+					   required="1"
+					   label="SETTING_CITY_SEF_ALIAS"
+					   description="SETTING_CITY_SEF_ALIAS_DESC"
+					   showon=""
+					   hint=""
+					   pattern="[a-z0-9-_]+"
+					   filter="raw"/>
+				
+				<field name="default_h1_tag"
+					type="textarea"
+					default=""
+					class="default_h1_tag span12"
+					rows="3"
+					cols="4"
+					readonly=""
+					required=""
+					label="SETTING_CITY_DEFAULT_H_1_TAG"
+					description="SETTING_CITY_DEFAULT_H_1_TAG_DESC"
+					showon=""
+					hint=""
+					filter="raw" />
+				<field name="default_title"
+					type="textarea"
+					default=""
+					class="default_title span12"
+					rows="3"
+					cols="4"
+					readonly=""
+					required=""
+					label="SETTING_CITY_DEFAULT_TITLE"
+					description="SETTING_CITY_DEFAULT_TITLE_DESC"
+					showon=""
+					hint=""
+					filter="raw" />
+				<field name="default_description"
+					type="textarea"
+					default=""
+					class="default_description span12 "
+					rows="3"
+					cols="4"
+					readonly=""
+					required=""
+					label="SETTING_CITY_DEFAULT_DESCRIPTION"
+					description="SETTING_CITY_DEFAULT_DESCRIPTION_DESC"
+					showon=""
+					hint=""
+					filter="raw" />
+				<field name="default_keywords"
+					type="textarea"
+					default=""
+					class="default_keywords span12 "
+					rows="3"
+					cols="4"
+					readonly=""
+					required=""
+					label="SETTING_CITY_DEFAULT_KEYWORDS"
+					description="SETTING_CITY_DEFAULT_KEYWORDS_DESC"
+					showon=""
+					hint=""
+					filter="raw" />
+					
+						
+						
+						
+					
 
 			</form>
 		</field>
 	</fieldset>
 	<fieldset name="hidden_fields">
-		<field name="id"
-			type="hidden"
-
-			filter="raw" />
+		<field name="id" type="hidden" filter="raw" />
 
 
 	</fieldset>

@@ -47,6 +47,7 @@ class CustomfiltersViewForms_add extends HtmlView
 
 	    }
 
+		die(__FILE__ .' '. __LINE__ );
 
 	    $this->ListCity = $model->getListCity();
 	    $Data['form_html'] = $this->loadTemplate( $layout );

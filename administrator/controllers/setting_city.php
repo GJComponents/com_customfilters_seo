@@ -20,6 +20,8 @@ class CustomfiltersControllerSetting_city extends \Joomla\CMS\MVC\Controller\Adm
 		$formData = Factory::getApplication()->input->get('jform', false, 'RAW');
 		JLoader::registerNamespace( 'OsmapBackgroundHelper' , JPATH_ADMINISTRATOR . '/modules/mod_osmap_background_toolbar/helpers' , $reset = false , $prepend = false , $type = 'psr4' );
 		$ComFilterCity = new \OsmapBackgroundHelper\ComFilterCity();
+
+
 		$dataResult = $ComFilterCity->createMapCityFilter( $formData['id'] );
 
 		// Перегружаем страницу

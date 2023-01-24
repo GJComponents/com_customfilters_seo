@@ -226,6 +226,13 @@ class customfiltersModelSetting_filter extends AdminModel
 		$result = \Joomla\CMS\Factory::getDbo()->updateObject('#__cf_customfields', $object, 'id');
 		if ( $result )
 		{
+			// Удалить КЕШ - на фронте из админ панели для модуля
+			/** @var \JCacheControllerCallback $cache */
+			$cache = \Joomla\CMS\Cache\Cache::getInstance('callback');
+			$cache->options['cachebase'] = JPATH_SITE . '/cache';
+			$cache->setCaching(1);
+			$cache->clean('mod_cf_filtering' , 'group' );
+
 			$app->enqueueMessage( Text::_('COM_CUSTOMFILTERS_SAVE_SUCCESSFUL'));
 			$app->enqueueMessage( Text::_('COM_CUSTOMFILTERS_SETTING_FILTER_ON_CLEAR_CACHE') , 'warning');
 			echo new JResponseJson(null, '', false );

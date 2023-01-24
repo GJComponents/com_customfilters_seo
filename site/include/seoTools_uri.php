@@ -19,7 +19,6 @@ class seoTools_uri
 	 * @var int ItemID пункта меню для option=com_customfilters & view=products
 	 */
 	protected static $customfiltersItemId;
-
 	/**
 	 * @since version
 	 * @var array SEF URL - для опций фильтра и для ссылок пагинации
@@ -105,11 +104,23 @@ class seoTools_uri
 			$filter->sef_url = self::getStringSefUrl($filter->alias);
 
 
+
 			$i_optionCount = 0;
 
-
-			// Подготовить массив со значениями
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//			    echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+			    
+			}
+			// Преобразовать массив со значениями в формате Hex -> в символы
 			$valueCustomHashArr = seoTools::prepareHex2binArr($valueCustomHashArr);
+
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP    )
+			{
+//				echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+
+			}
 
 			foreach ( $valueCustomHashArr as $i => $valueCustom )
 			{
@@ -128,6 +139,8 @@ class seoTools_uri
 			$settingSeoOrdering[ $filter->ordering ] = $filter;
 		}
 
+
+
 		ksort($settingSeoOrdering);
 
 		$resultData->url_params = $option_url;
@@ -141,25 +154,28 @@ class seoTools_uri
 			$iArrCount++;
 		}
 		$resultData->no_ajax = false;
+
+
 		/**
 		 * Если Sef link не пустой - Добавляем путь и в конец слэш
 		 */
 		if ( strlen($resultData->sef_url) )
 		{
-			$resultData->sef_url .= '/';
+			$resultData->sef_url .= '/' ;
 		}
 		else
 		{
-			//  $path = str_replace('/filter/' , '/catalog/' , $path );
-			$resultData->no_ajax = 1;
+			$resultData->no_ajax = true ;
 			$path                = seoTools::getPatchToVmCategory($resultData->vmcategory_id);
-
 		}
+
+
 
 		$resultData->sef_url = $path.$resultData->sef_url;
 
 		// Очистим от не нужных символов
 		$resultData->sef_url = seoTools::cleanSefUrl($resultData->sef_url);
+
 
 		if ( $pageStart )
 		{
@@ -187,14 +203,15 @@ class seoTools_uri
 	{
 		$alias = \GNZ11\Document\Text::rus2translite($alias);
 		$alias = mb_strtolower($alias);
-		$alias = str_replace(' ' , '_' , $alias);
+		$alias = str_replace([' ','-'] , '_' , $alias);
 		$alias = seoTools::cleanSefUrl($alias);
 
 		return $alias;
 	}
 
 	/**
-	 * Получить ссылку на текущую категорию Vm option=com_virtuemart view=category virtuemart_category_id= ***
+	 * Получить ссылку на текущую категорию Vm option=com_virtuemart view=category
+	 * virtuemart_category_id= ***
 	 *
 	 * @param   bool|int  $category_id
 	 *
@@ -209,6 +226,14 @@ class seoTools_uri
 			$app         = JFactory::getApplication();
 			$category_id = $app->input->get('virtuemart_category_id' , 0 , 'INT');
 		}#END IF
+		if ( !$category_id )
+		{
+			$category_id = ShopFunctionsF::getLastVisitedCategoryId();
+		}#END IF
+		
+//		echo'<pre>';print_r( $category_id );echo'</pre>'.__FILE__.' '.__LINE__;
+		
+
 		return JRoute::_('index.php?option=com_virtuemart&view=category&virtuemart_category_id='.$category_id.'&virtuemart_manufacturer_id=0');
 	}
 
@@ -262,9 +287,7 @@ class seoTools_uri
 			$category_ids[] = $queryUrl[ 'virtuemart_category_id' ];
 			if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
 			{
-				echo '<pre>';
-				print_r($queryUrl[ 'virtuemart_category_id' ]);
-				echo '</pre>'.__FILE__.' '.__LINE__;
+				echo '<pre>'; print_r($queryUrl[ 'virtuemart_category_id' ]); echo '</pre>'.__FILE__.' '.__LINE__;
 			}
 
 		}#END IF
@@ -272,14 +295,22 @@ class seoTools_uri
 		if ( empty($findResultArr) )
 		{
 			$findResultArr = self::findCityFilters($category_ids , $findResultArr);
+
 		}#END IF
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//		    echo'<pre>';print_r( $findResultArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
 
 
 		// Если ссылка не имеет выбранных опций фильтра - а только категория - перенаправляем в категорию
 		if ( empty($findResultArr) && $option == 'com_customfilters' && count($category_ids) == 1 )
 		{
 			$juri        = JUri::getInstance();
-			$catUrl      = seoTools_uri::getPatchToVmCategory($category_ids[ 0 ]);
+			$catUrl      = seoTools_uri::getPatchToVmCategory( $category_ids[ 0 ] );
 			$catUrl      = preg_replace('/^\//' , '' , $catUrl);
 			$redirectUrl = $juri::root().$catUrl;
 
@@ -297,14 +328,9 @@ class seoTools_uri
 	 * @throws Exception
 	 * @since 3.9
 	 */
-	protected static function findCityFilters( $category_ids , $findResultArr )
+	public static function findCityFilters( $category_ids , $findResultArr )
 	{
 		$app = \Joomla\CMS\Factory::getApplication();
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//		    echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
-		}
 
 		$juri = \Joomla\CMS\Uri\Uri::getInstance();
 		$path = $juri->getPath();
@@ -355,10 +381,12 @@ class seoTools_uri
 			$patern = '/^\/.+\/.+\/([^\/]+)\/?$/i';
 			preg_match( $patern , $path , $matches );
 
-			// Если название фильтра не нашли -
+			// Если название фильтра ГОРОДА не нашли -
 			if ( !isset( $matches[ 1 ] ) ) return $findResultArr; #END IF
 			$sef_alias = $matches[ 1 ];
 		}
+
+
 
 		$db    = JFactory::getDbo();
 		$Query = $db->getQuery(true);
@@ -383,15 +411,21 @@ class seoTools_uri
 		$db->setQuery($Query);
 		$res = $db->loadObject();
 
+		if ( empty( $res ) ) return ; #END IF
 
-		// Перебираем дополнительные настройки - вкладка params_customs
+		// Перебираем вкладку "Дополнительные настройки (params_customs)" - Фильтры Городов
 		if ( !empty($res->params_customs) )
 		{
 			$params_customs = json_decode($res->params_customs);
-			foreach ( $params_customs as $paramsCustom )
+			$params = new \Joomla\Registry\Registry();
+			$params->loadString($res->params_customs);
+			$paramsArr = $params->toArray();
+
+			foreach ( $paramsArr as $paramsCustom )
 			{
-				if ( $paramsCustom->sef_alias == $sef_alias )
+				if ( $paramsCustom['sef_alias'] == $sef_alias )
 				{
+					$app->set('seoToolsActiveFilterCity' , $paramsCustom );
 					return $paramsCustom;
 					break;
 				}#END IF
@@ -401,9 +435,13 @@ class seoTools_uri
 		$params = new \Joomla\Registry\Registry();
 		$params->loadString($res->params);
 		$paramsArr = $params->toArray();
-
+			
 		// Поиск результатов в для списка Area-City
 		self::getLineArr( $paramsArr[ 'use_city_setting' ] , $sef_alias);
+
+//		echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $paramsArr[ 'use_city_setting' ] );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
 
 		if ( !empty(self::$LineArr) ) return self::$LineArr; #END IF
 	}
@@ -446,27 +484,36 @@ class seoTools_uri
 	 * @param $sef_alias
 	 *
 	 * @return false
+	 * @throws Exception
 	 * @since 3.9
 	 */
 	public static function getLineArr( $arr , $sef_alias ):bool
 	{
-//		echo'<pre>';print_r( $arr );echo'</pre>'.__FILE__.' '.__LINE__;
-//		echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
 
-		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		$app = \Joomla\CMS\Factory::getApplication();
+
+		JLoader::register('HelperSetting_city' , JPATH_ADMINISTRATOR . '/components/com_customfilters/helpers/HelperSetting_city.php');
+		$resArrOneLevelParams = HelperSetting_city::getOneLevelParams( $arr );
+
+		if ( key_exists( $sef_alias , $resArrOneLevelParams ) )
 		{
-			echo'<pre>';print_r( $arr );echo'</pre>'.__FILE__.' '.__LINE__;
-			die(__FILE__ .' '. __LINE__ );
+			$cityParams = $resArrOneLevelParams[$sef_alias] ;
+			$cityData = HelperSetting_city::getCityByAlias( $sef_alias );
+			$cityParams = array_merge($cityParams ,$cityData ) ;
 
-		}*/
+			if ( isset($cityParams['use'] ) && $cityParams['use'] == 1  )
+			{
+				self::$LineArr = $cityParams ;
+				$app->set('seoToolsActiveFilterCity' , $cityParams );
+			}#END IF
 
-		if (is_array($arr) || is_object($arr))
+		}#END IF
+		return false ;
+
+		/*if (is_array($arr) || is_object($arr))
 		{
 			foreach ( $arr as $key => $item )
 			{
-
-				$cloneItem = $item;
 				if ( is_array($item) && count($item) > 1 )
 				{
 					self::getLineArr($item , $sef_alias);
@@ -480,7 +527,7 @@ class seoTools_uri
 			}#END FOREACH
 		}
 
-		return false;
+		return false;*/
 	}
 
 	/**

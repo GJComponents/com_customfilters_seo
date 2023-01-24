@@ -747,7 +747,8 @@ class cftools
 		$where = [
 			$db->quoteName('cfp.virtuemart_custom_id') .'IN ( "'.implode('","' , $filtersIds  ).'")' ,
 			$db->quoteName( 'pc.virtuemart_category_id' ) .'IN ( "'.implode('","' , $virtuemart_category_idArr  ).'")',
-			$db->quoteName( 'cfp.published' ) .'= 1 ',
+			// TODO-Info : Не работатает в некоторых категориях - из за значения 0
+//			$db->quoteName( 'cfp.published' ) .'= 1 ',
 			$db->quoteName( 'p.published' ) .'= 1 ',
 		];
 		$Query->where( $where );
@@ -756,17 +757,6 @@ class cftools
 		$db->setQuery( $Query );
 		$res = $db->loadObjectList();
 
-		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
-		{
-//			echo '<br>------------<br>Query Dump :'.__FILE__.' '.__LINE__.$Query->dump().'------------<br>';
-//			echo '<br>------------<br>Query Dump :'.__FILE__.' '.__LINE__ .'<br>' . $res.'<br>' . '------------<br>';
-//			echo'<pre>';print_r( $app->input->get('virtuemart_category_id') );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $res );echo'</pre>'.__FILE__.' '.__LINE__;
-
-//			die(__FILE__ .' '. __LINE__ );
-
-		}
-		
 
 		$itemArr = [];
 		foreach ( $res as &$item )
@@ -778,8 +768,16 @@ class cftools
 //				die(__FILE__ .' '. __LINE__ );
 			}
 
+			// Alias Поля - z_lock
 			$itemArr[$item->customfield_value_alias] = $item ;
+
+			// Прямое значение поля etc/ Z-Lock
 			$itemArr[$item->customfield_value] = $item ;
+
+			// Значение поле в нижнем регистре etc/ z-lock
+			$customfield_value_to_lower_case =  mb_strtolower( $item->customfield_value );
+			$itemArr[$customfield_value_to_lower_case] = $item ;
+
 		}#END FOREACH
 
 		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )

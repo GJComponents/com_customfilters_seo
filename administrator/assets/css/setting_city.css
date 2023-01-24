@@ -1,3 +1,6 @@
+#add-area-form .float-right{
+    float: right;
+}
 .btn-toolbar #toolbar-plus-2{float: right;}
 .tab-content .right-bar{}
 .tab-content .right-bar .control-group {

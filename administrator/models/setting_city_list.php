@@ -54,9 +54,11 @@ class CustomfiltersModelSetting_city_list extends JModelList
 
 	/**
 	 * Удалить фильтры городов
-	 * @param array $pks
+	 *
+	 * @param   array  $pks
 	 *
 	 * @return bool|void
+	 * @throws Exception
 	 * @since 3.9
 	 */
 	public function delete( $pks ){
@@ -112,9 +114,6 @@ class CustomfiltersModelSetting_city_list extends JModelList
 
 
 	}
-
-
-
 
     /**
      * Method to auto-populate the model state.
@@ -277,7 +276,6 @@ class CustomfiltersModelSetting_city_list extends JModelList
         return $query;
     }
 
-
     /**
      * Получить список всех фильтров для админ панели
      * Method to get a list of custom fields.
@@ -294,15 +292,18 @@ class CustomfiltersModelSetting_city_list extends JModelList
     {
         $items = parent::getItems();
         $customFieldsTypes = $this->getField_types();
-
-
-
-
-
+        
 
 		
 
-        foreach ($items as &$item) {
+
+		
+        /*foreach ($items as &$item) {
+	        $item->params = json_decode( $item->params ) ;
+	        $item->params = str_replace( ['{{' , '}}'] , ['\{\{' , '\}\}'] ,  $item->params) ;
+	        echo'<pre>';print_r( $item->params );echo'</pre>'.__FILE__.' '.__LINE__;
+//	        die(__FILE__ .' '. __LINE__ );
+
             $params = new Registry;
             $params->loadString($item->params);
             $item->smart_search = $params->get('smart_search', 0);
@@ -319,7 +320,7 @@ class CustomfiltersModelSetting_city_list extends JModelList
                 //write also which custom element/plugin it is
                 $item->field_type_string .= ' (' . $custom->custom_element . ')';
             }
-        }
+        }*/
 
 
 

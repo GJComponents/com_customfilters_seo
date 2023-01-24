@@ -50,33 +50,45 @@ class CustomfiltersViewSetting_city extends HtmlView
 		JLoader::registerNamespace( 'FiltersSeoNamespace' , JPATH_ADMINISTRATOR . '/components/com_customfilters/libraries' , $reset = false , $prepend = false , $type = 'psr4' );
 		$this->document->addStyleSheet('/administrator/components/com_customfilters/assets/css/setting_city.css');
 
+		$app = \Joomla\CMS\Factory::getApplication();
+		$app->enqueueMessage('Константы: 
+			<br> {{CATEGORY_NAME}}  - название категории, 
+			<br> {{FILTER_VALUE_LIST}} - будет заменена названием города, 
+			<br> {{TEXT_PROP}} - будет заменена названием Текст свойства в Дополнительных настройках.
+			');
+
+
 //		JLoader::register('CustomfiltersModelForms_add' , JPATH_ADMINISTRATOR . '/components/com_customfilters/models/forms_add.php');
 //		$CustomfiltersModelForms_add = new CustomfiltersModelForms_add();
 //		$this->setModel( $CustomfiltersModelForms_add ) ;
 //		$formsAddModel = $this->getModel('forms_add');
 
 
-
+		/**
+		 * @var CustomfiltersModelSetting_city $model
+		 */
 		$model = $this->getModel();
 		$this->ListCity = $model->getListCity();
-
-
 		/**
 		 * CustomfiltersModelSetting_city::getItem
 		 */
 		$this->item = $this->get('Item');
 
+		if ( !isset( $this->item->params['use_city_setting']  ) )
+		{
+			$this->item->params['use_city_setting'] = $model->_setDefaultParams( $this->ListCity  );
 
+		}#END IF
 
+		$this->paramsCityList = $model->_getOneLevelParams( $this->item->params[ 'use_city_setting' ] );
 
-		$this->paramsCityList = $model->_getOneLevelParams( $this->item->params['use_city_setting'] ) ;
 
 		/**
 		 * CustomfiltersModelSetting_city::getForm
 		 */
-		$this->form = $this->get('Form');
+		$this->form = $this->get( 'Form' );
 
-		$this->_path['template'][] = JPATH_ADMINISTRATOR . '/components/com_customfilters/views/forms_add/tmpl' ;
+		$this->_path[ 'template' ][] = JPATH_ADMINISTRATOR.'/components/com_customfilters/views/forms_add/tmpl';
 
 		// for Multilang Site
 		if (Multilanguage::isEnabled())
@@ -105,6 +117,12 @@ class CustomfiltersViewSetting_city extends HtmlView
 
 		// Закрыть
 		JToolbarHelper::cancel('setting_city.cancel', 'JTOOLBAR_CLOSE');
+
+		/**
+		 * Кнопка - Добавить|Перестроить фильтр в карту сайта
+		 */
+		JToolbarHelper::custom('setting_city.add_area_base', 'plus-circle' , 'plus-2' ,
+			'COM_CUSTOMFILTERS_ADD_AREA_BASE' , false   );
 
 //		echo'<pre>';print_r( $this->item->id );echo'</pre>'.__FILE__.' '.__LINE__;
 //		die(__FILE__ .' '. __LINE__ );
