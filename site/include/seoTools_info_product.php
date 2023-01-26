@@ -34,8 +34,8 @@ class seoTools_info_product
 		return md5( $filterUrl );
 	}
 	/**
-	 * Получить инфо о всех продуктах
-	 *
+	 * Получить инфо о всех продуктах найденных в результатах фильтрации.
+	 * Отображается в описании категории при включенном фильтре и в модуле "Хлебные крошки/теги CF"
 	 * @param   JDatabaseQueryMysqli  $query
 	 *
 	 * @return array
@@ -44,12 +44,10 @@ class seoTools_info_product
 	 */
 	public static function getInfoProducts( JDatabaseQueryMysqli $query  ):array
 	{
-
-
 		$db = JFactory::getDbo();
 
 		$select = [
-			$db->quoteName('p_p.product_price'),
+//			$db->quoteName('p_p.product_price'),
 			$db->quoteName('m.virtuemart_manufacturer_id'),
 //			$db->quoteName('ml.mf_name'),
 //			$db->quoteName('m.virtuemart_manufacturer_id' , 'manufactur_id'),
@@ -57,32 +55,14 @@ class seoTools_info_product
 		];
 		$query->select($select);
 
-		// TODO - Разобраться - с добавлениемм таблицы '#__virtuemart_product_prices' , 'p_p'
-		/*$query->leftJoin(
-			$db->quoteName('#__virtuemart_product_prices' , 'p_p')
-			.' ON '
-			.$db->quoteName('p_p.virtuemart_product_id') . ' = ' . $db->quoteName('p.virtuemart_product_id')
-		);*/
-
 		$query->leftJoin(
 				$db->quoteName('#__virtuemart_product_manufacturers' , 'm')
 			.' ON '
 			.$db->quoteName('m.virtuemart_product_id') . ' = ' . $db->quoteName('p.virtuemart_product_id')
 		);
 
-		/*$query->leftJoin(
-				$db->quoteName('#__virtuemart_manufacturers_' . $siteLang , 'ml')
-			.' ON '
-			.$db->quoteName('ml.virtuemart_manufacturer_id') . ' = ' . $db->quoteName('m.virtuemart_manufacturer_id')
-		);*/
-
-		
-//		$db->setQuery($query , 0 , 10 );
 		$db->setQuery($query );
 
-
-		
-		
 		try
 		{
 		    // Code that may throw an Exception or Error.
@@ -97,8 +77,16 @@ class seoTools_info_product
 		    die(__FILE__ .' '. __LINE__ );
 		}
 
-
-
+		/**
+		 * @var VirtueMartModelProduct $productModel
+		 */
+		$productModel = VmModel::getModel('product');
+		// Получаем цены для товаров
+		foreach ( $resultObjectList as &$item )
+		{
+			$pp = $productModel->getPrice ( $item->virtuemart_product_id , 1 );
+			$item->product_price = $pp['salesPrice'];
+		}#END FOREACH
 
 		return self::prepareListDescriptionProduct( $resultObjectList );
 
@@ -172,8 +160,12 @@ class seoTools_info_product
 		foreach ( $info_products as $infoProduct )
 		{
 //			$dataArr['manufacturers_list'][] = $infoProduct->mf_name ;
-			$dataArr['min_Price'][] = $infoProduct->product_price ;
-			$dataArr['max_Price'][] = $infoProduct->product_price ;
+			if ( $infoProduct->product_price )
+			{
+				$dataArr['min_Price'][] = $infoProduct->product_price ;
+				$dataArr['max_Price'][] = $infoProduct->product_price ;
+			}#END IF
+
 			$virtuemart_manufacturer_idArr[] = $infoProduct->virtuemart_manufacturer_id ;
 
 		}#END FOREACH
@@ -187,11 +179,10 @@ class seoTools_info_product
 		$dataArr['max_Price'] = max( $dataArr['max_Price'] );
 		$dataArr['manufacturers'] = self::getManufacturersProduct( $virtuemart_manufacturer_idArr ) ;
 
-
-
-//		echo'<pre>';print_r( $dataArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
-
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//		    echo'<pre>';print_r( $dataArr );echo'</pre>'.__FILE__.' '.__LINE__;
+		}
 
 		return $dataArr ;
 	}
@@ -205,9 +196,8 @@ class seoTools_info_product
 	 * @since 3.9
 	 */
 	public function setDescriptionProductResult( array $dataArr ){
-		$app = \Joomla\CMS\Factory::getApplication();
+		$app = Factory::getApplication();
 		$paramsComponent = JComponentHelper::getParams('com_customfilters');
-
 
 		$seoTools = new seoTools();
 		$findReplaceArr = $seoTools->getReplaceFilterDescriptionArr();
@@ -223,12 +213,8 @@ class seoTools_info_product
 		$findReplaceArr['{{MAX_PRICE}}'] =  seoTools_shortCode::getResultFilterPrice( $dataArr['max_Price'] ) ;
 		$findReplaceArr['{{COUNT_PRODUCT_INT}}'] =  $dataArr['count_Product'];
 
-
-
 		$app->set('ResultFilterDescription' , $findReplaceArr );
 
-//		$doc = Factory::getDocument();
-//		$doc->CountProductResult  ;
 	}
 
 }

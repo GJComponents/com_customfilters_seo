@@ -97,9 +97,9 @@ $countManufacturersText = \GNZ11\Document\Text::declOfNum ( count( $manufacturer
 	}#END IF
 	?>
 
-	<div class="category_description">
+<!--	<div class="category_description">
 		<div>Описание категории</div>
-		<?= $category_description ?>
-	</div>
+		<?php /*= $category_description */?>
+	</div>-->
 
 </div>

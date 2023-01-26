@@ -71,6 +71,14 @@ class seoTools_shortCode
 
 	}
 
+	/**
+	 * Создает строку описания результатов поиска для диапазона цен.
+	 * etc/   [{{RANGE_PRICE}}] => от 7667 грн. до 39490 грн.
+	 * @param $dataArr
+	 *
+	 * @return string
+	 * @since 3.9
+	 */
 	public static function getResultFilterRangePrice($dataArr){
 		$min_Price = round( $dataArr['min_Price'] )  ;
 		$max_Price = round( $dataArr['max_Price'] )  ;
@@ -78,6 +86,8 @@ class seoTools_shortCode
 		if (!class_exists('CurrencyDisplay')) {
 			require_once(JPATH_VM_ADMIN . '/helpers/currencydisplay.php');
 		}
+
+
 		$vmCurrencyHelper = CurrencyDisplay::getInstance();
 		$min_Price = $vmCurrencyHelper->priceDisplay( $min_Price ) ;
 		$max_Price = $vmCurrencyHelper->priceDisplay( $max_Price ) ;

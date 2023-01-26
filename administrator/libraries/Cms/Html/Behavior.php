@@ -134,9 +134,9 @@ class Behavior extends \JHtmlBootstrap
 		];
 		if ( !isset($displayData[ 'cityItem' ][ 'params' ] )  )
 		{
-			echo '<pre>'; print_r( $displayData  );echo '</pre>'.__FILE__.' '.__LINE__;
+			// echo '<pre>'; print_r( $displayData  );echo '</pre>'.__FILE__.' '.__LINE__;
 
-			try
+			/*try
 			{
 			    // Code that may throw an Exception or Error.
 
@@ -151,7 +151,7 @@ class Behavior extends \JHtmlBootstrap
 			}
 
 
-			die( __FILE__.' '.__LINE__ );
+			die( __FILE__.' '.__LINE__ );*/
 		}#END IF
 
 		# Расположение слоя

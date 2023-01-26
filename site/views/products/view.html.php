@@ -159,6 +159,17 @@ class CustomfiltersViewProducts extends cfView
         $this->products = $this->productModel->getProducts($ids);
 
 
+	    /**
+	     * Установка выбранных опций фильтра в Название категории -- <h1>
+	     */
+	    $tag_h1 = $app->get('filter_data_h1' , false );
+	    $app->set('filter_data_h1' , false );
+	    if ( $tag_h1 && !empty($this->category->category_name) )
+	    {
+		    $this->category->category_name = $tag_h1 ;
+	    }#END IF
+
+
 	    // Если в настройках компонента com_customfilters - не отображать описание категории
 	    $on_description_vm_category = $paramsComponent->get('on_description_vm_category' , 1 );
 	    if ( !$on_description_vm_category )

@@ -154,9 +154,24 @@ class seoTools
 
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
 	    if ( isset( $DataFiltersCity['default_h1_tag'] ) ) $default_h1_tag = $DataFiltersCity['default_h1_tag'] ; #END IF
-
+		
+	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+	    {
+//		    echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
+	    }
+	    
 	    $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
 	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{ 
+//		    echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r( $findReplaceArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    die(__FILE__ .' '. __LINE__ );
+
+		}
+
 		$this->app->set('filter_data_h1' ,  $default_h1_tag  );
 
 
@@ -167,7 +182,7 @@ class seoTools
 			
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
-		    echo'<pre>';print_r( $default_title );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r( $default_title );echo'</pre>'.__FILE__.' '.__LINE__;
 		    
 		}
 		
@@ -215,18 +230,24 @@ class seoTools
 
 		$vmCategoryId = $this->app->input->get('virtuemart_category_id' , [] , 'ARRAY') ;
 
-		// Если создаем значения замены для фильтров
+		// Если создаем значения замены для фильтров (Модуля)
 		if ( !$onlyCity )
 		{
 			/**
 			 * @var array $table - выбранные опции в фильтрах
 			 */
 			$table = $this->app->get('seoToolsActiveFilter.table' );
+
+			 
+
 			if ( !$table ) return false ; #END IF
+
+
 
 			foreach ( $table as $key => $item)
 			{
 				$filter = $this->seoTools_filters->_getFilterById( $key );
+				
 				// Подготовить массив со значениями
 				$filter->valueArr = self::prepareHex2binArr( $item );
 				$filterOrdering[$filter->ordering] = $filter ;
@@ -234,14 +255,13 @@ class seoTools
 
 		}#END IF
 
+
+
 		/**
-		 * @var VirtueMartModelCategory
+		 * @var VirtueMartModelCategory $categoryModel
 		 */
 		$categoryModel = VmModel::getModel('category');
 		$vmCategory = $categoryModel->getCategory($vmCategoryId[0] );
-
-		$filterOrdering = [];
-
 
 
 		$findReplaceArr = [
@@ -250,7 +270,8 @@ class seoTools
 			'{{CATEGORY_NAME}}' => $vmCategory->category_name ,
 		];
 
-		// Если создаем значения замены для фильтров городов
+		
+		// Если создаем значения замены для фильтров городов - или настраиваемых фильтров
 		if ( $onlyCity )
 		{
 			$findReplaceArr['{{TEXT_PROP}}'] = !isset($DataFiltersCity['text_prop']) ?$DataFiltersCity['name']:$DataFiltersCity['text_prop'] ;
@@ -446,7 +467,7 @@ class seoTools
 	 */
     public static function cleanSefUrl( $sef_url ){
 	    $app = JFactory::getApplication();
-        $sef_suffix = $app->get('sef_suffix' , 0 ) ;
+        $sef_suffix = $app->get('sef_suffix' , false ) ;
         $suffix = '';
         if ( $sef_suffix )
         {
@@ -454,13 +475,18 @@ class seoTools
             $sef_url = str_replace($suffix , '' , $sef_url ) ;
 		}#END IF
 
+//	    $sef_url = str_replace([' ','-'] , '_' , $sef_url);
+//	    $sef_url = str_replace('/' , '' , $sef_url);
 	    // TODO Gartes -- Добавил пропускать скобки "("  ")" -- При добавлении urlencode - перестает нормально работать
+	    $resReplace =  preg_replace('/[^\/\-_\w\d\(\)]/i', '', $sef_url) . $suffix ;
+
 	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 	    {
 //	        echo'<pre>';print_r( $sef_url );echo'</pre>'.__FILE__.' '.__LINE__;
+//	        echo'<pre>';print_r( $resReplace );echo'</pre>'.__FILE__.' '.__LINE__;
 //	        echo'<pre>';print_r( urlencode( $sef_url ) );echo'</pre>'.__FILE__.' '.__LINE__;
 	    }
-        return preg_replace('/[^\/\-_\w\d\(\)]/i', '', $sef_url) . $suffix ;
+        return $resReplace ;
     }
 
     /**

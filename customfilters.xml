@@ -9,8 +9,8 @@
 	<copyright>Copyright(c) 2012-2022</copyright>
 	<license>GNU/GPL v.2</license>
 
-	<creationDate>24.01.23-10:01</creationDate>
-	<version>3.10.29</version>
+	<creationDate>26.01.23-14:25</creationDate>
+	<version>3.10.31</version>
 
 
 	<!-- The description is optional and defaults to the name -->
@@ -53,7 +53,7 @@
 		<filename>router.php</filename>
 	</files>
 	<languages folder="site/language">
-		<language tag="cs-CZ">cs-CZ/cs-CZ.com_customfilters.ini</language>
+		<!--<language tag="cs-CZ">cs-CZ/cs-CZ.com_customfilters.ini</language>
 		<language tag="cs-CZ">cs-CZ/cs-CZ.mod_cf_filtering.ini</language>
 		<language tag="cs-CZ">cs-CZ/cs-CZ.mod_cf_filtering.sys.ini</language>
 		<language tag="cs-CZ">cs-CZ/cs-CZ.mod_cf_search.ini</language>
@@ -69,15 +69,16 @@
 		<language tag="el-GR">el-GR/el-GR.mod_cf_filtering.ini</language>
 		<language tag="el-GR">el-GR/el-GR.mod_cf_filtering.sys.ini</language>
 		<language tag="el-GR">el-GR/el-GR.mod_cf_search.ini</language>
-		<language tag="el-GR">el-GR/el-GR.mod_cf_search.sys.ini</language>
+		<language tag="el-GR">el-GR/el-GR.mod_cf_search.sys.ini</language>-->
 
 		<language tag="en-GB">en-GB/en-GB.com_customfilters.ini</language>
+		<language tag="en-GB">en-GB/en-GB.com_customfilters.sys.ini</language>
 <!--		<language tag="en-GB">en-GB/en-GB.mod_cf_filtering.ini</language>-->
 <!--		<language tag="en-GB">en-GB/en-GB.mod_cf_filtering.sys.ini</language>-->
 <!--		<language tag="en-GB">en-GB/en-GB.mod_cf_search.ini</language>-->
 <!--		<language tag="en-GB">en-GB/en-GB.mod_cf_search.sys.ini</language>-->
 
-		<language tag="es-ES">es-ES/es-ES.com_customfilters.ini</language>
+		<!--<language tag="es-ES">es-ES/es-ES.com_customfilters.ini</language>
 		<language tag="es-ES">es-ES/es-ES.mod_cf_filtering.ini</language>
 		<language tag="es-ES">es-ES/es-ES.mod_cf_filtering.sys.ini</language>
 		<language tag="es-ES">es-ES/es-ES.mod_cf_search.ini</language>
@@ -109,9 +110,10 @@
 		<language tag="pt-BR">pt-BR/pt-BR.com_customfilters.ini</language>
 		<language tag="pt-BR">pt-BR/pt-BR.mod_cf_filtering.ini</language>
 		<language tag="pt-BR">pt-BR/pt-BR.mod_cf_filtering.sys.ini</language>
-		<language tag="pt-BR">pt-BR/pt-BR.mod_cf_search.sys.ini</language>
+		<language tag="pt-BR">pt-BR/pt-BR.mod_cf_search.sys.ini</language>-->
 
 		<language tag="ru-RU">ru-RU/ru-RU.com_customfilters.ini</language>
+		<language tag="ru-RU">ru-RU/ru-RU.com_customfilters.sys.ini</language>
 <!--		<language tag="ru-RU">ru-RU/ru-RU.mod_cf_filtering.ini</language>-->
 <!--		<language tag="ru-RU">ru-RU/ru-RU.mod_cf_filtering.sys.ini</language>-->
 <!--		<language tag="ru-RU">ru-RU/ru-RU.mod_cf_search.ini</language>-->

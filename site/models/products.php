@@ -76,24 +76,28 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
      */
     protected $cfinputs;
 
-    /**
-     *
-     * @var array
-     */
+	/**
+	 *
+	 * @since 3.9
+	 * @var array
+	 */
     protected $found_product_ids = [];
     /**
      *
      * @var string
+     *            @since 3.9
      */
     protected $currentLangPrefix;
     /**
      *
      * @var string
+     *            @since 3.9
      */
     protected $defaultLangPrefix;
     /**
      *
      * @var array
+     * @since 3.9
      */
     private $published_cf;
 
@@ -480,12 +484,14 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 				$cache = JFactory::getCache('com_customfilters-seoTools_info_product::getInfoProducts');
 				$cacheId = seoTools_info_product::getCacheId();
 				$dataArr =  $cache->get( ['seoTools_info_product', 'getInfoProducts'] , [$query] , $cacheId  );
+
 				$seoTools_info_product = new seoTools_info_product();
 				$seoTools_info_product->setDescriptionProductResult( $dataArr );
 				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 				{
 
-
+//					echo'<pre>';print_r( $seoTools_info_product );echo'</pre>'.__FILE__.' '.__LINE__;
+//					die(__FILE__ .' '. __LINE__ );
 
 				}
 

@@ -104,7 +104,7 @@ if ( $parentAlias )
 			<textarea name="<?= $default_description_name ?>" id="jform_default_description-<?= $alias ?>"
                       class="default_description span8"
                       cols="4" rows="3"
-                      aria-invalid="false">{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}} купить 😍 - ➡️ Интернет-магазин 🧱 Маркет Профиль 🧱 от Металл Профиль ✅ доступные цены ➡️ Качественный сервис ☎️ +7 (495) 259-24-19</textarea>									</div>
+                      aria-invalid="false">{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}} купить  ✅ доступные цены ➡️ Качественный сервис</textarea>									</div>
 
         <?php
         /*if ( $alias == 'ukraina' || $alias == 'makedonovka'  )

@@ -418,9 +418,6 @@ class CfInput
 		// Удалить параметры пагинации
 		$path = preg_replace('/\/start=\d+/', '', $path);
 
-
-
-
 		/**
 		 * @var array $findResultArr - массив выбранных
 		 */
@@ -433,10 +430,13 @@ class CfInput
 		// Перебираем опубликованные фильтры - находим фильтры
 		foreach ($published_cf as $item)
 		{
-
 			// Поиск вхождения первого фильтра
 			$needle =   $item->sef_url . '-'   ;
 			$needleRegExp = '/' . preg_quote($needle ) . '/u';
+
+
+
+
 			preg_match( $needleRegExp , $path , $matches , PREG_OFFSET_CAPTURE ) ;
 
 			if ( isset( $matches[0] ) )
@@ -455,17 +455,12 @@ class CfInput
 			seoTools_uri::findCityFilters( $category_ids , $findResultArr );
 		}#END IF
 
-
-
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
 
 		// Если не нашли название фильтров в URL
 		if (empty($findResultArr)) return; #END IF
 
 		krsort($findResultArr);
-
-
-
 
 		$length     = 0;
 		$i          = 0;
@@ -480,10 +475,9 @@ class CfInput
 			if (!$i) $length = null; #END IF
 
 			$i++;
-			//
-			$subStr = mb_substr($path, $start, $length);
-			
 
+			// Убрать все что относится к категории
+			$subStr = mb_substr($path, $start, $length);
 			// Находим двойные или более опции фильтра
 			$arrValFilter = explode('-and-', $subStr);
 			// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
@@ -493,6 +487,16 @@ class CfInput
 			{
 				// Удалить слэши
 				$itemValF = str_replace('/', '', $itemValF);
+
+				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+				{
+//					echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $needleRegExp );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $needle );echo'</pre>'.__FILE__.' '.__LINE__;
+//					echo'<pre>';print_r( $subStr );echo'</pre>'.__FILE__.' '.__LINE__;
+//					echo'<pre>';print_r( $arrValFilter );echo'</pre>'.__FILE__.' '.__LINE__;
+//					echo'<pre>';print_r( $itemValF );echo'</pre>'.__FILE__.' '.__LINE__;
+				}
 
 				// Удаляем название фильтра
 				$itemValF = str_replace($dataFilters->name, '', $itemValF);
@@ -549,14 +553,6 @@ class CfInput
 			{
 				foreach ($item->optionSelected as $option)
 				{
-					// Стальной Шелк
-					if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-					{
-//					    echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
-//					    echo'<pre>';print_r( $customSelectValueArr );echo'</pre>'.__FILE__.' '.__LINE__;
-
-					}
-
 					if (array_key_exists( $option , $customSelectValueArr ))
 					{
 						$item->dataOptions[] =  $customSelectValueArr[$option];

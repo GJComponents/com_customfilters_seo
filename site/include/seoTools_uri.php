@@ -97,43 +97,46 @@ class seoTools_uri
 		$i_filterCount      = 0;
 		foreach ( $uriQuery as $fieldId => $valueCustomHashArr )
 		{
-
-
 			$filter = $seoTools_filters->_getFilterById($fieldId);
 
 			$filter->sef_url = self::getStringSefUrl($filter->alias);
 
 
 
-			$i_optionCount = 0;
-
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//			    echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
-			    
-			}
 			// Преобразовать массив со значениями в формате Hex -> в символы
 			$valueCustomHashArr = seoTools::prepareHex2binArr($valueCustomHashArr);
 
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP    )
-			{
-//				echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
 
-			}
-
+			$i_optionCount = 0; // счетчик опций
 			foreach ( $valueCustomHashArr as $i => $valueCustom )
 			{
 
+
 				if ( $i_optionCount ) $filter->sef_url .= '-and';
 
-				$valueCustomTranslite = \GNZ11\Document\Text::rus2translite($valueCustom);
-				$valueCustomTranslite = mb_strtolower($valueCustomTranslite);
-				$valueCustomTranslite = str_replace(' ' , '_' , $valueCustomTranslite);
+				$valueCustomTranslite = self::getStringSefUrl( $valueCustom ) ;
+
+//				$valueCustomTranslite = \GNZ11\Document\Text::rus2translite($valueCustom);
+//				$valueCustomTranslite = mb_strtolower($valueCustomTranslite);
+				// Заменить пробелы - подчеркиванием
+//				$valueCustomTranslite = str_replace(' ' , '_' , $valueCustomTranslite);
+				// Удалить слэши
+//				$valueCustomTranslite = str_replace('/', '', $valueCustomTranslite);
 
 				$filter->sef_url .= '-'.$valueCustomTranslite.'';
 				$i_optionCount++;
-			}
+
+				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP && $valueCustom == '9 кВА/7 кВт'   )
+				{
+//					echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
+//					echo'<pre>';print_r( $valueCustom );echo'</pre>'.__FILE__.' '.__LINE__;
+//					echo'<pre>';print_r( $filter->sef_url );echo'</pre>'.__FILE__.' '.__LINE__;
+//					echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//					echo'<pre>';print_r( $valTest );echo'</pre>'.__FILE__.' '.__LINE__;
+
+				}
+
+			}#END FOREACH
 
 			$i_filterCount++;
 			$settingSeoOrdering[ $filter->ordering ] = $filter;
@@ -146,7 +149,7 @@ class seoTools_uri
 		$resultData->url_params = $option_url;
 		$resultData->sef_url    = '';
 		$iArrCount              = 0;
-
+		// Соединяем блоки Фильтр + Значения
 		foreach ( $settingSeoOrdering as $ordering => $filter )
 		{
 			if ( $iArrCount ) $resultData->sef_url .= '-and-';
@@ -166,17 +169,16 @@ class seoTools_uri
 		else
 		{
 			$resultData->no_ajax = true ;
-			$path                = seoTools::getPatchToVmCategory($resultData->vmcategory_id);
+//			$path                = seoTools::getPatchToVmCategory($resultData->vmcategory_id);
+			$path                = seoTools_uri::getPatchToVmCategory( $resultData->vmcategory_id );
 		}
-
-
 
 		$resultData->sef_url = $path.$resultData->sef_url;
 
 		// Очистим от не нужных символов
 		$resultData->sef_url = seoTools::cleanSefUrl($resultData->sef_url);
 
-
+		// Если есть пагинация
 		if ( $pageStart )
 		{
 			$resultData->url_params .= '&start='.$pageStart;
@@ -201,10 +203,14 @@ class seoTools_uri
 	 */
 	public static function getStringSefUrl( string $alias ):string
 	{
-		$alias = \GNZ11\Document\Text::rus2translite($alias);
-		$alias = mb_strtolower($alias);
-		$alias = str_replace([' ','-'] , '_' , $alias);
-		$alias = seoTools::cleanSefUrl($alias);
+
+		$alias = \GNZ11\Document\Text::rus2translite( $alias );
+		$alias = mb_strtolower( $alias );
+
+		$alias = str_replace( [ ' ' , '-' ] , '_' , $alias );
+		$alias = str_replace( '/' , '' , $alias );
+
+		$alias = seoTools::cleanSefUrl( $alias );
 
 		return $alias;
 	}
@@ -340,13 +346,22 @@ class seoTools_uri
 
 		$sef_alias = false;
 		$matchesLang = '*' ;
+		// Sef -Префикс языка etc/ ru, ua
+		$languagesSefDefault = false ;
 
 		// Если Multilanguage - перестраиваем регулярное выражение
 		if ( Multilanguage::isEnabled() )
 		{
+			// Получить язык front-end  по умолчанию
+			$params = JComponentHelper::getParams( 'com_languages' );
+			$languagesCodeDefault  = $params->get( 'site' , 'en-GB' );
+			preg_match('/(.+)\-.+/' , $languagesCodeDefault ,  $matches ) ;
+			$languagesSefDefault = $matches[1] ;
+
 			// Получить все опубликованные языки
 			$languages = \Joomla\CMS\Language\LanguageHelper::getLanguages();
 
+			// Переберем все установленные языки - и ищем - по sef => ua в пути URL
 			foreach ( $languages as $language )
 			{
 				$patern = '/^\/('.$language->sef.')\/.+/i';
@@ -367,6 +382,13 @@ class seoTools_uri
 				} #END IF
 
 			}#END FOREACH
+			
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//			    echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
+			    
+			}
+			
 			if ( !$sef_alias )
 			{
 				// Если тэг языка не найден - ищем без него
@@ -405,7 +427,28 @@ class seoTools_uri
 		// Если Multilanguage - добавить выбор по языкам
 		if (  Multilanguage::isEnabled() )
 		{
-			$Query->where( $db->quoteName('known_languages') . '='. $db->quote( $matchesLang ) );
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//				echo'<pre>';print_r( $languagesSefDefault );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
+//				echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
+//				die(__FILE__ .' '. __LINE__ );
+			}
+			if ( $matchesLang != '*' )
+			{
+				$Query->where(
+					( $db->quoteName('city.known_languages'    ) . '='. $db->quote( $matchesLang )
+						.' OR '.
+						$db->quoteName('city.known_languages'  ) . '='. $db->quote( '*' ) )
+				);
+			}else{
+				$Query->where(
+					( $db->quoteName('city.known_languages'    ) . '='. $db->quote( $matchesLang )
+						.' OR '.
+						$db->quoteName('city.known_languages'  ) . '='. $db->quote( $languagesSefDefault ) )
+				);
+			}#END IF
+
 		}#END IF
 
 		$db->setQuery($Query);
@@ -435,13 +478,30 @@ class seoTools_uri
 		$params = new \Joomla\Registry\Registry();
 		$params->loadString($res->params);
 		$paramsArr = $params->toArray();
-			
+
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//			echo'<pre>';print_r( $Query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $res );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $paramsArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
+
 		// Поиск результатов в для списка Area-City
 		self::getLineArr( $paramsArr[ 'use_city_setting' ] , $sef_alias);
 
-//		echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
-//		echo'<pre>';print_r( $paramsArr[ 'use_city_setting' ] );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+
+//			echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( self::$LineArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $paramsArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
 
 		if ( !empty(self::$LineArr) ) return self::$LineArr; #END IF
 	}

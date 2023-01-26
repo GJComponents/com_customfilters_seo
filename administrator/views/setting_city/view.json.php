@@ -109,14 +109,17 @@ class CustomfiltersViewSetting_city extends HtmlView
 
 				break;
 			/**
-			 * Создание Alias - При вводе - названия фильтра
+			 * Создание Alias - При вводе - названия фильтра в Дополнительных настройках фильтра городов
 			 */
 			case 'onKeyupSetTranslite':
 				$string = $app->input->get( 'val' , false , 'STRING' );
+
+
 				$string = $model->getTranslite( $string );
 				$string = strtolower( $string );
+				$string = seoTools::cleanSefUrl($string);
 
-				$string = str_replace( ' ' , '-' , $string );
+//				$string = str_replace( ' ' , '-' , $string );
 				$string = preg_replace( '/[^-a-zа-яё\d_]/ui' , '' , $string );
 				echo new JsonResponse( $string , null , false );
 				die();
