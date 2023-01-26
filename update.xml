@@ -1,7 +1,7 @@
 <updates>
     <update>
-        <name>COM_CUSTOMFILTERS</name>
-        <description>COM CUSTOMFILTERS</description>
+        <name>Filter component for Virtuemart - by Gartes</name>
+        <description>Update of the SEO Filter component</description>
         <type>component</type>
         <element>com_customfilters</element>
         <version>3.10.32</version>
