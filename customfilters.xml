@@ -9,8 +9,8 @@
 	<copyright>Copyright(c) 2012-2022</copyright>
 	<license>GNU/GPL v.2</license>
 
-	<creationDate>26.01.23-14:25</creationDate>
-	<version>3.10.31</version>
+	<creationDate>26.01.23-15:57</creationDate>
+	<version>3.10.32</version>
 
 
 	<!-- The description is optional and defaults to the name -->
@@ -160,7 +160,15 @@
 
 		<!-- Language files -->
 		<languages folder="administrator/language">
-			<language tag="cs-CZ">cs-CZ/cs-CZ.com_customfilters.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_customfilters.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_customfilters.sys.ini</language>
+
+			<language tag="ru-RU">ru-RU/ru-RU.com_customfilters.ini</language>
+			<language tag="ru-RU">ru-RU/ru-RU.com_customfilters.sys.ini</language>
+
+
+
+			<!--<language tag="cs-CZ">cs-CZ/cs-CZ.com_customfilters.ini</language>
 
 			<language tag="de-DE">de-DE/de-DE.com_customfilters.ini</language>
 			<language tag="de-DE">de-DE/de-DE.com_customfilters.sys.ini</language>
@@ -168,8 +176,7 @@
 			<language tag="el-GR">el-GR/el-GR.com_customfilters.ini</language>
 			<language tag="el-GR">el-GR/el-GR.com_customfilters.sys.ini</language>
 
-			<language tag="en-GB">en-GB/en-GB.com_customfilters.ini</language>
-			<language tag="en-GB">en-GB/en-GB.com_customfilters.sys.ini</language>
+
 
 			<language tag="es-ES">es-ES/es-ES.com_customfilters.ini</language>
 			<language tag="es-ES">es-ES/es-ES.com_customfilters.sys.ini</language>
@@ -189,14 +196,11 @@
 			<language tag="pt-BR">pt-BR/pt-BR.com_customfilters.ini</language>
 			<language tag="pt-BR">pt-BR/pt-BR.com_customfilters.sys.ini</language>
 
-			<language tag="ru-RU">ru-RU/ru-RU.com_customfilters.ini</language>
-			<language tag="ru-RU">ru-RU/ru-RU.com_customfilters.sys.ini</language>
-
 			<language tag="sk-SK">sk-SK/sk-SK.com_customfilters.ini</language>
 			<language tag="sk-SK">sk-SK/sk-SK.com_customfilters.sys.ini</language>
 
 			<language tag="sv-SE">sv-SE/sv-SE.com_customfilters.ini</language>
-			<language tag="sv-SE">sv-SE/sv-SE.com_customfilters.sys.ini</language>
+			<language tag="sv-SE">sv-SE/sv-SE.com_customfilters.sys.ini</language>-->
 		</languages>
 	</administration>
 
