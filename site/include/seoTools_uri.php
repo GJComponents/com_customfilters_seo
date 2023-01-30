@@ -61,7 +61,7 @@ class seoTools_uri
 	}#END FN
 
 	/**
-	 * Создать объект SEF URL - для опций фильтра и для ссылок пагинации
+	 * Создать объект SEF URL - для опций фильтра и для ссылок пагинации + для выбора сортировки
 	 *
 	 * @param   string  $option_url  URL Query -
 	 *                               /filtr/vodostochnye-sistemy/?custom_f_23[0]=d093d0bbd18fd0bdd186d0b5d0b2d0b0d18f&custom_f_10...
@@ -71,6 +71,9 @@ class seoTools_uri
 	 */
 	public static function getSefUlrOption( string $option_url ):stdClass
 	{
+		
+
+
 		// Если имеем кэшированную версию
 		if ( isset(self::$arrUrlSef [ $option_url ]) ) return self::$arrUrlSef [ $option_url ]; #END IF
 
@@ -90,18 +93,39 @@ class seoTools_uri
 			unset($uriQuery[ 'start' ]);
 		}#END IF
 
+		$orderBy = false;
+		if ( isset($uriQuery[ 'orderby' ]) )
+		{
+			$orderBy = $uriQuery[ 'orderby' ];
+			unset($uriQuery[ 'orderby' ]);
+		}#END IF
+
+		$order = false;
+		if ( isset($uriQuery[ 'order' ]) )
+		{
+			$order = $uriQuery[ 'order' ];
+			unset($uriQuery[ 'order' ]);
+
+		}#END IF
+
+
+
+
 		// Проверить на NO-INDEX - Option
 		$resultData->no_index = seoTools::checkOffFilters($uriQuery);
 
 		$settingSeoOrdering = [];
 		$i_filterCount      = 0;
+
+
+
+
 		foreach ( $uriQuery as $fieldId => $valueCustomHashArr )
 		{
 			$filter = $seoTools_filters->_getFilterById($fieldId);
 
+//			die(__FILE__ .' '. __LINE__ );
 			$filter->sef_url = self::getStringSefUrl($filter->alias);
-
-
 
 			// Преобразовать массив со значениями в формате Hex -> в символы
 			$valueCustomHashArr = seoTools::prepareHex2binArr($valueCustomHashArr);
@@ -110,8 +134,7 @@ class seoTools_uri
 			$i_optionCount = 0; // счетчик опций
 			foreach ( $valueCustomHashArr as $i => $valueCustom )
 			{
-
-
+ 
 				if ( $i_optionCount ) $filter->sef_url .= '-and';
 
 				$valueCustomTranslite = self::getStringSefUrl( $valueCustom ) ;
@@ -141,7 +164,6 @@ class seoTools_uri
 			$i_filterCount++;
 			$settingSeoOrdering[ $filter->ordering ] = $filter;
 		}
-
 
 
 		ksort($settingSeoOrdering);
@@ -178,12 +200,37 @@ class seoTools_uri
 		// Очистим от не нужных символов
 		$resultData->sef_url = seoTools::cleanSefUrl($resultData->sef_url);
 
+
+
+		if ( $orderBy )
+		{
+			$resultData->url_params .= '&orderby='.$orderBy;
+			$resultData->sef_url    .= 'orderby='.$orderBy;
+		}#END IF
+
+		if ( $order )
+		{
+			$resultData->url_params .= '&order='.$order ;
+			$resultData->sef_url    .= '/order='.$order ;
+		}#END IF
+
 		// Если есть пагинация
-		if ( $pageStart )
+		if ( $pageStart && !$orderBy )
 		{
 			$resultData->url_params .= '&start='.$pageStart;
 			$resultData->sef_url    .= 'start='.$pageStart;
 		}
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP && $order )
+		{
+//			echo'<pre>';print_r( $option_url );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $resultData  );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $uriQuery );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $orderBy );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
+
 		$resultData->url_params_hash = md5($resultData->url_params);
 
 		self::$arrUrlSef[ $option_url ] = $resultData;
@@ -201,7 +248,7 @@ class seoTools_uri
 	 * @throws Exception
 	 * @since version
 	 */
-	public static function getStringSefUrl( string $alias ):string
+	public static function getStringSefUrl(   $alias ):string
 	{
 
 		$alias = \GNZ11\Document\Text::rus2translite( $alias );
@@ -236,11 +283,20 @@ class seoTools_uri
 		{
 			$category_id = ShopFunctionsF::getLastVisitedCategoryId();
 		}#END IF
-		
-//		echo'<pre>';print_r( $category_id );echo'</pre>'.__FILE__.' '.__LINE__;
-		
 
-		return JRoute::_('index.php?option=com_virtuemart&view=category&virtuemart_category_id='.$category_id.'&virtuemart_manufacturer_id=0');
+		 
+		if ( is_array( $category_id ) && count( $category_id ) == 1  )
+		{
+			$stringVirtuemart_category_id = 'virtuemart_category_id='.$category_id[0] ;
+		}else if(is_array( $category_id ) && count( $category_id ) > 1){
+			echo'<pre>';print_r( 'Не удалось составить ссылку для категорий' );echo'</pre>'.__FILE__.' '.__LINE__;
+			die(__FILE__ .' '. __LINE__ );
+
+		}else{
+			$stringVirtuemart_category_id = 'virtuemart_category_id='.$category_id  ;
+		}#END IF
+
+		return JRoute::_('index.php?option=com_virtuemart&view=category&'.$stringVirtuemart_category_id.'&virtuemart_manufacturer_id=0');
 	}
 
 	/**
@@ -394,7 +450,8 @@ class seoTools_uri
 				// Если тэг языка не найден - ищем без него
 				$patern = '/^\/.+\/.+\/([^\/]+)\/?$/i';
 				preg_match( $patern , $path , $matches );
-				$sef_alias = $matches[ 1 ];
+				if ( isset( $matches[ 1 ] ) ) $sef_alias = $matches[ 1 ]; #END IF
+
 			}#END IF
 
 		}
@@ -489,9 +546,15 @@ class seoTools_uri
 //			die(__FILE__ .' '. __LINE__ );
 
 		}
+		
 
-		// Поиск результатов в для списка Area-City
-		self::getLineArr( $paramsArr[ 'use_city_setting' ] , $sef_alias);
+
+		if ( isset($paramsArr[ 'use_city_setting' ]) && !empty( $paramsArr[ 'use_city_setting' ] ) )
+		{
+			// Поиск результатов в для списка Area-City
+			self::getLineArr( $paramsArr[ 'use_city_setting' ] , $sef_alias);
+		}#END IF
+
 
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
@@ -518,6 +581,7 @@ class seoTools_uri
 	 */
 	public static function checkUrlNoIndex( string $url = 'SERVER' ):bool
 	{
+		$app = \Joomla\CMS\Factory::getApplication();
 		$paramsComponent = \Joomla\CMS\Component\ComponentHelper::getParams('com_customfilters');
 		/**
 		 * @var int $max_count_filters_no_index Максимальное количество активных фильтров
@@ -532,6 +596,17 @@ class seoTools_uri
 			if ( $url == 'SERVER'  ) self::$UrlNoIndex = true; #END IF
 			return true ;
 		} #END IF
+
+		// Запрещайм индексирование страниц с включенной сортировкой
+		$orderBy = $app->input->get('orderby' , false , 'STRING') ;
+		if ( $orderBy )
+		{
+			self::$UrlNoIndex = true;
+			return true ;
+		}#END IF
+
+
+
 		return false ;
 	}
 
@@ -555,39 +630,22 @@ class seoTools_uri
 		JLoader::register('HelperSetting_city' , JPATH_ADMINISTRATOR . '/components/com_customfilters/helpers/HelperSetting_city.php');
 		$resArrOneLevelParams = HelperSetting_city::getOneLevelParams( $arr );
 
-		if ( key_exists( $sef_alias , $resArrOneLevelParams ) )
-		{
-			$cityParams = $resArrOneLevelParams[$sef_alias] ;
-			$cityData = HelperSetting_city::getCityByAlias( $sef_alias );
-			$cityParams = array_merge($cityParams ,$cityData ) ;
 
-			if ( isset($cityParams['use'] ) && $cityParams['use'] == 1  )
+		if ( !empty( $sef_alias ) && key_exists( $sef_alias , $resArrOneLevelParams ) )
+		{
+			$cityParams = $resArrOneLevelParams[ $sef_alias ];
+			$cityData   = HelperSetting_city::getCityByAlias( $sef_alias );
+			$cityParams = array_merge( $cityParams , $cityData );
+
+			if ( isset( $cityParams[ 'use' ] ) && $cityParams[ 'use' ] == 1 )
 			{
-				self::$LineArr = $cityParams ;
-				$app->set('seoToolsActiveFilterCity' , $cityParams );
+				self::$LineArr = $cityParams;
+				$app->set( 'seoToolsActiveFilterCity' , $cityParams );
 			}#END IF
 
 		}#END IF
 		return false ;
 
-		/*if (is_array($arr) || is_object($arr))
-		{
-			foreach ( $arr as $key => $item )
-			{
-				if ( is_array($item) && count($item) > 1 )
-				{
-					self::getLineArr($item , $sef_alias);
-				}#END IF
-
-				if ( $key == $sef_alias )
-				{
-					self::$LineArr = $key;
-				}#END IF
-
-			}#END FOREACH
-		}
-
-		return false;*/
 	}
 
 	/**

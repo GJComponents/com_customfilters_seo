@@ -157,13 +157,15 @@ class seoTools_info_product
 
 		$virtuemart_manufacturer_idArr = [];
 
+
 		foreach ( $info_products as $infoProduct )
 		{
 //			$dataArr['manufacturers_list'][] = $infoProduct->mf_name ;
 			if ( $infoProduct->product_price )
 			{
-				$dataArr['min_Price'][] = $infoProduct->product_price ;
-				$dataArr['max_Price'][] = $infoProduct->product_price ;
+				$dataArr['prices'][] = $infoProduct->product_price ;
+//				$dataArr['min_Price'][] = $infoProduct->product_price ;
+//				$dataArr['max_Price'][] = $infoProduct->product_price ;
 			}#END IF
 
 			$virtuemart_manufacturer_idArr[] = $infoProduct->virtuemart_manufacturer_id ;
@@ -172,11 +174,16 @@ class seoTools_info_product
 
 		$virtuemart_manufacturer_idArr = array_unique( $virtuemart_manufacturer_idArr );
 
+		$dataArr['min_Price'] = 0 ;
+		$dataArr['max_Price'] = 0 ;
+		if ( isset( $dataArr['prices'] )   )
+		{
+			$dataArr['min_Price'] = min( $dataArr['prices'] );
+			$dataArr['max_Price'] = max( $dataArr['prices'] );
+		}#END IF
 
 
 
-		$dataArr['min_Price'] = min( $dataArr['min_Price'] );
-		$dataArr['max_Price'] = max( $dataArr['max_Price'] );
 		$dataArr['manufacturers'] = self::getManufacturersProduct( $virtuemart_manufacturer_idArr ) ;
 
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )

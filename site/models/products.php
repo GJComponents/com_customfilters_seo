@@ -31,7 +31,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
      * @var int
      */
     public $total;
-
     /*
      * @var array
      */
@@ -43,11 +42,13 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
     /**
      *
      * @var string
+     * @since 3.9
      */
     public $vmVersion;
     /**
      *
      * @var string
+     * @since 3.9
      */
     protected $context = 'com_customfilters.products';
     protected $productIdsFromSearch;
@@ -57,25 +58,23 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
      * @since 3.9
      */
     protected $componentparams;
-
     /**
      *
      * @var \Joomla\Registry\Registry
+     * @since 3.9
      */
     protected $menuparams;
-
-    /**
-     *
-     * @var \Joomla\Registry\Registry
-     */
+	/**
+	 *
+	 * @since 3.9
+	 * @var \Joomla\Registry\Registry
+	 */
     protected $moduleparams;
-
     /**
      * @since 1.0.0
      * @var array|null
      */
     protected $cfinputs;
-
 	/**
 	 *
 	 * @since 3.9
@@ -101,12 +100,14 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
      */
     private $published_cf;
 
-    /**
-     * The class constructor
-     *
-     * @param array $config
-     * @since   1.0
-     */
+	/**
+	 * The class constructor
+	 *
+	 * @param   array  $config
+	 *
+	 * @throws Exception
+	 * @since   1.0
+	 */
     public function __construct($config = array())
     {
         $this->menuparams = cftools::getMenuparams();
@@ -167,8 +168,36 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
             $onlyPublished = true;
         }
 
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+			//get the published custom filters
+			$this->published_cf = cftools::getCustomFilters('');
+		}else{
+
+			$cacheParams = [
+				'cftools::getCustomFilters',
+			];
+			if ( JLanguageMultilang::isEnabled() )
+			{
+				$lang = JFactory::getLanguage();
+				$known_languages = [
+					$lang->getTag() ,
+					'*' ,
+				];
+				$cacheParams['known_languages'] = implode(' OR ' , $known_languages );
+
+			}
+			/**
+			 * @var Joomla\CMS\Cache\Controller\CallbackController $cache
+			 */
+			$cache = Factory::getCache('com_customfilters-model-products', 'callback');
+			$this->published_cf = $cache->get( ['cftools' , 'getCustomFilters'], [], $cacheParams);
+
+		}
         //get the published custom filters
-        $this->published_cf = cftools::getCustomFilters('');
+//        $this->published_cf = cftools::getCustomFilters('');
+
+
 
 
 
@@ -176,6 +205,9 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
     }
 
 	/**
+	 * Возвращает ids продуктов после выполнения фильтрующих sql-запросов.
+	 * Переопределяет функцию, определенную в файле com_virtuemart/models/product.php.
+	 *
 	 * Returns the product ids after running the filtering sql queries
 	 * Overriddes the function defined in the com_virtuemart/models/product.php
 	 *
@@ -446,7 +478,28 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 			}
 		}
 
-		$queryBuilder->setOrder( $this->getState( 'filter_order' ) , $this->getState( 'filter_order_Dir' ) );
+		$_selectedOrdering = VmConfig::get ('browse_orderby_field', 'pc.ordering,product_name');
+		$_filter_order_Dir = VmConfig::get('prd_brws_orderby_dir', 'ASC');
+
+		$session = JFactory::getSession();
+		$vmlastproductordering = $session->get('vmlastproductordering', $_selectedOrdering, 'vm');
+
+		$this->setState( 'filter_order' ,  $vmlastproductordering );
+
+		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
+		{
+//			echo'<pre>';print_r( $_selectedOrdering );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $_filter_order_Dir );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $vmlastproductordering );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $this->getState( 'filter_order' ) );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $this->getState( 'filter_order_Dir' )  );echo'</pre>'.__FILE__.' '.__LINE__;
+
+		}
+
+		$queryBuilder->setOrder( $vmlastproductordering , $this->getState( 'filter_order_Dir' ) );
+//		$queryBuilder->setOrder( $this->getState( 'filter_order' ) , $this->getState( 'filter_order_Dir' ) );
+
+
 
 
 		/**
@@ -473,7 +526,13 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 		try
 		{
 			$query = $queryBuilder->create();
-
+				
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//			    echo'<pre>';print_r( $query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
+			    
+			}
+			//
 			if ( $this->componentparams->get('on_description_vm_category' , 0 ) == 2 )
 			{
 				// получить информацию о всех найденных товарах - в результатах фильтрации
@@ -499,22 +558,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
 
 
-			if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
-			{
-
-//				die(__FILE__ .' '. __LINE__ );
-
-//		        $seoTools_products = new seoTools_info_product();
-//		        $InfoProducts = $seoTools_products->getInfoProducts($query);
-
-//				echo'<pre>';print_r( $InfoProducts );echo'</pre>'.__FILE__.' '.__LINE__;
-//				die(__FILE__ .' '. __LINE__ );
-
-//				$db->setQuery($query );
-//		        $product_ids = $db->loadColumn();
-
-
-			}
 
 			$db->setQuery( $query , $limitstart , $limit );
 			$product_ids = $db->loadColumn();
@@ -1511,41 +1554,44 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         return $this->productIdsFromSearch;
     }
 
-    /**
-     * Get the Order By Select List
-     * Overrides the function originaly written by Kohl Patrick (Virtuemart parent class)
-     *
-     * @param int        The category id
-     *
-     * @return    array    HTML с сортировкой по прайсу и по производителям
-     * @author    Sakis Terz
-     * @access    public
-     * @since    1.0.0
-     */
-    public function getOrderByList($virtuemart_category_id = false)
-    {
-        if ($this->_pagination == null) {
-            require_once JPATH_COMPONENT . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'cfpagination.php';
+	/**
+	 * Получить список сортировки (select) для отфильтрованных товаров
+	 * Переопределяет функцию, изначально написанную Колем Патриком (родительский класс Virtuemart)
+	 *
+	 * Get the Order By Select List
+	 * Overrides the function originaly written by Kohl Patrick (Virtuemart parent class)
+	 *
+	 * @param   int|bool    $virtuemart_category_id    The category id
+	 *
+	 * @return    array    HTML с сортировкой по прайсу и по производителям
+	 * @throws Exception
+	 * @since     1.0.0
+	 * @author    Sakis Terz
+	 * @access    public
+	 */
+	public function getOrderByList( $virtuemart_category_id = false )
+	{
+		if ( $this->_pagination == null )
+		{
+			require_once JPATH_COMPONENT.DIRECTORY_SEPARATOR.'include'.DIRECTORY_SEPARATOR.'cfpagination.php';
 
-            $limit = $this->getState('list.limit');
-            $limitstart = $this->getState('list.limitstart', 0);
-            /**
-             * @var cfPagination
-             */
-            $this->_pagination = new cfPagination($this->total, $limitstart, $limit);
-        }
+			$limit      = $this->getState( 'list.limit' );
+			$limitstart = $this->getState( 'list.limitstart' , 0 );
+			/**
+			 * @var cfPagination
+			 */
+			$this->_pagination = new cfPagination( $this->total , $limitstart , $limit );
+		}
 
-        $result = $this->_pagination->getOrderByList( $this->filter_order, $this->getState('filter_order'),
-            $this->getState('filter_order_Dir'));
+		$result = $this->_pagination->getOrderByList(
+			$this->filter_order ,
+			$this->getState( 'filter_order' ) ,
+			$this->getState( 'filter_order_Dir' )
+		);
 
-//        echo'<pre>';print_r( $this->filter_order );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre>';print_r( $this->getState('filter_order') );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre>';print_r( $this->getState('filter_order_Dir') );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        die( __FILE__ .' ' . __LINE__);
 
-        return $result;
-    }
+		return $result;
+	}
 
     /**
      * Loads the pagination

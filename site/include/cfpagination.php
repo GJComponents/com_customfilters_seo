@@ -442,113 +442,151 @@ class cfPagination extends JPagination
      * @throws Exception
      * @since 1.0.0
      */
-	public function getOrderByList($default_order_by, $order_by, $order_dir='ASC')
+	public function getOrderByList( $default_order_by , $order_by , $order_dir = 'ASC' )
 	{
-	    $app = JFactory::getApplication() ;
-	    $jinput=$app->input;
+		$app    = JFactory::getApplication();
+		$jinput = $app->input;
 
-	    //load the virtuemart language files
-	    if(method_exists('VmConfig', 'loadJLang')) {
-	        VmConfig::loadJLang('com_virtuemart',true);
-        }
-	    else{
-	        $language=JFactory::getLanguage();
-	        $language->load('com_virtuemart');
-	    }
+		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
+		{
+//			echo '<pre>'; print_r( $default_order_by ); echo '</pre>'.__FILE__.' '.__LINE__.'<br>';
+//			echo '<pre>'; print_r( $order_by ); echo '</pre>'.__FILE__.' '.__LINE__.'<br>';
+//			echo '<pre>'; print_r( $order_dir ); echo '</pre>'.__FILE__.' '.__LINE__.'<br>';
 
-	    $orderTxt ='';
-	    $orderByLinks='';
-	    $first_optLink='';
-	    $orderDirTxt=JText::_('COM_VIRTUEMART_'.$order_dir);
-	    //order_by 'pc.ordering,product_name' resets to 'product_name'
-        if($order_by=='pc.ordering,product_name') {
-            $order_by='pc.ordering';
-        };
+		}
 
-        /* order by link list*/
-	    $fields = VmConfig::get('browse_orderby_fields');
 
-	    if(!in_array($default_order_by, $fields)) {
-	        $fields[]=$default_order_by;
-        }
+		//load the virtuemart language files
+		if ( method_exists( 'VmConfig' , 'loadJLang' ) )
+		{
+			VmConfig::loadJLang( 'com_virtuemart' , true );
+		}
+		else
+		{
+			$language = JFactory::getLanguage();
+			$language->load( 'com_virtuemart' );
+		}
 
-	    if (count($fields)>0) {
-	        foreach ($fields as $field) {
-                // indicates if this is the current option
-                $stripped_field = str_replace('`', '', $field);
-                if ($field == $order_by || $stripped_field == $order_by) {
-                    $selected = true;
-                }
-                else {
-                    $selected = false;
-                }
+		$orderTxt      = '';
+		$orderByLinks  = '';
+		$first_optLink = '';
+		$orderDirTxt   = JText::_( 'COM_VIRTUEMART_'.$order_dir );
+		//order_by 'pc.ordering,product_name' resets to 'product_name'
+		if ( $order_by == 'pc.ordering,product_name' )
+		{
+			$order_by = 'pc.ordering';
+		};
 
-	            //remove the dot from the string in order to use it as lang string
-	            $dotps = strrpos($field, '.');
-	            if($dotps!==false){
-	                $prefix = substr ($field, 0, $dotps + 1);
-				    $fieldWithoutPrefix = substr ($field, $dotps + 1);
-	            } else {
-	                $prefix = '';
-	                $fieldWithoutPrefix = $field;
-	            }
-	            $fieldWithoutPrefix_tmp=$fieldWithoutPrefix;
+		/* order by link list*/
+		$fields = VmConfig::get( 'browse_orderby_fields' );
 
-	            $text = JText::_('COM_VIRTUEMART_'.strtoupper (str_replace(array(',',' '),array('_',''),$fieldWithoutPrefix)));
-	            $link = $this->getOrderURI($fieldWithoutPrefix_tmp, $selected, $order_dir);
-	            if(!$selected) {
-	                $orderByLinks .='<div><a title="'.$text.'" href="'.$link.'" rel="nofollow">'.$text.'</a></div>';
-	            }
-	            else {
-	                $first_optLink='<div class="activeOrder"><a title="'.$orderDirTxt.'" href="'.$link.'" rel="nofollow">'.$text.' '.$orderDirTxt.'</a></div>';
-	            }
-	        }
-	    }
+		if ( !in_array( $default_order_by , $fields ) )
+		{
+			$fields[] = $default_order_by;
+		}
 
-	    //format the final html
-	    $orderByHtml='<div class="orderlist">'.$orderByLinks.'</div>';
+		if ( count( $fields ) > 0 )
+		{
+			foreach ( $fields as $field )
+			{
+				// indicates if this is the current option
+				$stripped_field = str_replace( '`' , '' , $field );
+				if ( $field == $order_by || $stripped_field == $order_by )
+				{
+					$selected = true;
+				}
+				else
+				{
+					$selected = false;
+				}
 
-	    $orderHtml ='
+				//удалите точку из строки, чтобы использовать ее как строку языка
+				//remove the dot from the string in order to use it as lang string
+				$dotps = strrpos( $field , '.' );
+				if ( $dotps !== false )
+				{
+					$prefix             = substr( $field , 0 , $dotps + 1 );
+					$fieldWithoutPrefix = substr( $field , $dotps + 1 );
+				}
+				else
+				{
+					$prefix             = '';
+					$fieldWithoutPrefix = $field;
+				}
+				$fieldWithoutPrefix_tmp = $fieldWithoutPrefix;
+
+				$text = JText::_( 'COM_VIRTUEMART_'.strtoupper( str_replace( array( ',' , ' ' ) , array( '_' , '' ) , $fieldWithoutPrefix ) ) );
+
+				$link = $this->getOrderURI( $fieldWithoutPrefix_tmp , $selected , $order_dir );
+				
+
+				
+				
+				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+				{
+//				    echo'<pre>';print_r( $fieldWithoutPrefix_tmp );echo'</pre>'.__FILE__.' '.__LINE__;
+//				    echo'<pre>';print_r( $selected );echo'</pre>'.__FILE__.' '.__LINE__;
+//				    echo'<pre>';print_r( $order_dir );echo'</pre>'.__FILE__.' '.__LINE__;
+//				    echo'<pre>';print_r( $link );echo'</pre>'.__FILE__.' '.__LINE__;
+//					die( __FILE__.' '.__LINE__ );
+				}
+
+				if ( !$selected )
+				{
+					$orderByLinks .= '<div><a title="'.$text.'" href="'.$link.'" rel="nofollow">'.$text.'</a></div>';
+				}
+				else
+				{
+					$first_optLink = '<div class="activeOrder"><a title="'.$orderDirTxt.'" href="'.$link.'" rel="nofollow">'.$text.' '.$orderDirTxt.'</a></div>';
+				}
+			}
+		}
+
+		//format the final html
+		$orderByHtml = '<div class="orderlist">'.$orderByLinks.'</div>';
+
+		$orderHtml = '
 		<div class="orderlistcontainer">
-			<div class="title">'.JText::_('COM_VIRTUEMART_ORDERBY').'</div>'
-				    .$first_optLink
-				    .$orderByHtml
-				    .'</div>';
+			<div class="title">'.JText::_( 'COM_VIRTUEMART_ORDERBY' ).'</div>'
+			.$first_optLink
+			.$orderByHtml
+			.'</div>';
 
-	    //in case of ajax we want the script to be triggered after the results loading
-	    $orderHtml .="
+		//in case of ajax we want the script to be triggered after the results loading
+		$orderHtml .= "
 			<script type=\"text/javascript\">
 		jQuery('.orderlistcontainer').hover(
 		function() { jQuery(this).find('.orderlist').stop().show()},
 		function() { jQuery(this).find('.orderlist').stop().hide()});
 		</script>";
 
-	    return array('orderby'=>$orderHtml, 'manufacturer'=>'');
+		return array( 'orderby' => $orderHtml , 'manufacturer' => '' );
 	}
 
 	/**
+	 * Создать ссылки для опций сортировки
 	 * Creates the href in which each "order by" option should point to
 	 *
-	 * @author	Sakis Terz
-	 * @return	String	The URL
-	 * @since 	1.0
+	 * @return    String    The URL
+	 * @throws Exception
+	 * @since     1.0
+	 * @author    Sakis Terz
 	 */
 	private function getOrderURI($orderBy, $selected=false, $orderDir='ASC')
 	{
-	    $u=JFactory::getURI();
-	    $input=JFactory::getApplication()->input;
-	    $Itemid=$input->get('Itemid');
+		$uri      = JFactory::getURI();
+		$input  = JFactory::getApplication()->input;
+		$Itemid = $input->get( 'Itemid' );
 
-	    /*
-	     * get the inputs
-	     * these are validated and sanitized
-	     */
-	    $input=CfInput::getInputs();
-
-	    /*
-	     * Generate the output vars
-	     */
-	    $output=CfOutput::getOutput($input);
+		/*
+		 * get the inputs
+		 * these are validated and sanitized
+		 */
+		$input = CfInput::getInputs();
+		/*
+				 * Generate the output vars
+				 */
+		$output = CfOutput::getOutput( $input );
 
 	    $output['option']='com_customfilters';
 	    $output['view']='products';
@@ -569,8 +607,25 @@ class cfPagination extends JPagination
             }
         }
 
-	    $query=$u->buildQuery($output);
+	    $query=$uri->buildQuery($output);
 	    $uri='index.php?'.$query;
-	    return JRoute::_($uri);
+
+		$returnLink = JRoute::_($uri);
+		$link        = \seoTools_uri::getSefUlrOption( $returnLink );
+
+		$returnLink = $link->sef_url ;
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+
+//			echo'<pre>';print_r( $returnLink );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $input );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $output );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $link );echo'</pre>'.__FILE__.' '.__LINE__;
+//			die(__FILE__ .' '. __LINE__ );
+
+		}
+
+	    return $returnLink ;
 	}
 }

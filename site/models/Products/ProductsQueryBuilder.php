@@ -314,84 +314,102 @@ class ProductsQueryBuilder
      * @param string $direction
      * @return ProductsQueryBuilder
      */
-    public function setOrder($field, $direction = 'ASC')
+    public function setOrder( $field, $direction = 'ASC')
     {
-        $field = str_replace('`', '', $field);
-    	$orderBy = [];
-    	switch ($field) {
-    	    case 'pc.ordering,product_name':
-    	        $orderBy = ['p_c.ordering', 'l.product_name'];
-    	        break;
-    	    case 'product_name':
-    	        $orderBy= ['l.product_name', 'p.virtuemart_product_id'];
-    	        break;
-    	    case 'product_special':
-    	    	$this->setWhere('p.product_special', 1);
-    	        $orderBy = [ 'RAND()'];
-    	        break;
-    	    case 'product_s_desc':
-    	        $orderBy =  ['l.product_s_desc'];
-    	        break;
-    	    case 'category_name':
-    	        $orderBy = ['c.`category_name`'];
-    	        break;
-    	    case 'category_description':
-    	        $orderBy = ['c.`category_description`'];
-    	        break;
-    	    case 'mf_name':
-    	        $orderBy = ['m.`mf_name`'];
-    	        break;
-            case 'product_desc':
-                $orderBy = ['l.`product_desc`'];
-                break;
-            case 'product_s_desc':
-                $orderBy = ['l.`product_s_desc`'];
-                break;
-            case 'p.product_sales' :
-                $orderBy = ['p.`product_sales`', 'p.`virtuemart_product_id`'];
-                break;
-    	    case 'ordering':
-    	    case 'pc.ordering':
-    	        $orderBy = ['p_c.`ordering`'];
-    	        break;
-     	    case 'product_price':
-                $field = 'CASE WHEN p_p.override <> 0 THEN p_p.product_override_price ELSE p_p.product_price END';
-                $orderBy = [
-                    'product_price'
-                ];
-                $this->setJoin('p_p');
-                break;
-    	    case 'created_on':
-    	    case 'p.created_on':
-    	        $orderBy = ['p.`created_on`'];
-    	        break;
-    	    case 'product_mpn':
-    	        $orderBy = ['p.`product_mpn`'];
-    	        break;
-    	    default ;
-    	    if(!empty($field)){
-    	        $orderBy = [$field];
-    	    } else {
-    	        $orderBy= [''];
-    	    }
-    	    break;
-    	}
 
-    	//set the joins
-    	if(count($orderBy)>0) {
-    		foreach ($orderBy as &$field) {
-    			$table_field = explode('.', $field);
-    			if(count($table_field)>1) {
-    				$this->setJoin($table_field[0]);
-    			}
-    			$field.= ' '.$direction;
-    		}
-    	}
-    	$orderByString = implode(',', $orderBy);
-    	if(!empty($orderByString)) {
-    	   $this->getQuery()->order($this->db->escape($orderByString));
-    	}
-    	return $this;
+	    if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
+	    {
+//		    echo '<pre>';  print_r( $field ); echo '</pre>'.__FILE__.' '.__LINE__;
+//		    echo '<pre>'; print_r( $direction );  echo '</pre>'.__FILE__.' '.__LINE__;
+	    }
+
+
+	    $field   = str_replace( '`' , '' , $field );
+	    $orderBy = [];
+	    switch ( $field )
+	    {
+		    case 'pc.ordering,product_name':
+			    $orderBy = [ 'p_c.ordering' , 'l.product_name' ];
+			    break;
+		    case 'product_name':
+			    $orderBy = [ 'l.product_name' , 'p.virtuemart_product_id' ];
+			    break;
+		    case 'product_special':
+			    $this->setWhere( 'p.product_special' , 1 );
+			    $orderBy = [ 'RAND()' ];
+			    break;
+		    case 'product_s_desc':
+			    $orderBy = [ 'l.product_s_desc' ];
+			    break;
+		    case 'category_name':
+			    $orderBy = [ 'c.`category_name`' ];
+			    break;
+		    case 'category_description':
+			    $orderBy = [ 'c.`category_description`' ];
+			    break;
+		    case 'mf_name':
+			    $orderBy = [ 'm.`mf_name`' ];
+			    break;
+		    case 'product_desc':
+			    $orderBy = [ 'l.`product_desc`' ];
+			    break;
+		    case 'product_s_desc':
+			    $orderBy = [ 'l.`product_s_desc`' ];
+			    break;
+		    case 'p.product_sales' :
+			    $orderBy = [ 'p.`product_sales`' , 'p.`virtuemart_product_id`' ];
+			    break;
+		    case 'ordering':
+		    case 'pc.ordering':
+			    $orderBy = [ 'p_c.`ordering`' ];
+			    break;
+		    case 'product_price':
+			    $field   = 'CASE WHEN p_p.override <> 0 THEN p_p.product_override_price ELSE p_p.product_price END';
+			    $orderBy = [
+				    'product_price'
+			    ];
+			    $this->setJoin( 'p_p' );
+			    break;
+		    case 'created_on':
+		    case 'p.created_on':
+			    $orderBy = [ 'p.`created_on`' ];
+			    break;
+		    case 'product_mpn':
+			    $orderBy = [ 'p.`product_mpn`' ];
+			    break;
+		    default;
+			    if ( !empty( $field ) )
+			    {
+				    $orderBy = [ $field ];
+			    }
+			    else
+			    {
+				    $orderBy = [ '' ];
+			    }
+			    break;
+	    }
+
+	    //set the joins
+	    if ( count( $orderBy ) > 0 )
+	    {
+		    foreach ( $orderBy as &$field )
+		    {
+			    $table_field = explode( '.' , $field );
+			    if ( count( $table_field ) > 1 )
+			    {
+				    $this->setJoin( $table_field[ 0 ] );
+			    }
+			    $field .= ' '.$direction;
+		    }
+	    }
+
+	    $orderByString = implode( ',' , $orderBy );
+	    if ( !empty( $orderByString ) )
+	    {
+		    $this->getQuery()->order( $this->db->escape( $orderByString ) );
+	    }
+
+	    return $this;
     }
 }
 

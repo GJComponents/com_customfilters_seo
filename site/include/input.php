@@ -419,6 +419,31 @@ class CfInput
 		$path = preg_replace('/\/start=\d+/', '', $path);
 
 		/**
+		 * Парсинг параметров сортировки
+		 */
+		// Параметры сортировки
+		preg_match( '/\/orderby=([\w_]+)/' , $path , $matchesOrderBy );
+		if ( isset($matchesOrderBy[1]) ) $app->input->set('orderby' , $matchesOrderBy[1] ); #END IF
+		// Удалить параметр сортировки
+		$path = preg_replace('/\/orderby=[\w_]+/', '', $path);
+
+
+		preg_match( '/\/order=([\w_]+)/' , $path , $matchesOrder  );
+		if ( isset($matchesOrder[1]) ) $app->input->set('order' , $matchesOrder[1] ); #END IF
+		$path = preg_replace('/\/order=[\w_]+/', '', $path);
+
+
+
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+//            echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r( $matchesOrderBy );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    echo'<pre>';print_r( $matchesOrder );echo'</pre>'.__FILE__.' '.__LINE__;
+//		    die(__FILE__ .' '. __LINE__ );
+//
+		}
+
+		/**
 		 * @var array $findResultArr - массив выбранных
 		 */
 		$findResultArr = [];
@@ -433,8 +458,6 @@ class CfInput
 			// Поиск вхождения первого фильтра
 			$needle =   $item->sef_url . '-'   ;
 			$needleRegExp = '/' . preg_quote($needle ) . '/u';
-
-
 
 
 			preg_match( $needleRegExp , $path , $matches , PREG_OFFSET_CAPTURE ) ;
