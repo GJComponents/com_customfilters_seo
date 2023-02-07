@@ -115,12 +115,18 @@ class seoTools
 	 */
 	protected function preparePaginationObj(\Joomla\CMS\Pagination\PaginationObject $Object): \Joomla\CMS\Pagination\PaginationObject
 	{
+
+
+
+
+		
+		
 		/**
 		 *   $Object->link string (/filtr/vodostochnye-sistemy/?custom_f_23[0]=d093d0bbd18fd0bdd186d0b5d0b2d0b0d18f&custom_f_10 .....)
 		 */
 		if (!empty($Object->link))
 		{
-			$link         = \seoTools_uri::getSefUlrOption($Object->link);
+			$link         = \seoTools_uri::getSefUlrOption($Object->link , 'Pagination' );
 			$Object->link = $link->sef_url;
         }
 		return $Object;
@@ -434,6 +440,8 @@ class seoTools
     {
 	    if ( !is_array($valueCustomHashArr) && !is_object( $valueCustomHashArr ))
 	    {
+			echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+
 			try
 			{
 			    // Code that may throw an Exception or Error.

@@ -418,6 +418,11 @@ class CfInput
 		// Удалить параметры пагинации
 		$path = preg_replace('/\/start=\d+/', '', $path);
 
+//		echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
 		/**
 		 * Парсинг параметров сортировки
 		 */

@@ -163,7 +163,8 @@ class CustomfiltersViewProducts extends cfView
 	     * Установка выбранных опций фильтра в Название категории -- <h1>
 	     */
 	    $tag_h1 = $app->get('filter_data_h1' , false );
-	    $app->set('filter_data_h1' , false );
+
+//	    $app->set('filter_data_h1' , false );
 	    if ( $tag_h1 && !empty($this->category->category_name) )
 	    {
 		    $this->category->category_name = $tag_h1 ;
@@ -388,12 +389,6 @@ class CustomfiltersViewProducts extends cfView
             $titles [] = implode(', ', $manufacturerNames);
         }
 
-
-		//die(__FILE__ .' '. __LINE__ );
-
-
-//        echo'<pre>';print_r( $titles );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        die( __FILE__ .' ' . __LINE__);
         if (!empty($titles)) {
           //  $this->document->setTitle(implode($delimiter, $titles));
         }

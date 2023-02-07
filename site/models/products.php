@@ -508,6 +508,7 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 		$uri  = JUri::getInstance();
 		$path = $uri->getPath();
 
+
 		preg_match( '/\/start=(\d+)/' , $path , $matches );
 		$limitstart = 0;
 		if ( !empty( $matches ) )
@@ -515,6 +516,17 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 			$limitstart = $matches[ 1 ];
 		}
 		$this->setState( 'list.limitstart' , $limitstart );
+
+//		$app = \Joomla\CMS\Factory::getApplication();
+
+
+
+//		echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
+
 
 		// List state information
 		// Установка $limitstart - для пагинации

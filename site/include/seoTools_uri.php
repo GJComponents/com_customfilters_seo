@@ -69,13 +69,8 @@ class seoTools_uri
 	 * @throws Exception
 	 * @since 3.9
 	 */
-	public static function getSefUlrOption( string $option_url ):stdClass
+	public static function getSefUlrOption( string $option_url , $context = false ):stdClass
 	{
-		
-
-
-		// Если имеем кэшированную версию
-		if ( isset(self::$arrUrlSef [ $option_url ]) ) return self::$arrUrlSef [ $option_url ]; #END IF
 
 		$app                       = JFactory::getApplication();
 		$resultData                = new stdClass();
@@ -85,6 +80,31 @@ class seoTools_uri
 		$uri              = \Joomla\CMS\Uri\Uri::getInstance($option_url);
 		$path             = $uri->getPath();
 		$uriQuery         = $uri->getQuery(true);
+
+		$orderby = $app->input->get('orderby' , false , 'STRING' );
+		$order = $app->input->get('order' , false , 'STRING' );
+
+		$hash = $option_url.$orderby.$order ;
+
+		// Если имеем кэшированную версию
+		if ( isset(self::$arrUrlSef [ $hash ]) ) return self::$arrUrlSef [ $hash ]; #END IF
+		
+		
+		$_limit = false ;
+		if ( isset($uriQuery[ 'limit' ]) )
+		{
+			$_limit = $uriQuery[ 'limit' ] ;
+			unset($uriQuery[ 'limit' ]);
+		}#END IF
+		
+		
+		if ( $context == 'Pagination' )
+		{
+//			echo'<pre>';print_r( $_limit );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $orderby );echo'</pre>'.__FILE__.' '.__LINE__;
+//			echo'<pre>';print_r( $uriQuery );echo'</pre>'.__FILE__.' '.__LINE__;
+		}
+
 
 		$pageStart = false;
 		if ( isset($uriQuery[ 'start' ]) )
@@ -98,16 +118,23 @@ class seoTools_uri
 		{
 			$orderBy = $uriQuery[ 'orderby' ];
 			unset($uriQuery[ 'orderby' ]);
+		}else if ($orderby){
+			$orderBy = $orderby ;
 		}#END IF
 
+
+
+		$orderInput = $app->input->get('order' , false , 'STRING' ) ;
+		
 		$order = false;
 		if ( isset($uriQuery[ 'order' ]) )
 		{
 			$order = $uriQuery[ 'order' ];
 			unset($uriQuery[ 'order' ]);
 
+		}else if( $orderInput ){
+			$order = $orderInput ;
 		}#END IF
-
 
 
 
@@ -116,10 +143,7 @@ class seoTools_uri
 
 		$settingSeoOrdering = [];
 		$i_filterCount      = 0;
-
-
-
-
+ 
 		foreach ( $uriQuery as $fieldId => $valueCustomHashArr )
 		{
 			$filter = $seoTools_filters->_getFilterById($fieldId);
@@ -220,20 +244,17 @@ class seoTools_uri
 			$resultData->url_params .= '&start='.$pageStart;
 			$resultData->sef_url    .= 'start='.$pageStart;
 		}
-
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP && $order )
-		{
-//			echo'<pre>';print_r( $option_url );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $resultData  );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $uriQuery );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $orderBy );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
-
+		// Для ссылок пагинации при включенной сортировки
+		else if($pageStart &&  $orderBy && $context == 'Pagination' ){
+			$resultData->url_params .= '&start='.$pageStart;
+			$resultData->sef_url    .= '/start='.$pageStart;
 		}
+
+
 
 		$resultData->url_params_hash = md5($resultData->url_params);
 
-		self::$arrUrlSef[ $option_url ] = $resultData;
+//		self::$arrUrlSef[ $option_url ] = $resultData;
 
 		return $resultData;
 
