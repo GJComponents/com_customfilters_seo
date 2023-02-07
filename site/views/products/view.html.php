@@ -171,6 +171,10 @@ class CustomfiltersViewProducts extends cfView
 	    }#END IF
 
 
+
+		
+		
+		
 	    // Если в настройках компонента com_customfilters - не отображать описание категории
 	    $on_description_vm_category = $paramsComponent->get('on_description_vm_category' , 1 );
 	    if ( !$on_description_vm_category )

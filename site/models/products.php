@@ -486,15 +486,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
 		$this->setState( 'filter_order' ,  $vmlastproductordering );
 
-		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
-		{
-//			echo'<pre>';print_r( $_selectedOrdering );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $_filter_order_Dir );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $vmlastproductordering );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $this->getState( 'filter_order' ) );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $this->getState( 'filter_order_Dir' )  );echo'</pre>'.__FILE__.' '.__LINE__;
-
-		}
 
 		$queryBuilder->setOrder( $vmlastproductordering , $this->getState( 'filter_order_Dir' ) );
 //		$queryBuilder->setOrder( $this->getState( 'filter_order' ) , $this->getState( 'filter_order_Dir' ) );
@@ -520,14 +511,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 //		$app = \Joomla\CMS\Factory::getApplication();
 
 
-
-//		echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
-//		echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
-
-
-
-
 		// List state information
 		// Установка $limitstart - для пагинации
 		$limit      = $this->getState( 'list.limit' , 5 );
@@ -538,14 +521,17 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 		try
 		{
 			$query = $queryBuilder->create();
-				
+
+			$option = $app->input->get('option' , 'com_customfilters' , 'STRING') ;
 			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 			{
 //			    echo'<pre>';print_r( $query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
-			    
+//			    echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
+
 			}
+
 			//
-			if ( $this->componentparams->get('on_description_vm_category' , 0 ) == 2 )
+			if ( $option == 'com_customfilters' && $this->componentparams->get('on_description_vm_category' , 0 ) == 2 )
 			{
 				// получить информацию о всех найденных товарах - в результатах фильтрации
 				JLoader::register( 'seoTools_info_product' , JPATH_ROOT.'/components/com_customfilters/include/seoTools_info_product.php' );

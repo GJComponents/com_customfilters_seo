@@ -414,6 +414,12 @@ class seoTools_uri
 	public static function findCityFilters( $category_ids , $findResultArr )
 	{
 		$app = \Joomla\CMS\Factory::getApplication();
+		$option = $app->input->get('option' , '' , 'STRING');
+
+		if ( $option != 'com_virtuemart' || $option != 'com_customfilters'    ) return ; #END IF
+		
+
+
 
 		$juri = \Joomla\CMS\Uri\Uri::getInstance();
 		$path = $juri->getPath();
@@ -487,7 +493,6 @@ class seoTools_uri
 		}
 
 
-
 		$db    = JFactory::getDbo();
 		$Query = $db->getQuery(true);
 		$Query->select('*')
@@ -505,13 +510,6 @@ class seoTools_uri
 		// Если Multilanguage - добавить выбор по языкам
 		if (  Multilanguage::isEnabled() )
 		{
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//				echo'<pre>';print_r( $languagesSefDefault );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
-//				die(__FILE__ .' '. __LINE__ );
-			}
 			if ( $matchesLang != '*' )
 			{
 				$Query->where(
