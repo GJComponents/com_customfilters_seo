@@ -56,6 +56,7 @@
         </field>-->
 
 
+
         <field
                 name="sef_filter_h_tag"
                 type="text"
@@ -63,6 +64,15 @@
                 label="COM_CUSTOMFILTERS_SETTING_SEO_SEF_FILTER_H1_LABEL"
                 description="COM_CUSTOMFILTERS_SETTING_SEO_SEF_FILTER_H1_DESC"
         />
+        <field name="note_vm_cat_description"
+        	   type="note"
+        	   class="alert alert-info alert-info"
+        	   close="0"
+        	   label="SETTING_SEO_VM_CAT_DESCRIPTION_LABEL"
+        	   description="SETTING_SEO_VM_CAT_DESCRIPTION_DESC" />
+
+
+
         <!-- Описание вместо категории -->
         <field
                 name="sef_filter_vm_cat_description"

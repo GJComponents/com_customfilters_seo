@@ -62,7 +62,11 @@ JS
 
 
     <?php  echo $this->form->renderField('sef_filter_h_tag'); ?>
+
+
+    <?php  echo $this->form->renderField('note_vm_cat_description'); ?>
     <?php  echo $this->form->renderField('sef_filter_vm_cat_description'); ?>
+
 
     <?php  echo $this->form->renderField('sef_filter_title'); ?>
 
