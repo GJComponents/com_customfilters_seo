@@ -170,7 +170,8 @@ class seoTools
 		$ResultLoadMetaByUrl = $db->loadAssoc();
 
 	    $DataFilters = $this->app->get('seoToolsActiveFilter' );
-		
+
+
 		
 	    $findReplaceArr = $this->getReplaceFilterDescriptionArr();
         // Если находим в описании городов - то перестраиваем на города
@@ -178,7 +179,8 @@ class seoTools
 		if ( $DataFiltersCity )  $findReplaceArr = $this->getReplaceFilterDescriptionArr(true , $DataFiltersCity ); #END IF
 	    
 	    if ( !$findReplaceArr   ) return; #END IF
-		
+
+
 	    
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
 	    if ( isset( $DataFiltersCity['default_h1_tag'] ) ) $default_h1_tag = $DataFiltersCity['default_h1_tag'] ; #END IF
@@ -188,7 +190,7 @@ class seoTools
 		// Если есть данные установленные для Filter URL -
 	    if ( isset( $ResultLoadMetaByUrl['sef_filter_title'] ) )
 	    {
-		    $default_h1_tag = $ResultLoadMetaByUrl['sef_filter_title'] ;
+		    $default_h1_tag = $ResultLoadMetaByUrl['sef_filter_h_tag'] ;
 	    }#END IF
 		$this->app->set('filter_data_h1' ,  $default_h1_tag  );
 
