@@ -187,8 +187,12 @@ class CustomfiltersViewProducts extends cfView
 			$template = $app->getTemplate(true);
 			$templateName = $template->template ;
 		    $ResultFilterDescription = $app->get('ResultFilterDescription' , false ) ;
-
+			
 			$layout_ResultFilterDescription = [];
+			
+
+			
+			
 			foreach ( $ResultFilterDescription as $key => $item )
 			{
 				$key = str_replace(['{{','}}'] , '' , $key);
@@ -197,6 +201,25 @@ class CustomfiltersViewProducts extends cfView
 			}#END FOREACH
 
 			$layout_ResultFilterDescription['category_description'] = $this->category->category_description ;
+
+
+			// обрабатываем описание категории из таблицы ссылок
+			$layout_ResultFilterDescription['sef_filter_vm_cat_description'] = false ;
+			$sef_filter_vm_cat_description = $app->set('sef_filter_vm_cat_description' , false );
+			if ( $sef_filter_vm_cat_description )
+			{
+				$_description = str_replace( array_keys( $ResultFilterDescription ) , $ResultFilterDescription , $sef_filter_vm_cat_description );
+				$_description = str_replace(PHP_EOL, '<br />' , $_description ) ;
+
+				$layout_ResultFilterDescription['sef_filter_vm_cat_description'] = $_description ;
+			}#END IF
+
+			/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+				echo'<pre>';print_r( $ResultFilterDescription );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $layout_ResultFilterDescription );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $sef_filter_vm_cat_description );echo'</pre>'.__FILE__.' '.__LINE__;
+			}*/
 
 			$layout    = new \Joomla\CMS\Layout\FileLayout( 'filterResultDesc' ,JPATH_ROOT.'/components/com_customfilters/layouts' );
 			$layout->addIncludePaths(JPATH_THEMES . '/' . $templateName . '/html/com_customfilters/layouts' );

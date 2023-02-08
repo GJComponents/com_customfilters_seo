@@ -1,62 +1,122 @@
 <?php
-/**
- * @package    vm_seo_product_filter_grt
- *
- * @author     Максим <your@email.com>
- * @copyright  A copyright
- * @license    GNU General Public License version 2 or later; see LICENSE.txt
- * @link       http://your.url.com
- */
-
-defined('_JEXEC') or die;
-
-// use Joomla\CMS\MVC\Controller\AdminController;
 
 
+/***********************************************************************************************************************
+ *  ///////////////////////////╭━━━╮╱╱╱╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╱╱╱╱╭━━━╮╱╱╱╱╱╱╱╱╱╱╱╱╭╮////////////////////////////////////////
+ *  ///////////////////////////┃╭━╮┃╱╱╱╱╱╱╱╭╯╰╮╱╱╱╱╱╱╱╱╱╱╱╱╰╮╭╮┃╱╱╱╱╱╱╱╱╱╱╱╱┃┃////////////////////////////////////////
+ *  ///////////////////////////┃┃╱╰╯╭━━╮╭━╮╰╮╭╯╭━━╮╭━━╮╱╱╱╱╱┃┃┃┃╭━━╮╭╮╭╮╭━━╮┃┃╱╭━━╮╭━━╮╭━━╮╭━╮////////////////////////
+ *  ///////////////////////////┃┃╭━╮┃╭╮┃┃╭╯╱┃┃╱┃┃━┫┃━━┫╭━━╮╱┃┃┃┃┃┃━┫┃╰╯┃┃┃━┫┃┃╱┃╭╮┃┃╭╮┃┃┃━┫┃╭╯////////////////////////
+ *  ///////////////////////////┃╰┻━┃┃╭╮┃┃┃╱╱┃╰╮┃┃━┫┣━━┃╰━━╯╭╯╰╯┃┃┃━┫╰╮╭╯┃┃━┫┃╰╮┃╰╯┃┃╰╯┃┃┃━┫┃┃/////////////////////////
+ *  ///////////////////////////╰━━━╯╰╯╰╯╰╯╱╱╰━╯╰━━╯╰━━╯╱╱╱╱╰━━━╯╰━━╯╱╰╯╱╰━━╯╰━╯╰━━╯┃╭━╯╰━━╯╰╯/////////////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱┃┃//  (C) 2023  ///////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰╯/////////////////////////////////
+ *----------------------------------------------------------------------------------------------------------------------
+ * @author     Gartes | sad.net79@gmail.com | Telegram : @gartes
+ * @date       07.02.23 14:39
+ * Created by PhpStorm.
+ * @copyright  Copyright (C) 2005 - 2023 Open Source Matters, Inc. All rights reserved.
+ * @license    GNU General Public License version 2 or later;
+ **********************************************************************************************************************/
+// Check to ensure this file is included in Joomla!
+defined( '_JEXEC' ) or die( 'Restricted access' );
+// Check to ensure this file is included in Joomla!
+defined( '_JEXEC' ) or die( 'Restricted access' );
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Session\Session;
 
 
-/**
- * Vm_seo_product_filter_grts Controller.
- *
- * @package  vm_seo_product_filter_grt
- * @since    1.0.0
- */
-class CustomfiltersControllerSetting_seo_list extends JControllerAdmin
+class CustomfiltersControllerSetting_seo_list extends Joomla\CMS\MVC\Controller\FormController
 {
 
-
 	/**
-	 * The prefix to use with controller messages.
-	 *
-	 * @var    string
-	 * @since  1.0.0
+	 * Сохранение формы редактирования - кнопка "Сохранить"
+	 * @throws Exception
+	 * @since 3.9
 	 */
-	protected $text_prefix = 'com_vm_seo_product_filter_grt_vm_seo_product_filter_grt';
-
-	/**
-	 * Method to get a model object, loading it if required.
-	 *
-	 * @param   string  $name    The model name. Optional.
-	 * @param   string  $prefix  The class prefix. Optional.
-	 * @param   array   $config  Configuration array for model. Optional.
-	 *
-	 * @return  \JModelLegacy  The model.
-	 *
-	 * @since   1.0.0
-	 */
-	public function getModel(
-		$name = 'Vm_seo_product_filter_grt',
-		$prefix = 'Vm_seo_product_filter_grtsModel',
-		$config = ['ignore_request' => true]
-	) {
-		return parent::getModel($name, $prefix, $config);
+	public function apply()
+	{
+		$this->save();
+		$id = \Joomla\CMS\Factory::getApplication()->input->get( 'id' , false , 'INT' );
+		// Перегружаем страницу
+		$this->setRedirect( 'index.php?option=com_customfilters&view=setting_seo_list&id='.$id );
 	}
 
-    public function cancel($key = null) {
+	/**
+	 * Сохранение формы редактирования - кнопка "Сохранить и закрыть"
+	 * ---
+	 * Method to save a record.
+	 *
+	 * @param   string  $key     Имя первичного ключа переменной URL.
+	 *                           The name of the primary key of the URL variable.
+	 * @param   string  $urlVar  Имя переменной URL, если оно отличается от первичного ключа (иногда требуется, чтобы
+	 *                           избежать коллизий маршрутизаторов). The name of the URL variable if different from the
+	 *                           primary key (sometimes required to avoid router collisions).
+	 *
+	 * @throws Exception
+	 * @since 3.9
+	 */
+	public function save( $key = null , $urlVar = null )
+	{
+		// Check for request forgeries.
+		$this->checkToken();
+		$app = \Joomla\CMS\Factory::getApplication();
+		/**
+		 * @var CustomfiltersModelSetting_seo_list $model
+		 */
+		$model    = $this->getModel();
+		$formData = $app->input->get( 'jform' , false , 'RAW' );
+		$task     = $app->input->get( 'task' , false , 'STRING' );
 
-        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
-        $this->setRedirect(JRoute::_('index.php?option=com_customfilters' , false));
-        return true;
-    }
+		if ( !$model->save( $formData ) )
+		{
+			throw new \Exception( $model->getError() , 500 );
+		}
+		else
+		{
+			$this->setMessage( Text::_( 'COM_CUSTOMFILTERS_SETTING_SEO_LIST_SAVED_SUCCESS' ) );
+		}
+		if ( $task == 'save' )
+		{
+			// Выход в список
+			$this->setRedirect( 'index.php?option=com_customfilters&view=setting_seo_list_list' );
+		}#END IF
 
+	}
+
+	/**
+	 * Выход из текущего вида
+	 *
+	 * @param   null  $key
+	 *
+	 * @return bool
+	 * @since 3.9
+	 */
+	public function cancel( $key = null ):bool
+	{
+		Session::checkToken() or jexit( JText::_( 'JINVALID_TOKEN' ) );
+		$this->setRedirect( Route::_( 'index.php?option=com_customfilters&' , false ) );
+
+		return true;
+	}
+
+	/**
+	 * Proxy for getModel.
+	 *
+	 * @param   string  $name    of the model.
+	 * @param   string  $prefix  for the PHP class name.
+	 * @param   bool[]  $config
+	 *
+	 * @return CustomfiltersModelSetting_seo_list
+	 * @since 1.0
+	 */
+	public function getModel( $name = 'Setting_seo_list' , $prefix = 'CustomfiltersModel' , $config = array( 'ignore_request' => true ) ):CustomfiltersModelSetting_seo_list
+	{
+		/**
+		 * @var CustomfiltersModelSetting_seo_list Object
+		 */
+		return parent::getModel( $name , $prefix , $config );
+	}
 }

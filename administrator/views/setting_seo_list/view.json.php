@@ -12,70 +12,97 @@
  *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰╯/////////////////////////////////
  *----------------------------------------------------------------------------------------------------------------------
  * @author     Gartes | sad.net79@gmail.com | Telegram : @gartes
- * @date       07.02.23 19:27
+ * @date       07.02.23 14:39
  * Created by PhpStorm.
  * @copyright  Copyright (C) 2005 - 2023 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later;
  **********************************************************************************************************************/
 // Check to ensure this file is included in Joomla!
 defined( '_JEXEC' ) or die( 'Restricted access' );
+// Check to ensure this file is included in Joomla!
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
-use Joomla\CMS\Table\Table;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
+use Joomla\CMS\MVC\View\HtmlView;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Object\CMSObject;
+use Joomla\CMS\Response\JsonResponse;
 
-/**
- * Table class Setting_seo
- * @since  3.9
- * @author Gartes
- */
-class CustomfiltersTableSetting_seo extends Table
+class customfiltersViewSetting_seo_list extends HtmlView
 {
 	/**
+	 * @since 1.0
+	 * @var array
+	 */
+	protected $items;
+	/**
+	 * Form with settings
+	 *
+	 * @since  1.0.0
+	 * @var    Form
+	 */
+	protected $form;
+
+	/**
+	 * @throws Exception
 	 * @since 3.9
-	 * @var string Имя таблицы этого класса
 	 */
-	protected $_tbl = '#__cf_customfields_setting_seo';
-
-	/**
-	 * @since    1.0.0
-	 * @var string[]    Массив имен ключей, которые нужно закодировать в формате json -- к примеру для поля "params".
-	 *                  An array of key names to be json encoded in the bind function
-	 */
-	protected $_jsonEncode = [ 'params' , 'selected_filters_table' , ];
-
-	/**
-	 * Constructor
-	 *
-	 * @since    1.5
-	 */
-	function __construct( &$_db )
+	public function display( $tpl = null )
 	{
-		parent::__construct( $this->_tbl , 'id' , $_db );
+		/**
+		 * @var customfiltersModelSetting_seo_list $model
+		 */
+		$model  = $this->getModel();
+		$app    = Factory::getApplication();
+		$task   = $app->input->get( 'task' , false , 'STRING' );
+		$layout = $app->input->get( 'layout' , $tpl , 'STRING' );
+		switch ( $task )
+		{
+			case 'onAjaxSave':
+			case 'save' : // Сохранение 
+				$formData = $app->input->get( 'jform' , false , 'RAW' );
+				$data     = array();
+				parse_str( $formData , $data );
+
+				if ( !$model->save() )
+				{
+					echo new JsonResponse( null , Text::_( 'COM_CUSTOMFILTERS_SETTING_SEO_LIST_SAVED_ERROR' ) , true );
+					die();
+				}#END IF
+
+				$itemID = $data[ 'jform' ][ 'id' ];
+				if ( !$itemID )
+				{
+					// Получаем данные после сохранения
+					$item   = $model->getItem();
+					$itemID = $item->id;
+				}#END IF
+
+				$returnData = [
+					'id' => $itemID
+				];
+				echo new JsonResponse( $returnData , Text::_( 'COM_CUSTOMFILTERS_SETTING_SEO_LIST_SAVED_SUCCESS' ) , false );
+				die();
+		}
+		/**
+		 * CustomfiltersModel::getItem
+		 */
+		$this->item = $this->get( 'Item' );
+		/**
+		 * CustomfiltersModel::getForm
+		 */
+		$this->form = $this->get( 'Form' );
+
+		// for Multilang Site
+		if ( JLanguageMultilang::isEnabled() )
+		{
+			// code Multilang
+		}
+		$Data[ 'html' ] = $this->loadTemplate( $layout );
+		echo new JResponseJson( $Data );
+		die();
 	}
 
-	/**
-	 * Метод сохранения строки в базе данных из свойств экземпляра таблицы.
-	 *
-	 * Если задано значение первичного ключа, строка с этим значением первичного ключа будет обновлена значениями
-	 * свойств экземпляра. Если значение первичного ключа не задано, в базу данных будет вставлена новая строка со
-	 * свойствами из экземпляра таблицы.
-	 *
-	 * Method to store a row in the database from the Table instance properties.
-	 *
-	 * If a primary key value is set the row with that primary key value will be updated with the instance property
-	 * values. If no primary key value is set a new row will be inserted into the database with the properties from the
-	 * Table instance.
-	 *
-	 * @param   boolean  $updateNulls  Значение true для обновления полей, даже если они пусты.
-	 *                                 True to update fields even if they are null.
-	 *
-	 * @return  boolean  True on success.
-	 *
-	 * @since   1.7.0
-	 */
-	public function store( $updateNulls = false )
-	{
-		// дополнительные обработки полей таблицы
-		// ect./ - $this->url_params_hash = md5( $this->url_params ) ;
-		return parent::store( $updateNulls ) ;
-	}
+
 }

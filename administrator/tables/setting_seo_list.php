@@ -12,7 +12,7 @@
  *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰╯/////////////////////////////////
  *----------------------------------------------------------------------------------------------------------------------
  * @author     Gartes | sad.net79@gmail.com | Telegram : @gartes
- * @date       07.02.23 19:27
+ * @date       07.02.23 14:39
  * Created by PhpStorm.
  * @copyright  Copyright (C) 2005 - 2023 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later;
@@ -23,11 +23,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 use Joomla\CMS\Table\Table;
 
 /**
- * Table class Setting_seo
+ * Table class Setting_seo_list
  * @since  3.9
  * @author Gartes
  */
-class CustomfiltersTableSetting_seo extends Table
+class CustomfiltersTableSetting_seo_list extends Table
 {
 	/**
 	 * @since 3.9
@@ -40,7 +40,7 @@ class CustomfiltersTableSetting_seo extends Table
 	 * @var string[]    Массив имен ключей, которые нужно закодировать в формате json -- к примеру для поля "params".
 	 *                  An array of key names to be json encoded in the bind function
 	 */
-	protected $_jsonEncode = [ 'params' , 'selected_filters_table' , ];
+	protected $_jsonEncode = [ 'params' , ];
 
 	/**
 	 * Constructor
@@ -76,6 +76,6 @@ class CustomfiltersTableSetting_seo extends Table
 	{
 		// дополнительные обработки полей таблицы
 		// ect./ - $this->url_params_hash = md5( $this->url_params ) ;
-		return parent::store( $updateNulls ) ;
+		parent::store( $updateNulls );
 	}
 }

@@ -438,16 +438,6 @@ class CfInput
 		$path = preg_replace('/\/order=[\w_]+/', '', $path);
 
 
-
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//            echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r( $matchesOrderBy );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r( $matchesOrder );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
-//
-		}
-
 		/**
 		 * @var array $findResultArr - массив выбранных
 		 */
@@ -516,15 +506,6 @@ class CfInput
 				// Удалить слэши
 				$itemValF = str_replace('/', '', $itemValF);
 
-				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-				{
-//					echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $needleRegExp );echo'</pre>'.__FILE__.' '.__LINE__;
-//				echo'<pre>';print_r( $needle );echo'</pre>'.__FILE__.' '.__LINE__;
-//					echo'<pre>';print_r( $subStr );echo'</pre>'.__FILE__.' '.__LINE__;
-//					echo'<pre>';print_r( $arrValFilter );echo'</pre>'.__FILE__.' '.__LINE__;
-//					echo'<pre>';print_r( $itemValF );echo'</pre>'.__FILE__.' '.__LINE__;
-				}
 
 				// Удаляем название фильтра
 				$itemValF = str_replace($dataFilters->name, '', $itemValF);

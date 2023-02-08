@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <field name="alias"
+           type="text"
+           default=""
+           class="alias "
+           size="20"
+           readonly=""
+           required="1"
+           label="COM___FIELD_ALIAS"
+           description="COM___FIELD_ALIAS_DESC"
+           showon=""
+           hint=""
+           pattern="[A-Za-z\s0-9]+"
+           filter="raw"/>
+
+    <fieldset name="basic">
+
+    </fieldset>
+    <fieldset name="hidden_fields">
+
+    </fieldset>
+</form>

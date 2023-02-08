@@ -1,33 +1,57 @@
 <?php
+
+
+/***********************************************************************************************************************
+ *  ///////////////////////////╭━━━╮╱╱╱╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╱╱╱╱╭━━━╮╱╱╱╱╱╱╱╱╱╱╱╱╭╮////////////////////////////////////////
+ *  ///////////////////////////┃╭━╮┃╱╱╱╱╱╱╱╭╯╰╮╱╱╱╱╱╱╱╱╱╱╱╱╰╮╭╮┃╱╱╱╱╱╱╱╱╱╱╱╱┃┃////////////////////////////////////////
+ *  ///////////////////////////┃┃╱╰╯╭━━╮╭━╮╰╮╭╯╭━━╮╭━━╮╱╱╱╱╱┃┃┃┃╭━━╮╭╮╭╮╭━━╮┃┃╱╭━━╮╭━━╮╭━━╮╭━╮////////////////////////
+ *  ///////////////////////////┃┃╭━╮┃╭╮┃┃╭╯╱┃┃╱┃┃━┫┃━━┫╭━━╮╱┃┃┃┃┃┃━┫┃╰╯┃┃┃━┫┃┃╱┃╭╮┃┃╭╮┃┃┃━┫┃╭╯////////////////////////
+ *  ///////////////////////////┃╰┻━┃┃╭╮┃┃┃╱╱┃╰╮┃┃━┫┣━━┃╰━━╯╭╯╰╯┃┃┃━┫╰╮╭╯┃┃━┫┃╰╮┃╰╯┃┃╰╯┃┃┃━┫┃┃/////////////////////////
+ *  ///////////////////////////╰━━━╯╰╯╰╯╰╯╱╱╰━╯╰━━╯╰━━╯╱╱╱╱╰━━━╯╰━━╯╱╰╯╱╰━━╯╰━╯╰━━╯┃╭━╯╰━━╯╰╯/////////////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱┃┃//  (C) 2023  ///////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰╯/////////////////////////////////
+ *----------------------------------------------------------------------------------------------------------------------
+ * @author     Gartes | sad.net79@gmail.com | Telegram : @gartes
+ * @date       07.02.23 19:27
+ * Created by PhpStorm.
+ * @copyright  Copyright (C) 2005 - 2023 Open Source Matters, Inc. All rights reserved.
+ * @license    GNU General Public License version 2 or later;
+ **********************************************************************************************************************/
+// Check to ensure this file is included in Joomla!
+defined( '_JEXEC' ) or die( 'Restricted access' );
+
 /**
- * @package 	customfilters
- * @author		Sakis Terz
- * @link		http://breakdesigns.net
- * @copyright	Copyright (c) 2012-2021 breakdesigns.net. All rights reserved.
- * @license		http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- *				customfilters is free software. This version may have been modified
- *				pursuant to the GNU General Public License, and as distributed
- *				it includes or is derivative of works licensed under the GNU
- *				General Public License or other free or open source software
- *				licenses.
- * @since		1.9.5
+ *
+ * @since 3.9
+ * @copyright
+ * @license
  */
+// Check to ensure this file is included in Joomla!
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
-// no direct access
-defined('_JEXEC') or die;
-
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
 
-JHtml::_('behavior.tooltip');
-JHtml::_('behavior.multiselect');
-JHtml::_('behavior.modal');
+HTMLHelper::_( 'bootstrap.tooltip' );
+HTMLHelper::_( 'formbehavior.chosen' );
+HTMLHelper::_( 'behavior.formvalidator' );
+
+//echo '<pre>'; print_r( $this->item ); echo '</pre>'.__FILE__.' '.__LINE__;
+/**
+ * @var Joomla\CMS\Form\Form $form
+ */
+$form = $this->form;
 ?>
+<form action="<?=Joomla\CMS\Router\Route::_( 'index.php' )?>" method="post" name="adminForm" id="adminForm">
+    <div class="name-element">
+		<?=$form->renderField( 'alias' )?>
+    </div>
+	<?=$form->renderFieldset( 'basic' )?>
 
-<form action="administrator?index.php" method="post" name="adminForm" id="cfOptimizerForm">
-<div id="optimizer_results"></div>
-<input type="submit" class="btn" value="<?php echo Text::_('COM_CUSTOMFILTERS_CHECKNOPTIMIZE');?>" id="cf_optimizebtn"/>
-<input type="hidden" name="option" value="com_customfilters" />
-<input type="hidden" name="task" value="optimizer.optimize" />
-<input type="hidden" name="format" value="json" />
-<?php echo JHtml::_('form.token'); ?>
+    <input type="hidden" name="option" value="com_customfilters"/>
+    <input type="hidden" name="view" value="setting_seo"/>
+    <input type="hidden" name="task" value=""/>
+	<?php echo JHtml::_( 'form.token' ); ?>
 </form>

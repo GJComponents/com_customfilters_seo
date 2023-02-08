@@ -1,0 +1,9 @@
+{
+	"version": 3,
+	"file": "setting_seo_list.css",
+	"sources": [
+		"setting_seo_list.scss"
+	],
+	"names": [],
+	"mappings": "AAAA,AAAA,mBAAmB,AAAA,uBAAuB,CAAC,iBAAiB,CAAC;EAC3D,OAAO,EAAE,gBAAgB,GAC1B"
+}

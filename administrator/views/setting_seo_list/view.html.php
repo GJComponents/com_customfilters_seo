@@ -1,171 +1,130 @@
 <?php
-/**
- *
- * The basic view file
- *
- * @package 	customfilters
- * @author		Sakis Terz
- * @link		http://breakdesigns.net
- * @copyright	Copyright (c) 2012-2021 breakdesigns.net. All rights reserved.
- * @license		http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- *				customfilters is free software. This version may have been modified
- *				pursuant to the GNU General Public License, and as distributed
- *				it includes or is derivative of works licensed under the GNU
- *				General Public License or other free or open source software
- *				licenses.
- * @since		1.9.5
- */
 
+
+/***********************************************************************************************************************
+ *  ///////////////////////////╭━━━╮╱╱╱╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╱╱╱╱╭━━━╮╱╱╱╱╱╱╱╱╱╱╱╱╭╮////////////////////////////////////////
+ *  ///////////////////////////┃╭━╮┃╱╱╱╱╱╱╱╭╯╰╮╱╱╱╱╱╱╱╱╱╱╱╱╰╮╭╮┃╱╱╱╱╱╱╱╱╱╱╱╱┃┃////////////////////////////////////////
+ *  ///////////////////////////┃┃╱╰╯╭━━╮╭━╮╰╮╭╯╭━━╮╭━━╮╱╱╱╱╱┃┃┃┃╭━━╮╭╮╭╮╭━━╮┃┃╱╭━━╮╭━━╮╭━━╮╭━╮////////////////////////
+ *  ///////////////////////////┃┃╭━╮┃╭╮┃┃╭╯╱┃┃╱┃┃━┫┃━━┫╭━━╮╱┃┃┃┃┃┃━┫┃╰╯┃┃┃━┫┃┃╱┃╭╮┃┃╭╮┃┃┃━┫┃╭╯////////////////////////
+ *  ///////////////////////////┃╰┻━┃┃╭╮┃┃┃╱╱┃╰╮┃┃━┫┣━━┃╰━━╯╭╯╰╯┃┃┃━┫╰╮╭╯┃┃━┫┃╰╮┃╰╯┃┃╰╯┃┃┃━┫┃┃/////////////////////////
+ *  ///////////////////////////╰━━━╯╰╯╰╯╰╯╱╱╰━╯╰━━╯╰━━╯╱╱╱╱╰━━━╯╰━━╯╱╰╯╱╰━━╯╰━╯╰━━╯┃╭━╯╰━━╯╰╯/////////////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱┃┃//  (C) 2023  ///////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰╯/////////////////////////////////
+ *----------------------------------------------------------------------------------------------------------------------
+ * @author     Gartes | sad.net79@gmail.com | Telegram : @gartes
+ * @date       07.02.23 14:39
+ * Created by PhpStorm.
+ * @copyright  Copyright (C) 2005 - 2023 Open Source Matters, Inc. All rights reserved.
+ * @license    GNU General Public License version 2 or later;
+ **********************************************************************************************************************/
 // Check to ensure this file is included in Joomla!
-defined('_JEXEC') or die('Restricted access');
-// Load the view framework
-jimport('joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
-use Joomla\CMS\Language\Text;
-use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
+use Joomla\CMS\Helper\ContentHelper;
+use Joomla\CMS\Language\Multilanguage;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView;
-use Joomla\CMS\Pagination\Pagination;
+use Joomla\CMS\Object\CMSObject;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\Registry\Registry;
 
-
-/**
- * The basic view class
- *
- * @author Sakis Terz
- * @since 1.0
- */
 class CustomfiltersViewSetting_seo_list extends HtmlView
 {
-    /**
-     * Array with profiles
-     *
-     * @var    array
-     * @since  1.0.0
-     */
-    protected $items = [];
 
-    /**
-     * The model state
-     *
-     * @var    Registry
-     * @since  1.0.0
-     */
-    protected $state;
+	/**
+	 * @since 1.0
+	 * @var array
+	 */
+	public $items = [];
+	/**
+	 * @since 1.0
+	 * @var Joomla\CMS\Pagination\Pagination
+	 */
+	public $pagination;
+	/**
+	 * The model state
+	 *
+	 * @since  1.0.0
+	 * @var    Joomla\CMS\Object\CMSObject
+	 */
+	public $state;
+	/**
+	 * @since 3.9
+	 * @var Joomla\CMS\Form\Form
+	 */
+	public $filterForm ;
+	/**
+	 * @since 3.9
+	 * @var array
+	 */
+	public $activeFilters ;
+	/**
+	 * Actions registry
+	 *
+	 * @since  1.0.0
+	 * @var    Registry
+	 */
+	public $canDo;
+	/**
+	 * The sidebar to show
+	 *
+	 * @var    string
+	 * @since  1.0.0
+	 */
+	public $sidebar = '';
+	public function display( $tpl = null )
+	{
+		$this->document->addStyleSheet( '/administrator/components/com_/assets/css/setting_seo_list.css' );
+		/**
+		 * @var CustomfiltersModelSetting_seo_list $model
+		 */
+		$model = $this->getModel();
 
-    /**
-     * Pagination object
-     *
-     * @var    Pagination
-     * @since  1.0.0
-     */
-    protected $pagination;
+		/**
+		 * CustomfiltersModelSetting_seo_list::getItems
+		 */
+		$this->items         = $this->get( 'Items' );
+		$this->pagination    = $this->get( 'Pagination' );
+		$this->state         = $this->get( 'State' );
+		$this->filterForm    = $this->get( 'FilterForm' );
+		$this->activeFilters = $this->get( 'ActiveFilters' );
 
-    /**
-     * Companies helper
-     *
-     * @var    Vm_seo_product_filter_grtHelper
-     * @since  1.0.0
-     */
-    protected $helper;
-
-    /**
-     * The sidebar to show
-     *
-     * @var    string
-     * @since  1.0.0
-     */
-    protected $sidebar = '';
-
-    /**
-     * Form with filters
-     *
-     * @var    Form
-     * @since  1.0.0
-     */
-    public $filterForm;
-
-    /**
-     * List of active filters
-     *
-     * @var    array
-     * @since  1.0.0
-     */
-    public $activeFilters = [];
-
-    /**
-     * Actions registry
-     *
-     * @var    Registry
-     * @since  1.0.0
-     */
-    protected $canDo;
+//		echo'<pre>';print_r( $this->state );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
 
 
-
-    /**
-     * Display the view
-     * @since 1.0
-     * @return void
-     */
-    public function display($tpl = null)
-    {
+		// Какие права доступа есть у этого пользователя? Что она может делать?
+		// What Access Permissions does this user have? What can (s)he do?
+		$this->canDo = ContentHelper::getActions( 'com_customfilters' );
 
 
+		// for Multilang Site
+		if ( Multilanguage::isEnabled() )
+		{
+			// code Multilang
+		}
 
-        /**
-         * @var CustomfiltersModelSetting_seo_list $model
-         */
-        $model               = $this->getModel();
+		$this->addToolbar();
+		parent::display( $tpl );
+	}
 
-        $this->items         = $model->getItems();
-        $this->state         = $model->getState();
-        $this->pagination    = $model->getPagination();
-        $this->filterForm    = $model->getFilterForm();
-        $this->activeFilters = $model->getActiveFilters();
-        $this->canDo         = ContentHelper::getActions('com_customfilters');
+	/**
+	 * Install Toolbar
+	 * @return void
+	 * @since 3.9
+	 */
+	public function addToolbar()
+	{
+		$bar = Toolbar::getInstance( 'toolbar' );
+		JToolbarHelper::title( JText::_( 'COM_CUSTOMFILTERS_SETTING_SEO_LIST_LINKS_FILTER' ) , 'joomla large-icon' );
 
-        $this->addToolbar();
-
-
-//        echo'<pre>';print_r( $model );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
-//        die( __FILE__ .' : ' . __LINE__);
-
-        parent::display($tpl);
-    }
-
-    /**
-     * Create the Toolbar
-     * @since 1.0
-     */
-    public function addToolbar()
-    {
-        JToolBarHelper::title(Text::_('COM_CUSTOMFILTERS_SETTING_SEO_LIST'), 'custom_filters');
-        $this->document->setTitle(Text::_('COM_CUSTOMFILTERS_SETTING_SEO_LIST'));
-
-        JFactory::getApplication()->input->set('hidemainmenu', true);
-
-        if ( $this->canDo->get('core.create' ))
-        {
-            ToolbarHelper::addNew('setting_seo.add');
-        }
-        if ($this->canDo->get('core.edit') || $this->canDo->get('core.edit.own'))
-        {
-            ToolbarHelper::editList('setting_seo.edit');
-        }
-
-        if ($this->canDo->get('core.edit.state'))
-        {
-            ToolbarHelper::publish('setting_seo.publish', 'JTOOLBAR_PUBLISH', true);
-            ToolbarHelper::unpublish('setting_seo.unpublish', 'JTOOLBAR_UNPUBLISH', true);
-//            ToolbarHelper::archiveList('setting_seo.archive');
-        }
-
-        ToolbarHelper::cancel('setting_seo_list.cancel', 'COM_CUSTOMFILTERS_SETTING_SEO_TO_COMPONENT');
-
-        $this->document->addScript(JURI::base() . 'components/com_customfilters/assets/js/general.js');
-        return $this;
-    }
+		JToolbarHelper::divider();
+		// Сохранить
+		JToolbarHelper::apply( 'setting_seo_list.apply' );
+		// Сохранить и закрыть
+		JToolbarHelper::save( 'setting_seo_list.save' , 'JTOOLBAR_SAVE' );
+		JToolbarHelper::cancel( 'setting_seo_list.cancel' , 'JTOOLBAR_CLOSE' );
+	}
 }

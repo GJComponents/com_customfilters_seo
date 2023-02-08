@@ -142,55 +142,79 @@ class seoTools
      */
     public function setMetaData(){
 
-		$DataFilters = $this->app->get('seoToolsActiveFilter' );
-	    $findReplaceArr = $this->getReplaceFilterDescriptionArr();
+	    /**
+	     *
+	     * ALTER TABLE `#__cf_customfields_setting_seo`
+	     * ADD `url_bin_hash` BINARY(32)
+	     * NOT NULL AFTER `url_params_hash`,
+	     * ADD INDEX `url_bin_hash_key` (`url_bin_hash`)
+	     *
+	     */
 
+		//
+		$ury = \Joomla\CMS\Uri\Uri::getInstance();
+		$path = $ury->getPath();
+	    $hashPath = md5( $path ) ;
+//	    $hex = hex2bin( $hashPath );
+
+		$db = JFactory::getDbo();
+		$Query = $db->getQuery( true );
+	    $Query->select('*')
+		    ->from( $db->quoteName('#__cf_customfields_setting_seo')) ;
+		$where = [
+			$db->quoteName('sef_url') . ' LIKE ' . $db->quote( $path ),
+		];
+		$Query->where($where);
+//	    echo '<br>------------<br>Query Dump :'.__FILE__ .' '.__LINE__ .$Query->dump().'------------<br>';
+		$db->setQuery( $Query ) ;
+		$ResultLoadMetaByUrl = $db->loadAssoc();
+
+	    $DataFilters = $this->app->get('seoToolsActiveFilter' );
 		
+		
+	    $findReplaceArr = $this->getReplaceFilterDescriptionArr();
+        // Если находим в описании городов - то перестраиваем на города
 		$DataFiltersCity = $this->app->get('seoToolsActiveFilterCity' , false  );
 		if ( $DataFiltersCity )  $findReplaceArr = $this->getReplaceFilterDescriptionArr(true , $DataFiltersCity ); #END IF
+	    
+	    if ( !$findReplaceArr   ) return; #END IF
 		
-
-
-	    if ( !$findReplaceArr   )
-	    {
-			return;
-	    }#END IF
-
-		
-
+	    
         $default_h1_tag = $this->paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}');
 	    if ( isset( $DataFiltersCity['default_h1_tag'] ) ) $default_h1_tag = $DataFiltersCity['default_h1_tag'] ; #END IF
-		
-	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-	    {
-//		    echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
-	    }
-	    
-	    $default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
+		$default_h1_tag = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_h1_tag );
 	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{ 
-//		    echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r( $findReplaceArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    echo'<pre>';print_r( $default_h1_tag );echo'</pre>'.__FILE__.' '.__LINE__;
-//		    die(__FILE__ .' '. __LINE__ );
-
-		}
-
+		// Если есть данные установленные для Filter URL -
+	    if ( isset( $ResultLoadMetaByUrl['sef_filter_title'] ) )
+	    {
+		    $default_h1_tag = $ResultLoadMetaByUrl['sef_filter_title'] ;
+	    }#END IF
 		$this->app->set('filter_data_h1' ,  $default_h1_tag  );
 
+		// Если есть замещение из таблицы "Ссылки фильтра" для описания категории
+	    if ( isset(  $ResultLoadMetaByUrl['sef_filter_vm_cat_description'] ) )
+	    {
+		    $this->app->set('sef_filter_vm_cat_description' ,  $ResultLoadMetaByUrl['sef_filter_vm_cat_description']  );
+	    }#END IF
+
+
+
+	    
+
+		
 
         $default_title = $this->paramsComponent->get('default_title' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
 	    if ( isset( $DataFiltersCity['default_title'] ) ) $default_title = $DataFiltersCity['default_title'] ; #END IF
 		$default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );
 	    $default_title = $this->getLanguageText( $default_title );
-			
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//		    echo'<pre>';print_r( $default_title );echo'</pre>'.__FILE__.' '.__LINE__;
-		    
-		}
+
+		// Если есть замещение из таблицы "Ссылки фильтра" для title
+	    if ( isset( $ResultLoadMetaByUrl['sef_filter_title'] ) )
+	    {
+		    $default_title = $ResultLoadMetaByUrl['sef_filter_title'] ;
+	    }#END IF
+		
 		
 	    $default_description = $this->paramsComponent->get('default_description' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
 	    if ( isset( $DataFiltersCity['default_description'] ) ) $default_description = $DataFiltersCity['default_description'] ; #END IF
@@ -198,10 +222,22 @@ class seoTools
 	    $default_description = $this->getLanguageText( $default_description );
 
 
+	    // Если есть замещение из таблицы "Ссылки фильтра" для meta description
+	    if ( isset( $ResultLoadMetaByUrl['sef_filter_description'] ) )
+	    {
+		    $default_description = $ResultLoadMetaByUrl['sef_filter_description'] ;
+	    }#END IF
+
         $default_keywords = $this->paramsComponent->get('default_keywords' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
 	    if ( isset( $DataFiltersCity['default_keywords'] ) ) $default_keywords = $DataFiltersCity['default_keywords'] ; #END IF
 		$default_keywords = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_keywords );
 	    $default_keywords = $this->getLanguageText( $default_keywords );
+
+	    // Если есть замещение из таблицы "Ссылки фильтра" для meta keywords
+	    if ( isset($ResultLoadMetaByUrl['sef_filter_keywords']) )
+	    {
+		    $default_keywords = $ResultLoadMetaByUrl['sef_filter_keywords'] ;
+	    }#END IF
 
         $this->doc->setTitle($default_title );
         $this->doc->setDescription( $default_description );
@@ -223,6 +259,7 @@ class seoTools
 	}
 	/**
 	 * Получить массив для замены в метаданных
+	 * ---
 	 * @return array|false
 	 * @since 3.9
 	 *

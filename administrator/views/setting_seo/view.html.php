@@ -1,148 +1,131 @@
 <?php
-/**
- * @package    vm_seo_product_filter_grt
- *
- * @author     Максим <your@email.com>
- * @copyright  A copyright
- * @license    GNU General Public License version 2 or later; see LICENSE.txt
- * @link       http://your.url.com
- */
 
-defined('_JEXEC') or die;
+
+/***********************************************************************************************************************
+ *  ///////////////////////////╭━━━╮╱╱╱╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╱╱╱╱╭━━━╮╱╱╱╱╱╱╱╱╱╱╱╱╭╮////////////////////////////////////////
+ *  ///////////////////////////┃╭━╮┃╱╱╱╱╱╱╱╭╯╰╮╱╱╱╱╱╱╱╱╱╱╱╱╰╮╭╮┃╱╱╱╱╱╱╱╱╱╱╱╱┃┃////////////////////////////////////////
+ *  ///////////////////////////┃┃╱╰╯╭━━╮╭━╮╰╮╭╯╭━━╮╭━━╮╱╱╱╱╱┃┃┃┃╭━━╮╭╮╭╮╭━━╮┃┃╱╭━━╮╭━━╮╭━━╮╭━╮////////////////////////
+ *  ///////////////////////////┃┃╭━╮┃╭╮┃┃╭╯╱┃┃╱┃┃━┫┃━━┫╭━━╮╱┃┃┃┃┃┃━┫┃╰╯┃┃┃━┫┃┃╱┃╭╮┃┃╭╮┃┃┃━┫┃╭╯////////////////////////
+ *  ///////////////////////////┃╰┻━┃┃╭╮┃┃┃╱╱┃╰╮┃┃━┫┣━━┃╰━━╯╭╯╰╯┃┃┃━┫╰╮╭╯┃┃━┫┃╰╮┃╰╯┃┃╰╯┃┃┃━┫┃┃/////////////////////////
+ *  ///////////////////////////╰━━━╯╰╯╰╯╰╯╱╱╰━╯╰━━╯╰━━╯╱╱╱╱╰━━━╯╰━━╯╱╰╯╱╰━━╯╰━╯╰━━╯┃╭━╯╰━━╯╰╯/////////////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱┃┃//  (C) 2023  ///////////////////
+ *  ///////////////////////////╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰╯/////////////////////////////////
+ *----------------------------------------------------------------------------------------------------------------------
+ * @author     Gartes | sad.net79@gmail.com | Telegram : @gartes
+ * @date       07.02.23 19:27
+ * Created by PhpStorm.
+ * @copyright  Copyright (C) 2005 - 2023 Open Source Matters, Inc. All rights reserved.
+ * @license    GNU General Public License version 2 or later;
+ **********************************************************************************************************************/
+// Check to ensure this file is included in Joomla!
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Helper\ContentHelper;
+use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView;
-use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Object\CMSObject;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\Registry\Registry;
 
-/**
- * Vm_seo_product_filter_grt view.
- *
- * @package  vm_seo_product_filter_grt
- * @since    1.0.0
- */
 class CustomfiltersViewSetting_seo extends HtmlView
 {
+
+	/**
+	 * @since 1.0
+	 * @var array
+	 */
+	public $item;
 	/**
 	 * Form with settings
 	 *
+	 * @since  1.0.0
 	 * @var    Form
-	 * @since  1.0.0
 	 */
-	protected $form;
-
-	/**
-	 * The item object
-	 *
-	 * @var    object
-	 * @since  1.0.0
-	 */
-	protected $item;
-
+	public $form;
 	/**
 	 * The model state
 	 *
-	 * @var    Registry
 	 * @since  1.0.0
+	 * @var    Joomla\CMS\Object\CMSObject
 	 */
-	protected $state;
-
+	public $state;
 	/**
-	 * Execute and display a template script.
+	 * Actions registry
 	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return  mixed  A string if successful, otherwise a JError object.
-	 *
-	 * @since   1.0.0
-	 *
-	 * @throws  Exception
-	 *
-	 * @see     fetch()
+	 * @since  1.0.0
+	 * @var    Registry
 	 */
-	public function display($tpl = null)
+	public $canDo;
+	/**
+	 * The sidebar to show
+	 *
+	 * @since  1.0.0
+	 * @var    string
+	 */
+	public $sidebar = '';
+
+
+	public function display( $tpl = null )
 	{
-        $doc = JFactory::getDocument();
-        $doc->addStyleSheet('/administrator/components/com_customfilters/assets/css/setting_seo.css');
-
-		/** @var CustomfiltersModelSetting_seo $model */
+		$this->document->addStyleSheet( '/administrator/components/com_customfilters/assets/css/setting_seo.css' );
+		/**
+		 * @var CustomfiltersModelSetting_seo $model
+		 */
 		$model       = $this->getModel();
-
-		$this->form  = $model->getForm();
-		$this->item  = $model->getItem();
-//		$this->state = $model->getState();
+		$this->state = $model->getState();
 
 
 
-        $doc->addScriptOptions('selected_filters_table' , $this->item ) ;
+		/**
+		 * CustomfiltersModelSetting_seo::getItem
+		 */
+		 $this->item = $this->get('Item');
 
-		// Show the toolbar
-		$this->toolbar();
 
-		// Display it all
-		return parent::display($tpl);
+		/**
+		 * customfiltersModelSetting_seo::getForm
+		 */
+		$this->form = $this->get( 'Form' );
+
+		$this->form->bind( $this->item ) ;
+
+//		echo'<pre>';print_r( $this->form );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
+		// Какие права доступа есть у этого пользователя? Что она может делать?
+		// What Access Permissions does this user have? What can (s)he do?
+		$this->canDo = ContentHelper::getActions( 'com_customfilters' );
+
+
+		// for Multilang Site
+		if ( Multilanguage::isEnabled() )
+		{
+			// code Multilang
+		}
+
+		$this->addToolbar();
+		parent::display( $tpl );
 	}
 
-
-
 	/**
-	 * Displays a toolbar for a specific page.
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
-	 *
-	 * @throws  Exception
+	 * Install Toolbar
+	 * @return void
+	 * @since 3.9
 	 */
-	private function toolbar()
+	public function addToolbar()
 	{
-		Factory::getApplication()->input->set('hidemainmenu', true);
+		$bar = Toolbar::getInstance( 'toolbar' );
+		JToolbarHelper::title( JText::_( 'COM_CUSTOMFILTERS_SETTING_SEO' ) , 'joomla large-icon' );
 
-		$canDo = ContentHelper::getActions('com_vm_seo_product_filter_grt');
-		$isNew = ((int) $this->item->id === 0);
-
-		ToolbarHelper::title(Text::_('COM_VM_SEO_PRODUCT_FILTER_GRT_TITLE_VM_SEO_PRODUCT_FILTER_GRT'));
-
-		// If not checked out, can save the item.
-		if ($canDo->get('core.edit') || ($canDo->get('core.create')))
-		{
-			ToolbarHelper::apply('setting_seo.apply', 'JTOOLBAR_APPLY');
-			ToolbarHelper::save('setting_seo.save', 'JTOOLBAR_SAVE');
-		}
-
-		if ($canDo->get('core.create'))
-		{
-			ToolbarHelper::custom(
-				'setting_seo.save2new',
-				'save-new.png',
-				'save-new_f2.png',
-				'JTOOLBAR_SAVE_AND_NEW',
-				false
-			);
-		}
-
-		// If an existing item, can save to a copy.
-		if (!$isNew && $canDo->get('core.create'))
-		{
-			ToolbarHelper::custom(
-				'setting_seo.save2copy',
-				'save-copy.png',
-				'save-copy_f2.png',
-				'JTOOLBAR_SAVE_AS_COPY',
-				false
-			);
-		}
-
-		if (empty($this->item->id))
-		{
-			ToolbarHelper::cancel('setting_seo.cancel', 'JTOOLBAR_CLOSE');
-		}
-		else
-		{
-			ToolbarHelper::cancel('setting_seo.cancel', 'JTOOLBAR_CLOSE');
-		}
+		JToolbarHelper::divider();
+		// Сохранить
+		JToolbarHelper::apply( 'setting_seo.apply' );
+		// Сохранить и закрыть
+		JToolbarHelper::save( 'setting_seo.save' , 'JTOOLBAR_SAVE' );
+		JToolbarHelper::cancel( 'setting_seo.cancel' , 'JTOOLBAR_CLOSE' );
 	}
 }

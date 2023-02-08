@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+
+	<fieldset name="basic">
+		<!-- Название генератора -->
+		<field name="slug"
+			type="text"
+			default="City Generator"
+			class="name_slug "
+			size="20"
+			readonly=""
+			required=""
+			label="COM_CUSTOMFILTERS_FORMS_ADD_NAME_GENERATOR"
+			description="COM_CUSTOMFILTERS_FORMS_ADD_NAME_GENIRATOR_DESC"
+			showon=""
+			hint=""
+			filter="raw" />
+		<!-- Категории -->
+		<!-- addfieldpath="/administrator/components/com_virtuemart/fields" -->
+		<field type="vmseocategories"
+			   name="vm_categories_id"
+			   multiple="1"
+			   class="vmcategory_id-select"
+			   label="SETTING_SEO_VMCATEGORY_LABEL1"
+			   description="SETTING_SEO_VMCATEGORY_DESC" />
+	</fieldset>
+
+	<field
+			name="id"
+			type="text"
+			hint="JSEARCH_FILTER"
+	/>
+	<field
+			name="description"
+			type="text"
+			hint="JSEARCH_FILTER"
+	/>
+	<fields name="filter">
+
+
+
+		<field
+				name="published"
+				type="status"
+				label="JSTATUS"
+				description="JFIELD_PUBLISHED_DESC"
+				class="advancedSelect"
+				onchange="this.form.submit();"
+		>
+			<option value="">JOPTION_SELECT_PUBLISHED</option>
+		</field>
+	</fields>
+
+	<fields name="list">
+
+
+
+	</fields>
+</form>
