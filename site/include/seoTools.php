@@ -188,31 +188,28 @@ class seoTools
 	    $default_h1_tag = $this->getLanguageText( $default_h1_tag );
 
 		// Если есть данные установленные для Filter URL -
-	    if ( isset( $ResultLoadMetaByUrl['sef_filter_title'] ) )
+	    if ( isset( $ResultLoadMetaByUrl['sef_filter_title'] ) && !empty( $ResultLoadMetaByUrl['sef_filter_title'] ))
 	    {
 		    $default_h1_tag = $ResultLoadMetaByUrl['sef_filter_h_tag'] ;
 	    }#END IF
 		$this->app->set('filter_data_h1' ,  $default_h1_tag  );
 
 		// Если есть замещение из таблицы "Ссылки фильтра" для описания категории
-	    if ( isset(  $ResultLoadMetaByUrl['sef_filter_vm_cat_description'] ) )
+	    if ( isset(  $ResultLoadMetaByUrl['sef_filter_vm_cat_description'] ) && !empty( $ResultLoadMetaByUrl['sef_filter_vm_cat_description'] ) )
 	    {
 		    $this->app->set('sef_filter_vm_cat_description' ,  $ResultLoadMetaByUrl['sef_filter_vm_cat_description']  );
 	    }#END IF
 
 
-
-	    
-
-		
-
         $default_title = $this->paramsComponent->get('default_title' , '{{CATEGORY_NAME}} {{FILTER_VALUE_LIST}}' );
 	    if ( isset( $DataFiltersCity['default_title'] ) ) $default_title = $DataFiltersCity['default_title'] ; #END IF
 		$default_title = str_replace( array_keys($findReplaceArr) , $findReplaceArr ,  $default_title );
 	    $default_title = $this->getLanguageText( $default_title );
+		
 
+		
 		// Если есть замещение из таблицы "Ссылки фильтра" для title
-	    if ( isset( $ResultLoadMetaByUrl['sef_filter_title'] ) )
+	    if ( isset( $ResultLoadMetaByUrl['sef_filter_title'] ) && !empty( $ResultLoadMetaByUrl['sef_filter_title'] ) )
 	    {
 		    $default_title = $ResultLoadMetaByUrl['sef_filter_title'] ;
 	    }#END IF
@@ -225,7 +222,7 @@ class seoTools
 
 
 	    // Если есть замещение из таблицы "Ссылки фильтра" для meta description
-	    if ( isset( $ResultLoadMetaByUrl['sef_filter_description'] ) )
+	    if ( isset( $ResultLoadMetaByUrl['sef_filter_description'] ) && !empty( $ResultLoadMetaByUrl['sef_filter_description']) )
 	    {
 		    $default_description = $ResultLoadMetaByUrl['sef_filter_description'] ;
 	    }#END IF
@@ -236,7 +233,7 @@ class seoTools
 	    $default_keywords = $this->getLanguageText( $default_keywords );
 
 	    // Если есть замещение из таблицы "Ссылки фильтра" для meta keywords
-	    if ( isset($ResultLoadMetaByUrl['sef_filter_keywords']) )
+	    if ( isset( $ResultLoadMetaByUrl['sef_filter_keywords'] ) && !empty( $ResultLoadMetaByUrl['sef_filter_keywords'] ) )
 	    {
 		    $default_keywords = $ResultLoadMetaByUrl['sef_filter_keywords'] ;
 	    }#END IF
@@ -371,6 +368,13 @@ class seoTools
 	 */
 	public function updateSeoTable($optionsFilterArr)
 	{
+		
+		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+		    echo'<pre>';print_r( $optionsFilterArr );echo'</pre>'.__FILE__.' '.__LINE__;
+		    
+		}
+		
 		// Исключаем ссылки для опций - индексирование которых запрещено
 		foreach ($optionsFilterArr as $i => &$item)
 		{
@@ -389,7 +393,6 @@ class seoTools
 
 		$cache = JFactory::getCache('cf_customfields_setting_seo', '');
 		$cache->setCaching(1);
-
 
 		if (!$cacheFilterArr = $cache->get($key))
 		{

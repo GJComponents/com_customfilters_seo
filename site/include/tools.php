@@ -716,9 +716,12 @@ class cftools
 
 	/**
 	 * Загрузить все значения для фильтров
+	 * ---
+	 * @param $filtersIds
 	 *
+	 * @return array
 	 * @throws Exception
-	 * @since version
+	 * @since 3.9
 	 */
 	public static function getCustomSelectValue( $filtersIds = [] ): array
 	{

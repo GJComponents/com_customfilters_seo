@@ -325,12 +325,12 @@ class seoTools_uri
 	 * на компонент фильтрации.
 	 *
 	 * @param   array  $category_ids   - массив категорий VM
-	 * @param   array  $findResultArr  - массив выбранных опций фильтра
+	 * @param   array|bool  $findResultArr  - массив выбранных опций фильтра
 	 *
 	 * @throws Exception
 	 * @since version
 	 */
-	public static function checkRedirectToCategory( $category_ids , $findResultArr )
+	public static function checkRedirectToCategory( array $category_ids ,  $findResultArr )
 	{
 		$app    = JFactory::getApplication();
 		$option = $app->input->get('option' , false , 'STRING');
@@ -416,14 +416,21 @@ class seoTools_uri
 		$app = \Joomla\CMS\Factory::getApplication();
 		$option = $app->input->get('option' , '' , 'STRING');
 
-		if ( $option != 'com_virtuemart' || $option != 'com_customfilters'    ) return ; #END IF
+		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		{
+			echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
+			echo'<pre>';print_r( $option != 'com_virtuemart' || $option != 'com_customfilters' );echo'</pre>'.__FILE__.' '.__LINE__;
+
+		}*/
+
+		if ( $option != 'com_virtuemart' && $option != 'com_customfilters'    ) return ; #END IF
 		
 
 
 
 		$juri = \Joomla\CMS\Uri\Uri::getInstance();
 		$path = $juri->getPath();
-
+		
 		// Для отладки рег выражений
 		// $path = '/result/stabilizatory-napryazheniya/moskva-i' ;
 
@@ -432,6 +439,7 @@ class seoTools_uri
 		// Sef -Префикс языка etc/ ru, ua
 		$languagesSefDefault = false ;
 
+		
 		// Если Multilanguage - перестраиваем регулярное выражение
 		if ( Multilanguage::isEnabled() )
 		{
@@ -491,6 +499,7 @@ class seoTools_uri
 			if ( !isset( $matches[ 1 ] ) ) return $findResultArr; #END IF
 			$sef_alias = $matches[ 1 ];
 		}
+		
 
 
 		$db    = JFactory::getDbo();
@@ -506,6 +515,8 @@ class seoTools_uri
 		// применить метод $db->quote -- к каждому элементу массива
 		$category_ids = array_map([ $db , 'quote' ] , $category_ids);
 		$Query->where( sprintf('cat.id_vm_category IN (%s)' , join(',' , $category_ids)));
+
+
 
 		// Если Multilanguage - добавить выбор по языкам
 		if (  Multilanguage::isEnabled() )
@@ -527,11 +538,12 @@ class seoTools_uri
 
 		}#END IF
 
+
 		$db->setQuery($Query);
 		$res = $db->loadObject();
-
+ 
 		if ( empty( $res ) ) return ; #END IF
-
+		
 		// Перебираем вкладку "Дополнительные настройки (params_customs)" - Фильтры Городов
 		if ( !empty($res->params_customs) )
 		{
@@ -557,17 +569,13 @@ class seoTools_uri
 
 
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//			echo'<pre>';print_r( $Query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $res );echo'</pre>'.__FILE__.' '.__LINE__;
+		{ 
 //			echo'<pre>';print_r( $paramsArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
-
+			
 		}
 		
 
-
+		// Если для текущей категории есть настройки в таблице ГОРОДОВ и они не пустые
 		if ( isset($paramsArr[ 'use_city_setting' ]) && !empty( $paramsArr[ 'use_city_setting' ] ) )
 		{
 			// Поиск результатов в для списка Area-City
@@ -575,15 +583,7 @@ class seoTools_uri
 		}#END IF
 
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
 
-//			echo'<pre>';print_r( $sef_alias );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( self::$LineArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( $paramsArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
-
-		}
 
 		if ( !empty(self::$LineArr) ) return self::$LineArr; #END IF
 	}

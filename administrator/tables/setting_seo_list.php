@@ -76,6 +76,6 @@ class CustomfiltersTableSetting_seo_list extends Table
 	{
 		// дополнительные обработки полей таблицы
 		// ect./ - $this->url_params_hash = md5( $this->url_params ) ;
-		parent::store( $updateNulls );
+		return parent::store( $updateNulls );
 	}
 }

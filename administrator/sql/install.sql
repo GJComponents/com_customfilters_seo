@@ -21,23 +21,52 @@ CREATE TABLE IF NOT EXISTS `#__cf_customfields` (
 -- Структура таблицы `#__cf_customfields_setting_seo`
 -- Создание: 14.10.22-14:33
 --
-DROP TABLE IF EXISTS  `#__cf_customfields_setting_seo`;
-CREATE TABLE IF NOT EXISTS `#__cf_customfields_setting_seo`(
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `vmcategory_id` int(11) NOT NULL,
-    `url_params` varchar(512) NOT NULL,
-    `url_params_hash` varchar(255) NOT NULL,
-    `sef_url` varchar(512) NOT NULL,
-    `no_index` int(1) NOT NULL DEFAULT '0' COMMENT 'закрыто от индекса',
-    `no_ajax` int(1) NOT NULL,
-    `sef_filter_title` text NOT NULL,
-    `sef_filter_description` text NOT NULL,
-    `sef_filter_keywords` text NOT NULL,
-    `selected_filters_table` text NOT NULL,
-    `published` int(1) NOT NULL DEFAULT '1',
- PRIMARY KEY(`id`),
- UNIQUE `url_params_hash`(`url_params_hash`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+DROP TABLE IF EXISTS `#__cf_customfields_setting_seo`;
+CREATE TABLE `#__cf_customfields_setting_seo` (
+     `id` int(11) NOT NULL,
+     `vmcategory_id` int(11) NOT NULL,
+     `url_params` varchar(512) NOT NULL,
+     `url_params_hash` varchar(255) NOT NULL,
+     `sef_url` varchar(512) NOT NULL,
+     `sef_url_hash` varchar(255) NOT NULL,
+     `no_index` int(1) NOT NULL DEFAULT '0' COMMENT 'закрыто от индекса',
+     `no_ajax` int(1) NOT NULL,
+     `sef_filter_h_tag` text NOT NULL,
+     `sef_filter_vm_cat_description` text NOT NULL,
+     `sef_filter_title` text NOT NULL,
+     `sef_filter_description` text NOT NULL,
+     `sef_filter_keywords` text NOT NULL,
+     `selected_filters_table` text NOT NULL,
+     `published` int(1) NOT NULL DEFAULT '1',
+     `created_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Индексы сохранённых таблиц
+--
+
+--
+-- Индексы таблицы `#__cf_customfields_setting_seo`
+--
+ALTER TABLE `#__cf_customfields_setting_seo`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `url_params_hash` (`url_params_hash`),
+  ADD UNIQUE KEY `sef_url_hash` (`sef_url_hash`);
+
+--
+-- AUTO_INCREMENT для сохранённых таблиц
+--
+
+--
+-- AUTO_INCREMENT для таблицы `#__cf_customfields_setting_seo`
+--
+ALTER TABLE `#__cf_customfields_setting_seo`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+
+
+
 
 --
 -- Структура таблицы `#__cf_customfields_setting_city_category_vm`

@@ -101,6 +101,8 @@ $canChange     = $loggedInUser->authorise( 'core.edit.state' , 'com_customfilter
                 </tfoot>
                 <tbody>
 				<?php
+
+
 				foreach ( $this->items as $i => $item ) : ?>
                     <tr>
                         <td class="center">

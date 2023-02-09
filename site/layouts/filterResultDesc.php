@@ -36,70 +36,77 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
  * @var float $max_price - Максимальная цена
  * @var int $count_product_int - Целое число найденных товаров
  * @var string $category_description - Описание категорий
+ * @var string $sef_filter_vm_cat_description - Текст описание категорий из таблицы - "Ссылки фильтра"
  */
 extract( $displayData );
-//$titles = array(' %d производителя', ' %d производителей', ' %d производителей');
-$titles = array(' производителя', ' производителей', ' производителей');
-$countManufacturersText = \GNZ11\Document\Text::declOfNum ( count( $manufacturers ) , $titles );
 
+
+//Текст описание категорий из таблицы - "Ссылки фильтра"
+
+echo $sef_filter_vm_cat_description ;
 
 ?>
-<div class="result_filter">
-	<div class="filter_list">
-		<span>Для выбранных фильтров</span> <?= $filter_list ?>
-		<br>
-		Найдено <?= $count_product ?>
-	</div>
-	<div class="range_price">
-		<?php
-		if ( $min_price != $max_price )
-		{
-			?>
-			В ценовом диапазоне: <?= $range_price ?>
-			<?php
-		}else{
-			$titles = array(' товара', ' товаров', ' товаров');
-			$_prodTxt = \GNZ11\Document\Text::declOfNum ( $count_product_int , $titles );
-			?>
-			Цена <?= $_prodTxt ?> <?= $max_price ?>
-			<?php
-		}#END IF
-		?>
+<hr />
+<?php
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Если нет описание к URL фильтра - то выводим сгенерированное описание
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	</div>
+if ( empty( $sef_filter_vm_cat_description ) )
+{
+	//$titles = array(' %d производителя', ' %d производителей', ' %d производителей');
+	$titles = array(' производителя', ' производителей', ' производителей');
+	$countManufacturersText = \GNZ11\Document\Text::declOfNum ( count( $manufacturers ) , $titles );
 
-	<?php
-	if ( !empty( $manufacturers ) )
+	$listManufacturersName = [] ;
+	foreach ( $manufacturers as $manufacturer )
 	{
-		?>
-		<div class="manufacturers">
-			<span>Продукция <?= $countManufacturersText ?></span>
-			<ul>
-				<?php
-				foreach ( $manufacturers as $manufacturer )
-				{
-					?>
-					<li>
-						<div class="mf_name">
-							<?= $manufacturer->mf_name ?>
-						</div>
-						<div class="mf_desc">
-							<?= $manufacturer->mf_desc ?>
-						</div>
-					</li>
-					<?php
-				}#END FOREACH
-				?>
-			</ul>
+		$listManufacturersName[] = $manufacturer->mf_name ;
+	}#END FOREACH
 
-		</div>
-		<?php
-	}#END IF
+
 	?>
+    <div class="result_filter">
+        <div class="filter_list">
+            В категории <?=$category_name?>
+			<?php
+			if ( isset( $filter_list ) ) echo ', разделе '.$filter_list;  #END IF
+			if ( isset( $count_product ) ) echo ', найдено '.$count_product;  #END IF
+			?>
 
-<!--	<div class="category_description">
-		<div>Описание категории</div>
-		<?php /*= $category_description */?>
-	</div>-->
 
-</div>
+			<?php
+			// Если у товаров есть производители
+			if ( count( $listManufacturersName ) )
+			{
+				?>
+                , производителей: <?=implode( ', ' , $listManufacturersName )?>
+				<?php
+			}#END IF
+			?>
+
+        </div>
+        <div class="range_price">
+			<?php
+			if ( $min_price != $max_price )
+			{
+				?>
+                В ценовом диапазоне: <?=$range_price?>
+				<?php
+			}
+			else
+			{
+				$titles   = array( ' товара' , ' товаров' , ' товаров' );
+				$_prodTxt = \GNZ11\Document\Text::declOfNum( $count_product_int , $titles );
+				?>
+                Цена <?=$_prodTxt?> <?=$max_price?>
+				<?php
+			}#END IF
+			?>
+
+        </div>
+    </div>
+	<?php
+}#END IF
+
+

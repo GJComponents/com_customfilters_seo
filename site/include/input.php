@@ -398,7 +398,6 @@ class CfInput
 	 */
 	public function parseUrlString()
 	{
-
 		$app  = \Joomla\CMS\Factory::getApplication();
 		$juri = JUri::getInstance();
 		$path = $juri->getPath();
@@ -408,8 +407,6 @@ class CfInput
 		 */
 		$category_ids = $app->input->get('virtuemart_category_id' , [] , 'ARRAY');
 
-
-
 		/**
 		 * @var array $published_cf - Все опубликованные фильтры
 		 */
@@ -417,11 +414,6 @@ class CfInput
 
 		// Удалить параметры пагинации
 		$path = preg_replace('/\/start=\d+/', '', $path);
-
-//		echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
-//		echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
-//		die(__FILE__ .' '. __LINE__ );
-
 
 		/**
 		 * Парсинг параметров сортировки
@@ -431,7 +423,6 @@ class CfInput
 		if ( isset($matchesOrderBy[1]) ) $app->input->set('orderby' , $matchesOrderBy[1] ); #END IF
 		// Удалить параметр сортировки
 		$path = preg_replace('/\/orderby=[\w_]+/', '', $path);
-
 
 		preg_match( '/\/order=([\w_]+)/' , $path , $matchesOrder  );
 		if ( isset($matchesOrder[1]) ) $app->input->set('order' , $matchesOrder[1] ); #END IF
@@ -447,7 +438,7 @@ class CfInput
 		 */
 		$filtersArr    = [];
 
-		// Перебираем опубликованные фильтры - находим фильтры
+		// Перебираем опубликованные фильтры - Алиасы находим фильтры названий фильтра
 		foreach ($published_cf as $item)
 		{
 			// Поиск вхождения первого фильтра
@@ -470,14 +461,21 @@ class CfInput
 		// Если данных о включенных фильтрах нет - Ищем данный в фильтрах городах
 		if ( empty($findResultArr) )
 		{
-			seoTools_uri::findCityFilters( $category_ids , $findResultArr );
+			$findResultArr = seoTools_uri::findCityFilters( $category_ids , $findResultArr );
 		}#END IF
+
+
 
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
 
 		// Если не нашли название фильтров в URL
 		if (empty($findResultArr)) return; #END IF
 
+
+
+		// Сортируем массив Alias названий фильтров по ключу в порядке убывания
+		// - для того что бы разбирать URL с конца строки
+		// Ключ в массиве - это номер символа после которого начинается Alias фильтра
 		krsort($findResultArr);
 
 		$length     = 0;
@@ -485,19 +483,37 @@ class CfInput
 
 		$dataFiltersArr = [];
 
+		
+		// Перебираем массив с Названиями (Alias) фильтров [ 77 => 'cvet' , 25 => 'vid_poverhnosti' ]
 		foreach ($findResultArr as $start => $item)
 		{
 			$dataFilters        = new stdClass();
 			$dataFilters->name  = str_replace(['/', '-and-'], '', $item);
 			$dataFilters->value = [];
+			// Если это первый фильтр с конца 
 			if (!$i) $length = null; #END IF
 
 			$i++;
 
-			// Убрать все что относится к категории
-			$subStr = mb_substr($path, $start, $length);
+			// Получаем строку от символа в позиции $start  до символа $length
+			$subStr = mb_substr( $path, $start , $length );
 			// Находим двойные или более опции фильтра
 			$arrValFilter = explode('-and-', $subStr);
+
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+				echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $start );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $length );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
+			    echo'<pre>';print_r( $subStr );echo'</pre>'.__FILE__.' '.__LINE__;
+			    echo'<pre>';print_r( $arrValFilter );echo'</pre>'.__FILE__.' '.__LINE__;
+
+
+			}
+			
+			
+
 			// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
 			$arrValFilter = array_diff($arrValFilter, array(''));
 
@@ -506,17 +522,20 @@ class CfInput
 				// Удалить слэши
 				$itemValF = str_replace('/', '', $itemValF);
 
-
-				// Удаляем название фильтра
+				// Удаляем сам Alias фильтра 
 				$itemValF = str_replace($dataFilters->name, '', $itemValF);
-
+				//После удаления Alias фильтра остается "-" в начале строки - и ее тоже удаляем	
                 $itemValF = preg_replace('/^-/' , '' , $itemValF ) ;
-
+				
                 $dataFilters->value[] = $itemValF;
 
 
 			}#END FOREACH
-
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+				echo'<pre>';print_r( $dataFilters );echo'</pre>'.__FILE__.' '.__LINE__;
+			}
+			
 			$path         = str_replace($subStr, '', $path);
 			$length = $start;
 			$dataFiltersArr[] = $dataFilters;
