@@ -86,7 +86,7 @@ class seoTools_uri
 
 		$hash = $option_url.$orderby.$order ;
 
-		// Если имеем кэшированную версию
+		// Если имеем кэшированную версию - Если ссылка уже попадалась
 		if ( isset(self::$arrUrlSef [ $hash ]) ) return self::$arrUrlSef [ $hash ]; #END IF
 		
 		
@@ -105,7 +105,7 @@ class seoTools_uri
 //			echo'<pre>';print_r( $uriQuery );echo'</pre>'.__FILE__.' '.__LINE__;
 		}
 
-
+		//
 		$pageStart = false;
 		if ( isset($uriQuery[ 'start' ]) )
 		{
@@ -132,7 +132,8 @@ class seoTools_uri
 			$order = $uriQuery[ 'order' ];
 			unset($uriQuery[ 'order' ]);
 
-		}else if( $orderInput ){
+		}
+		else if( $orderInput ){
 			$order = $orderInput ;
 		}#END IF
 
@@ -147,8 +148,6 @@ class seoTools_uri
 		foreach ( $uriQuery as $fieldId => $valueCustomHashArr )
 		{
 			$filter = $seoTools_filters->_getFilterById($fieldId);
-
-//			die(__FILE__ .' '. __LINE__ );
 			$filter->sef_url = self::getStringSefUrl($filter->alias);
 
 			// Преобразовать массив со значениями в формате Hex -> в символы
@@ -173,15 +172,7 @@ class seoTools_uri
 				$filter->sef_url .= '-'.$valueCustomTranslite.'';
 				$i_optionCount++;
 
-				if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP && $valueCustom == '9 кВА/7 кВт'   )
-				{
-//					echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
-//					echo'<pre>';print_r( $valueCustom );echo'</pre>'.__FILE__.' '.__LINE__;
-//					echo'<pre>';print_r( $filter->sef_url );echo'</pre>'.__FILE__.' '.__LINE__;
-//					echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//					echo'<pre>';print_r( $valTest );echo'</pre>'.__FILE__.' '.__LINE__;
 
-				}
 
 			}#END FOREACH
 
@@ -215,8 +206,8 @@ class seoTools_uri
 		else
 		{
 			$resultData->no_ajax = true ;
-//			$path                = seoTools::getPatchToVmCategory($resultData->vmcategory_id);
 			$path                = seoTools_uri::getPatchToVmCategory( $resultData->vmcategory_id );
+
 		}
 
 		$resultData->sef_url = $path.$resultData->sef_url;

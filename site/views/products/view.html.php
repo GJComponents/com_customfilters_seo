@@ -170,10 +170,6 @@ class CustomfiltersViewProducts extends cfView
 		    $this->category->category_name = $tag_h1 ;
 	    }#END IF
 
-
-
-		
-		
 		
 	    // Если в настройках компонента com_customfilters - не отображать описание категории
 	    $on_description_vm_category = $paramsComponent->get('on_description_vm_category' , 1 );
@@ -290,12 +286,84 @@ class CustomfiltersViewProducts extends cfView
         $this->perRow = $this->menuParams->get('prod_per_row', 3);
         $this->orderByList = $this->get('OrderByList');
 
+		$this->addPathway();
+
+
         parent::display($tpl);
 
         if (empty($this->products)) {
             echo '<span class="cf_results-msg">' . JText::_('COM_CUSTOMFILTERS_NO_PRODUCTS') . '</span>';
         }
     }
+
+	/**
+	 * Добавление данных о выбранных фильтрах в Pathway
+	 * @return void
+	 * @throws Exception
+	 * @since 3.9
+	 */
+	protected function addPathway(){
+		// Get the PathWay object from the application
+		$app     = \Joomla\CMS\Factory::getApplication();
+		$uri    = \Joomla\CMS\Uri\Uri::getInstance();
+
+
+
+		/**
+		 * @var Joomla\CMS\Pathway\SitePathway $pathway
+		 */
+		$pathway = $app->getPathway();
+		$items   = $pathway->getPathWay();
+		// Данные о выбранных фильтрах
+		$DataFilters = $app->get('seoToolsActiveFilter' );
+
+		$Itemid = $app->input->get( 'Itemid' );
+
+
+		/*
+		 * получить входные данные -- из URL - 
+		 * get the inputs
+		 * these are validated and sanitized
+		 */
+		$input = CfInput::getInputs();
+		/*
+		 * Создать массив с отмеченными опциями фильтра и категориями
+		* Generate the output vars
+		*/
+		$output = CfOutput::getOutput( $input );
+
+		$outputPathway = [
+			'virtuemart_category_id' => $output['virtuemart_category_id'] ,
+			'option' => 'com_customfilters' ,
+			'view' => 'products' ,
+		];
+
+		if ( isset( $Itemid ) ) $outputPathway[ 'Itemid' ] = (int) $Itemid;
+
+
+		$i = 0 ;
+		foreach ($output as $key => $option ){
+
+			if ( $key == 'virtuemart_category_id' ) continue ; #END IF
+			$i++ ;
+
+			$outputPathwayClone = $outputPathway ;
+			$outputPathwayClone[$key]  = $option ;
+			$queryUri = 'index.php?'.$uri->buildQuery( $outputPathwayClone );
+			$url = JRoute::_( $queryUri );
+
+			$addItems = new stdClass();
+			$addItems->name = implode(', ' , $input[$key] ) ;
+			$addItems->link       = \seoTools_uri::getSefUlrOption( $url )->sef_url;
+			$items[] = $addItems ;
+
+			$pathway->setPathway($items);
+
+		}
+
+
+
+	}
 
     /**
      * Prepares the document

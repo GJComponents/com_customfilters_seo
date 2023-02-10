@@ -30,9 +30,20 @@ class CfOutput
     protected $variable;
 
 	/**
-	 * Получает вывод (кэшируется)
+	 *
+	 * Создать массив с отмеченными опциями фильтра и категориями (кэшируется)
 	 * ---
 	 * Gets the output (cached)
+	 * Ext/
+	 * [virtuemart_category_id] => Array
+	 *	(
+	 *		[0] => 2922
+	 *	)
+	 *
+	 * [custom_f_10] => Array
+	 *	(
+	 *	    [0] => 3530303520d0a1d0b8d0bdd0b8d0b920d0bdd0b0d181d18bd189d0b5d0bdd0bdd18bd0b9
+	 *	)
 	 *
 	 * @param   array|string  $variable
 	 * @param   bool   $escape

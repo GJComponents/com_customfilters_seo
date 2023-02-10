@@ -361,20 +361,18 @@ class seoTools
 
 	/**
 	 * Добавить созданные ссылок для опций фильтра в '#__cf_customfields_setting_seo'
+	 * ---
 	 *
-	 * @param $optionsFilterArr
+	 * @param   array  $optionsFilterArr
 	 *
 	 * @since version
 	 */
-	public function updateSeoTable($optionsFilterArr)
+	public function updateSeoTable( array $optionsFilterArr)
 	{
-		
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-		    echo'<pre>';print_r( $optionsFilterArr );echo'</pre>'.__FILE__.' '.__LINE__;
-		    
-		}
-		
+		$app = \Joomla\CMS\Factory::getApplication();
+		$virtuemart_category_id = $app->input->get('virtuemart_category_id' , false , 'INT');
+		$pathVmCategory                = seoTools_uri::getPatchToVmCategory( $virtuemart_category_id );
+
 		// Исключаем ссылки для опций - индексирование которых запрещено
 		foreach ($optionsFilterArr as $i => &$item)
 		{
@@ -382,22 +380,31 @@ class seoTools
 			{
 				unset($optionsFilterArr[$i]);
 			} #END IF
+
+			if ( $item->option_sef_url->sef_url == $pathVmCategory  )
+			{
+				unset($optionsFilterArr[$i]);
+
+			}#END IF
 		}#END FOREACH
 
 		if (empty($optionsFilterArr)) return; #END IF
+
+		$JDate= new JDate();
+		$now = $JDate->toSql();
 
 		// ключ кеша страницы
 		$optRegistry = new JRegistry($optionsFilterArr);
 		$key         = md5($optRegistry->toString());
 
 
-		$cache = JFactory::getCache('cf_customfields_setting_seo', '');
+		$cache = JFactory::getCache('com_customfilters-seoTools::updateSeoTable', '');
 		$cache->setCaching(1);
 
 		if (!$cacheFilterArr = $cache->get($key))
 		{
 			// сохраняем $optionsFilterArr в кэше
-			$cache->store($optionsFilterArr, $key);
+			$cache->store( '1' , $key);
 		}
 		else
 		{
@@ -414,26 +421,38 @@ class seoTools
 			seoTools_logger::add('UPD TBL - #__cf_customfields_setting_seo count (' . count($optionsFilterArr) . ')');
 		}
 
-		$columns = ['vmcategory_id', 'url_params', 'url_params_hash', 'sef_url', 'no_index'];
+		$columns = [
+			'vmcategory_id' ,
+			'url_params' ,
+			'url_params_hash' ,
+			'sef_url' ,
+			'sef_url_hash' ,
+			'no_index' ,
+			'created_time' ,
+			];
 
 		$this->db   = JFactory::getDBO();
 		$query      = $this->db->getQuery(true);
 		$countLines = 0;
 
-		foreach ($optionsFilterArr as $options)
+		foreach ( $optionsFilterArr as $options )
 		{
 			if ( !is_array( $options->option_sef_url->vmcategory_id ) )
 			{
-				$options->option_sef_url->vmcategory_id = [ $options->option_sef_url->vmcategory_id ] ;
+				$options->option_sef_url->vmcategory_id = [ $options->option_sef_url->vmcategory_id ];
 			}#END IF
+			
+			$sef_url_hash = md5( $options->option_sef_url->sef_url );
 			$values =
-				$this->db->quote($options->option_sef_url->vmcategory_id[0]) . ","
-				. $this->db->quote($options->option_sef_url->url_params) . ","
-				. $this->db->quote($options->option_sef_url->url_params_hash) . ","
-				. $this->db->quote($options->option_sef_url->sef_url) . ","
-				. $this->db->quote($options->option_sef_url->no_index);
+				$this->db->quote( $options->option_sef_url->vmcategory_id[ 0 ] ).","
+				.$this->db->quote( $options->option_sef_url->url_params ).","
+				.$this->db->quote( $options->option_sef_url->url_params_hash ).","
+				.$this->db->quote( $options->option_sef_url->sef_url ).","
+				.$this->db->quote( $sef_url_hash ).","
+				.$this->db->quote( $options->option_sef_url->no_index ).","
+				.$this->db->quote( $now );
 
-			$query->values($values);
+			$query->values( $values );
 			$countLines++;
 		}#END FOREACH
 		$query->insert($this->db->quoteName('#__cf_customfields_setting_seo'))
@@ -444,7 +463,8 @@ class seoTools
 		$this->db->setQuery(
 		// Заменяет INSERT INTO на другой запрос
 		// substr_replace($query, '******', 0, 12 )
-			(string) $query . ' ON DUPLICATE KEY UPDATE url_params_hash = url_params_hash ; ');
+			(string) $query . ' ON DUPLICATE KEY UPDATE sef_url_hash = sef_url_hash ; ');
+
 		$this->db->execute();
 
 		if ($_SERVER['REMOTE_ADDR'] == DEV_IP)

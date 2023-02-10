@@ -574,7 +574,7 @@ class cfPagination extends JPagination
 	 */
 	private function getOrderURI($orderBy, $selected=false, $orderDir='ASC')
 	{
-		$uri      = JFactory::getURI();
+		$uri    = JFactory::getURI();
 		$input  = JFactory::getApplication()->input;
 		$Itemid = $input->get( 'Itemid' );
 
@@ -584,41 +584,48 @@ class cfPagination extends JPagination
 		 */
 		$input = CfInput::getInputs();
 		/*
-				 * Generate the output vars
-				 */
+		* Generate the output vars
+		*/
 		$output = CfOutput::getOutput( $input );
 
-	    $output['option']='com_customfilters';
-	    $output['view']='products';
+		$output[ 'option' ] = 'com_customfilters';
+		$output[ 'view' ]   = 'products';
 
-	    if(isset($Itemid)) {
-	        $output['Itemid']=(int)$Itemid;
-        }
+		if ( isset( $Itemid ) )
+		{
+			$output[ 'Itemid' ] = (int) $Itemid;
+		}
 
-	    //add order by var in the query
-	    $output['orderby']=$orderBy;
+		//add order by var in the query
+		$output[ 'orderby' ] = $orderBy;
 
-	    //if selected add the order Direction
-	    if($selected) {
-	        if($orderDir=='ASC') {
-                $output['order'] = 'DESC';
-            }else {
-	            $output['order']='ASC';
-            }
-        }
+		//if selected add the order Direction
+		if ( $selected )
+		{
+			if ( $orderDir == 'ASC' )
+			{
+				$output[ 'order' ] = 'DESC';
+			}
+			else
+			{
+				$output[ 'order' ] = 'ASC';
+			}
+		}
 
-	    $query=$uri->buildQuery($output);
-	    $uri='index.php?'.$query;
+		$query = $uri->buildQuery( $output );
+		$uri   = 'index.php?'.$query;
 
-		$returnLink = JRoute::_($uri);
-		$link        = \seoTools_uri::getSefUlrOption( $returnLink );
+		$returnLink = JRoute::_( $uri );
+		$link       = \seoTools_uri::getSefUlrOption( $returnLink );
 
-		$returnLink = $link->sef_url ;
+		$returnLink = $link->sef_url;
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
 		{
 
-			echo'<pre>';print_r( $returnLink );echo'</pre>'.__FILE__.' '.__LINE__;
+			echo '<pre>';
+			print_r( $returnLink );
+			echo '</pre>'.__FILE__.' '.__LINE__;
 //			echo'<pre>';print_r( $input );echo'</pre>'.__FILE__.' '.__LINE__;
 //			echo'<pre>';print_r( $output );echo'</pre>'.__FILE__.' '.__LINE__;
 //			echo'<pre>';print_r( $link );echo'</pre>'.__FILE__.' '.__LINE__;
@@ -626,6 +633,6 @@ class cfPagination extends JPagination
 
 		}
 
-	    return $returnLink ;
+		return $returnLink;
 	}
 }

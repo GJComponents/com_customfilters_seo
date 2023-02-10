@@ -144,7 +144,8 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
         $this->vmVersion = VmConfig::getInstalledVersion();
         $this->currentLangPrefix = cftools::getCurrentLanguagePrefix();
         $this->defaultLangPrefix = cftools::getDefaultLanguagePrefix();
-        parent::__construct();
+
+		parent::__construct();
     }
 
     /**
