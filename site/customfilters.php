@@ -44,7 +44,7 @@ try
 
 //     throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
 }
-catch (\Exception $e)
+catch (Exception $e)
 {
     // Executed only in PHP 5, will not be reached in PHP 7
     echo 'Выброшено исключение: ',  $e->getMessage(), "\n";

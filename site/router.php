@@ -17,12 +17,15 @@ require_once JPATH_SITE. DIRECTORY_SEPARATOR. 'components'.DIRECTORY_SEPARATOR. 
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\Component\Customfilters\Helpers\Helper;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\ArrayHelper;
 
 
-function customfiltersBuildRoute(&$query)
+function CustomfiltersBuildRoute(&$query)
 {
+
+	\Joomla\Component\Customfilters\Site\Helpers\CfHelper::getParseUrl();
 	die(__FILE__ .' '. __LINE__ );
 
 
@@ -276,7 +279,7 @@ function customfiltersParseRoute($segments)
 	$menus                     = $app->getMenu('Site');
 	$cfmenus                   = $menus->getItems('link' , 'index.php?option=com_customfilters&view=products');
 
-
+	CustomfiltersNamespace\Component\Customfilters\Helpers\Helper::getParseUrl();
 
 	echo'<pre>';print_r( $menus->getActive() );echo'</pre>'.__FILE__.' '.__LINE__;
 	echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
