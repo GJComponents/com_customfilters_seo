@@ -16,7 +16,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Layout\LayoutHelper;
 
-HTMLHelper::_('behavior.tooltip');
+//HTMLHelper::_('behavior.tooltip');
 HTMLHelper::_('behavior.multiselect');
 
 // set some attributes to our chosen select

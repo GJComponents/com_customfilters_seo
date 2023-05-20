@@ -623,9 +623,7 @@ class cfPagination extends JPagination
 		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
 		{
 
-			echo '<pre>';
-			print_r( $returnLink );
-			echo '</pre>'.__FILE__.' '.__LINE__;
+//			echo '<pre>'; print_r( $returnLink ); echo '</pre>'.__FILE__.' '.__LINE__;
 //			echo'<pre>';print_r( $input );echo'</pre>'.__FILE__.' '.__LINE__;
 //			echo'<pre>';print_r( $output );echo'</pre>'.__FILE__.' '.__LINE__;
 //			echo'<pre>';print_r( $link );echo'</pre>'.__FILE__.' '.__LINE__;

@@ -10,6 +10,7 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Factory;
 use Joomla\Registry\Registry;
@@ -21,7 +22,7 @@ use Joomla\Registry\Registry;
  * @author Sakis Terz
  * @package customfilters
  */
-class CustomfiltersControllerCustomfilters extends JControllerAdmin
+class CustomfiltersControllerCustomfilters extends AdminController
 {
 
     /**
@@ -153,6 +154,8 @@ class CustomfiltersControllerCustomfilters extends JControllerAdmin
         $prefix = 'CustomfiltersModel',
         $config = array('ignore_request' => true)
     ) {
+
+
         $model = parent::getModel($name, $prefix, $config);
         return $model;
     }

@@ -15,7 +15,7 @@ require_once JPATH_SITE . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR 
  * Format the output vars
  * @since 2.2.0
  */
-class CfOutput
+#[AllowDynamicProperties] class CfOutput
 {
     //the variable which will be escaped
     protected static $cfOutputs = array();

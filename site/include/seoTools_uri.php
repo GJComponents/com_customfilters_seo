@@ -3,6 +3,7 @@
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
 
 /**
  * @since       3.9
@@ -63,23 +64,33 @@ class seoTools_uri
 	/**
 	 * Создать объект SEF URL - для опций фильтра и для ссылок пагинации + для выбора сортировки
 	 *
-	 * @param   string  $option_url  URL Query -
+	 * @param   string  $option_url URL Query -
 	 *                               /filtr/vodostochnye-sistemy/?custom_f_23[0]=d093d0bbd18fd0bdd186d0b5d0b2d0b0d18f&custom_f_10...
+	 * @param           $context
+	 *
+	 * @return stdClass
 	 *
 	 * @throws Exception
-	 * @since 3.9
+	 * @since version
 	 */
 	public static function getSefUlrOption( string $option_url , $context = false ):stdClass
 	{
 
-		$app                       = JFactory::getApplication();
+		$app                       = Factory::getApplication();
 		$resultData                = new stdClass();
+
+
+
 		$resultData->vmcategory_id = $app->input->get('virtuemart_category_id' , 0 , 'INT');
 
 		$seoTools_filters = \seoTools_filters::instance();
-		$uri              = \Joomla\CMS\Uri\Uri::getInstance($option_url);
+		$uri              = Uri::getInstance($option_url);
 		$path             = $uri->getPath();
 		$uriQuery         = $uri->getQuery(true);
+
+
+
+
 
 		$orderby = $app->input->get('orderby' , false , 'STRING' );
 		$order = $app->input->get('order' , false , 'STRING' );
@@ -122,8 +133,6 @@ class seoTools_uri
 			$orderBy = $orderby ;
 		}#END IF
 
-
-
 		$orderInput = $app->input->get('order' , false , 'STRING' ) ;
 		
 		$order = false;
@@ -137,37 +146,80 @@ class seoTools_uri
 			$order = $orderInput ;
 		}#END IF
 
-
-
 		// Проверить на NO-INDEX - Option
 		$resultData->no_index = seoTools::checkOffFilters($uriQuery);
 
 		$settingSeoOrdering = [];
 		$i_filterCount      = 0;
- 
+
+
+
 		foreach ( $uriQuery as $fieldId => $valueCustomHashArr )
 		{
+			$exqludeArr = ['virtuemart_category_id' , 'Itemid' , 'option' , 'view' ] ;
+			if (  in_array($fieldId , $exqludeArr ) )
+			{
+				continue ;
+				/*try
+				{
+				    // Code that may throw an Exception or Error.
+					echo'<pre>';print_r( $fieldId );echo'</pre>'.__FILE__.' '.__LINE__;
+					echo'<pre>';print_r( $valueCustomHashArr );echo'</pre>'.__FILE__.' '.__LINE__;
+
+				     throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+				}
+				catch (\Exception $e)
+				{
+				    // Executed only in PHP 5, will not be reached in PHP 7
+				    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+				    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+				    die(__FILE__ .' '. __LINE__ );
+				}*/
+
+
+			}#END IF
+
+
+
 			$filter = $seoTools_filters->_getFilterById($fieldId);
-			$filter->sef_url = self::getStringSefUrl($filter->alias);
+
+			if ( !$filter )
+			{
+				echo'<pre>';print_r( $fieldId );echo'</pre>'.__FILE__.' '.__LINE__;
+				echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
+				die(__FILE__ .' '. __LINE__ );
+
+			}#END IF
+
+			if ( !$filter && $filter === null) {
+				continue ;
+			}
+
+
+			$filter->sef_url = self::getStringSefUrl( $filter->alias );
+
+			/*$sef_urlArrEx = ['cvet'];
+			if ( !in_array($filter->sef_url , $sef_urlArrEx ) )
+			{
+				echo'<pre>';print_r( $filter->sef_url );echo'</pre>'.__FILE__.' '.__LINE__;
+				die(__FILE__ .' '. __LINE__ );
+			}#END IF*/
+
+
+			 
 
 			// Преобразовать массив со значениями в формате Hex -> в символы
-			$valueCustomHashArr = seoTools::prepareHex2binArr($valueCustomHashArr);
+			 $valueCustomHashArr = seoTools::prepareHex2binArr($valueCustomHashArr);
 
 
 			$i_optionCount = 0; // счетчик опций
 			foreach ( $valueCustomHashArr as $i => $valueCustom )
 			{
- 
+
 				if ( $i_optionCount ) $filter->sef_url .= '-and';
 
 				$valueCustomTranslite = self::getStringSefUrl( $valueCustom ) ;
 
-//				$valueCustomTranslite = \GNZ11\Document\Text::rus2translite($valueCustom);
-//				$valueCustomTranslite = mb_strtolower($valueCustomTranslite);
-				// Заменить пробелы - подчеркиванием
-//				$valueCustomTranslite = str_replace(' ' , '_' , $valueCustomTranslite);
-				// Удалить слэши
-//				$valueCustomTranslite = str_replace('/', '', $valueCustomTranslite);
 
 				$filter->sef_url .= '-'.$valueCustomTranslite.'';
 				$i_optionCount++;
@@ -179,6 +231,7 @@ class seoTools_uri
 			$i_filterCount++;
 			$settingSeoOrdering[ $filter->ordering ] = $filter;
 		}
+
 
 
 		ksort($settingSeoOrdering);
@@ -215,8 +268,6 @@ class seoTools_uri
 		// Очистим от не нужных символов
 		$resultData->sef_url = seoTools::cleanSefUrl($resultData->sef_url);
 
-
-
 		if ( $orderBy )
 		{
 			$resultData->url_params .= '&orderby='.$orderBy;
@@ -241,11 +292,10 @@ class seoTools_uri
 			$resultData->sef_url    .= '/start='.$pageStart;
 		}
 
-
-
 		$resultData->url_params_hash = md5($resultData->url_params);
 
 //		self::$arrUrlSef[ $option_url ] = $resultData;
+
 
 		return $resultData;
 
@@ -260,7 +310,7 @@ class seoTools_uri
 	 * @throws Exception
 	 * @since version
 	 */
-	public static function getStringSefUrl(   $alias ):string
+	public static function getStringSefUrl(  $alias ):string
 	{
 
 		$alias = \GNZ11\Document\Text::rus2translite( $alias );
@@ -326,7 +376,7 @@ class seoTools_uri
 		$app    = JFactory::getApplication();
 		$option = $app->input->get('option' , false , 'STRING');
 
-		$juri = \Joomla\CMS\Uri\Uri::getInstance();
+		$juri = Uri::getInstance();
 		$path = $juri->getPath();
 
 		// Если массив категорий - пустой -- ищем по alias категории в таблице #__menu
@@ -356,7 +406,7 @@ class seoTools_uri
 				->where($db->quoteName('alias').'='.$db->quote($catName));
 			$db->setQuery($Query);
 			$category_link  = $db->loadResult();
-			$juri           = \Joomla\CMS\Uri\Uri::getInstance($category_link);
+			$juri           = Uri::getInstance($category_link);
 			$queryUrl       = $juri->getQuery(true);
 			$category_ids[] = $queryUrl[ 'virtuemart_category_id' ];
 			if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
@@ -404,22 +454,12 @@ class seoTools_uri
 	 */
 	public static function findCityFilters( $category_ids , $findResultArr )
 	{
-		$app = \Joomla\CMS\Factory::getApplication();
+		$app = Factory::getApplication();
 		$option = $app->input->get('option' , '' , 'STRING');
-
-		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-			echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
-			echo'<pre>';print_r( $option != 'com_virtuemart' || $option != 'com_customfilters' );echo'</pre>'.__FILE__.' '.__LINE__;
-
-		}*/
-
+  
 		if ( $option != 'com_virtuemart' && $option != 'com_customfilters'    ) return ; #END IF
-		
-
-
-
-		$juri = \Joomla\CMS\Uri\Uri::getInstance();
+		 
+		$juri = Uri::getInstance();
 		$path = $juri->getPath();
 		
 		// Для отладки рег выражений
@@ -506,9 +546,7 @@ class seoTools_uri
 		// применить метод $db->quote -- к каждому элементу массива
 		$category_ids = array_map([ $db , 'quote' ] , $category_ids);
 		$Query->where( sprintf('cat.id_vm_category IN (%s)' , join(',' , $category_ids)));
-
-
-
+ 
 		// Если Multilanguage - добавить выбор по языкам
 		if (  Multilanguage::isEnabled() )
 		{
@@ -528,8 +566,7 @@ class seoTools_uri
 			}#END IF
 
 		}#END IF
-
-
+ 
 		$db->setQuery($Query);
 		$res = $db->loadObject();
  
@@ -573,10 +610,10 @@ class seoTools_uri
 			self::getLineArr( $paramsArr[ 'use_city_setting' ] , $sef_alias);
 		}#END IF
 
-
-
-
-		if ( !empty(self::$LineArr) ) return self::$LineArr; #END IF
+		if ( !empty(self::$LineArr) ) {
+			self::$LineArr['type'] = 'city' ;
+			return self::$LineArr;
+		} #END IF
 	}
 
 	/**
@@ -591,7 +628,7 @@ class seoTools_uri
 	 */
 	public static function checkUrlNoIndex( string $url = 'SERVER' ):bool
 	{
-		$app = \Joomla\CMS\Factory::getApplication();
+		$app = Factory::getApplication();
 		$paramsComponent = \Joomla\CMS\Component\ComponentHelper::getParams('com_customfilters');
 		/**
 		 * @var int $max_count_filters_no_index Максимальное количество активных фильтров
@@ -635,7 +672,7 @@ class seoTools_uri
 	public static function getLineArr( $arr , $sef_alias ):bool
 	{
 
-		$app = \Joomla\CMS\Factory::getApplication();
+		$app = Factory::getApplication();
 
 		JLoader::register('HelperSetting_city' , JPATH_ADMINISTRATOR . '/components/com_customfilters/helpers/HelperSetting_city.php');
 		$resArrOneLevelParams = HelperSetting_city::getOneLevelParams( $arr );

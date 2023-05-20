@@ -9,7 +9,7 @@
 
 defined('JPATH_BASE') or die;
 
-JHtml::_('behavior.framework', true);
+//JHtml::_('behavior.framework', true);
 
 /**
  *

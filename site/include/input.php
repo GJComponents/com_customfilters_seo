@@ -125,7 +125,8 @@ class CfInput
                 $cfinput = new \CfInput();
                 self::$cfInputs = $cfinput->buildInputs();
             }
-
+			
+		    
 
 
 	        $seoTools = new seoTools();
@@ -327,7 +328,9 @@ class CfInput
                             // Разрешены только шестнадцатеричные или целочисленные входы
 	                        // Only hexademical or Int inputs allowed
                             $cf_el = (string)preg_replace('/[^A-F0-9]/i', '', $cf_el);
+							
 
+							
                             if (!empty($cf_el)) {
 	                            /**
 	                             * Преобразуем значение выбранной опции в строку
@@ -335,6 +338,14 @@ class CfInput
 	                             * unecnode the value only if string
 	                             */
                                 $unencoded_value = \cftools::cfHex2bin($cf_el);
+
+	                            if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+	                            {
+//		                            echo'<pre>';print_r( $cf_el );echo'</pre>'.__FILE__.' '.__LINE__;
+//		                            echo'<pre>';print_r( $unencoded_value );echo'</pre>'.__FILE__.' '.__LINE__;
+//		                            die(__FILE__ .' '. __LINE__ );
+
+	                            }
 
                                 // clean again the unencoded value this time
                                 $result = $filter->clean($unencoded_value, $data_type);
@@ -444,8 +455,6 @@ class CfInput
 			// Поиск вхождения первого фильтра
 			$needle =   $item->sef_url . '-'   ;
 			$needleRegExp = '/' . preg_quote($needle ) . '/u';
-
-
 			preg_match( $needleRegExp , $path , $matches , PREG_OFFSET_CAPTURE ) ;
 
 			if ( isset( $matches[0] ) )
@@ -462,15 +471,23 @@ class CfInput
 		if ( empty($findResultArr) )
 		{
 			$findResultArr = seoTools_uri::findCityFilters( $category_ids , $findResultArr );
+			if ( !empty($findResultArr) )
+			{
+				$app = \Joomla\CMS\Factory::getApplication();
+//				$app->set('');
+
+			}#END IF
+            if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+            {
+                echo'<pre>';print_r( $findResultArr );echo'</pre>'.__FILE__.' '.__LINE__;
+
+            }
 		}#END IF
-
-
 
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
 
 		// Если не нашли название фильтров в URL
 		if (empty($findResultArr)) return; #END IF
-
 
 
 		// Сортируем массив Alias названий фильтров по ключу в порядке убывания
@@ -482,66 +499,51 @@ class CfInput
 		$i          = 0;
 
 		$dataFiltersArr = [];
-
 		
-		// Перебираем массив с Названиями (Alias) фильтров [ 77 => 'cvet' , 25 => 'vid_poverhnosti' ]
-		foreach ($findResultArr as $start => $item)
+
+
+		if ( !isset( $findResultArr['type'] ) || $findResultArr['type'] != 'city' )
 		{
-			$dataFilters        = new stdClass();
-			$dataFilters->name  = str_replace(['/', '-and-'], '', $item);
-			$dataFilters->value = [];
-			// Если это первый фильтр с конца 
-			if (!$i) $length = null; #END IF
-
-			$i++;
-
-			// Получаем строку от символа в позиции $start  до символа $length
-			$subStr = mb_substr( $path, $start , $length );
-			// Находим двойные или более опции фильтра
-			$arrValFilter = explode('-and-', $subStr);
-
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			// Перебираем массив с Названиями (Alias) фильтров [ 77 => 'cvet' , 25 => 'vid_poverhnosti' ]
+			foreach ($findResultArr as $start => $item)
 			{
-				echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
-				echo'<pre>';print_r( $start );echo'</pre>'.__FILE__.' '.__LINE__;
-				echo'<pre>';print_r( $length );echo'</pre>'.__FILE__.' '.__LINE__;
-				echo'<pre>';print_r( $item );echo'</pre>'.__FILE__.' '.__LINE__;
-			    echo'<pre>';print_r( $subStr );echo'</pre>'.__FILE__.' '.__LINE__;
-			    echo'<pre>';print_r( $arrValFilter );echo'</pre>'.__FILE__.' '.__LINE__;
+				$dataFilters        = new stdClass();
+				$dataFilters->name  = str_replace(['/', '-and-'], '', $item);
+				$dataFilters->value = [];
+				// Если это первый фильтр с конца
+				if (!$i) $length = null; #END IF
+
+				$i++;
+
+				// Получаем строку от символа в позиции $start  до символа $length
+				$subStr = mb_substr( $path, $start , $length );
+				// Находим двойные или более опции фильтра
+				$arrValFilter = explode('-and-', $subStr);
+				// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
+				$arrValFilter = array_diff($arrValFilter, array(''));
 
 
-			}
-			
-			
-
-			// Удаляем пустые ключи в массиве -- Если выбранная только одна опция фильтра
-			$arrValFilter = array_diff($arrValFilter, array(''));
-
-			foreach ( $arrValFilter as $itemValF )
-			{
-				// Удалить слэши
-				$itemValF = str_replace('/', '', $itemValF);
-
-				// Удаляем сам Alias фильтра 
-				$itemValF = str_replace($dataFilters->name, '', $itemValF);
-				//После удаления Alias фильтра остается "-" в начале строки - и ее тоже удаляем	
-                $itemValF = preg_replace('/^-/' , '' , $itemValF ) ;
-				
-                $dataFilters->value[] = $itemValF;
 
 
+				foreach ( $arrValFilter as $itemValF )
+				{
+					// Удалить слэши
+					$itemValF = str_replace('/', '', $itemValF);
+
+					// Удаляем сам Alias фильтра
+					$itemValF = str_replace($dataFilters->name, '', $itemValF);
+					//После удаления Alias фильтра остается "-" в начале строки - и ее тоже удаляем
+					$itemValF = preg_replace('/^-/' , '' , $itemValF ) ;
+
+					$dataFilters->value[] = $itemValF;
+
+				}#END FOREACH
+
+				$path         = str_replace($subStr, '', $path);
+				$length = $start;
+				$dataFiltersArr[] = $dataFilters;
 			}#END FOREACH
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-				echo'<pre>';print_r( $dataFilters );echo'</pre>'.__FILE__.' '.__LINE__;
-			}
-			
-			$path         = str_replace($subStr, '', $path);
-			$length = $start;
-			$dataFiltersArr[] = $dataFilters;
-		}#END FOREACH
-
-
+		}#END IF
 
 
 		$selectFilterIds = [];
@@ -562,13 +564,12 @@ class CfInput
 			}#END FOREACH
 		}#END FOREACH
 
-
-
-
 		/**
 		 * @var array $customSelectValueArr - Массив всех значений для фильтров
 		 */
 		$customSelectValueArr = \cftools::getCustomSelectValue($selectFilterIds);
+
+
 
 		// Определение Value для выбранных опций
 		foreach ($filtersArr as &$item)
@@ -586,8 +587,21 @@ class CfInput
 						$item->dataOptions[] =  $customSelectValueArr[$option];
 						$customfield_value = $customSelectValueArr[$option]->customfield_value;
 
-						$customfield_value = preg_replace('/[^\w\s\d\(\)\[\]\.,-®]/iu' , '' , $customfield_value ) ;
-//						echo'<pre>';print_r( $customfield_value );echo'</pre>'.__FILE__.' '.__LINE__;
+						// Параметры компонента com_customfilters
+						$componentParams = \cftools::getComponentparams();
+						/**
+						 * Pattern : пропускаем =>
+						 * буквы, пробелы, числа, скобки()[], точки и запятые, тире, ®, *
+						 *  - Пока нельзя использовать в customfield_value - кавычки «"»
+						 *
+						 */
+						// Регулярное выражение для очистки customfield_value '/[^\w\s\d\(\)\[\]\.,-®*]/iu'
+						$customfield_value = preg_replace('/[^\w\s\d\(\)\[\]\.,-®*]/iu' , '' , $customfield_value ) ;
+
+						if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+						{
+//							echo'<pre>';print_r( $customfield_value );echo'</pre>'.__FILE__.' '.__LINE__;
+						}
 
 						// Преобразование двоичных данных в шестнадцатеричное представление
 						$optArr[]          = bin2hex($customfield_value);
@@ -595,20 +609,13 @@ class CfInput
 					}#END IF
 				}#END FOREACH
 			}
+			
+
+			
 			$app->input->set($key, $optArr);
 
 		}#END FOREACH
 
-		/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-			echo'<pre>';print_r( $path );echo'</pre>'.__FILE__.' '.__LINE__;
-			echo'<pre>';print_r( $category_ids );echo'</pre>'.__FILE__.' '.__LINE__;
-			echo'<pre>';print_r( $findResultArr );echo'</pre>'.__FILE__.' '.__LINE__;
-			echo'<pre>';print_r( $dataFiltersArr );echo'</pre>'.__FILE__.' '.__LINE__;
-			echo'<pre>';print_r( $filtersArr );echo'</pre>'.__FILE__.' '.__LINE__;
-			die(__FILE__ .' '. __LINE__ );
-
-		}*/
 
 		$app->set('seoToolsActiveFilter' , $filtersArr );
 
@@ -630,6 +637,7 @@ class CfInput
 			}
 
 		}#END FOREACH
+
 		$app->set('seoToolsActiveFilter.table' , $dataTable );
 
 	}

@@ -159,12 +159,12 @@ class CustomfiltersViewProducts extends cfView
         $this->products = $this->productModel->getProducts($ids);
 
 
+
+
 	    /**
 	     * Установка выбранных опций фильтра в Название категории -- <h1>
 	     */
 	    $tag_h1 = $app->get('filter_data_h1' , false );
-
-//	    $app->set('filter_data_h1' , false );
 	    if ( $tag_h1 && !empty($this->category->category_name) )
 	    {
 		    $this->category->category_name = $tag_h1 ;
@@ -210,12 +210,7 @@ class CustomfiltersViewProducts extends cfView
 				$layout_ResultFilterDescription['sef_filter_vm_cat_description'] = $_description ;
 			}#END IF
 
-			/*if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-				echo'<pre>';print_r( $ResultFilterDescription );echo'</pre>'.__FILE__.' '.__LINE__;
-				echo'<pre>';print_r( $layout_ResultFilterDescription );echo'</pre>'.__FILE__.' '.__LINE__;
-				echo'<pre>';print_r( $sef_filter_vm_cat_description );echo'</pre>'.__FILE__.' '.__LINE__;
-			}*/
+
 
 			$layout    = new \Joomla\CMS\Layout\FileLayout( 'filterResultDesc' ,JPATH_ROOT.'/components/com_customfilters/layouts' );
 			$layout->addIncludePaths(JPATH_THEMES . '/' . $templateName . '/html/com_customfilters/layouts' );
@@ -289,6 +284,7 @@ class CustomfiltersViewProducts extends cfView
 		$this->addPathway();
 
 
+
         parent::display($tpl);
 
         if (empty($this->products)) {
@@ -298,6 +294,7 @@ class CustomfiltersViewProducts extends cfView
 
 	/**
 	 * Добавление данных о выбранных фильтрах в Pathway
+	 * ---
 	 * @return void
 	 * @throws Exception
 	 * @since 3.9
@@ -306,6 +303,8 @@ class CustomfiltersViewProducts extends cfView
 		// Get the PathWay object from the application
 		$app     = \Joomla\CMS\Factory::getApplication();
 		$uri    = \Joomla\CMS\Uri\Uri::getInstance();
+
+		$option = $app->input->get('option' , false , 'STRING' ) ;
 
 
 
@@ -341,6 +340,9 @@ class CustomfiltersViewProducts extends cfView
 		if ( isset( $Itemid ) ) $outputPathway[ 'Itemid' ] = (int) $Itemid;
 
 
+
+
+		
 		$i = 0 ;
 		foreach ($output as $key => $option ){
 
@@ -358,9 +360,14 @@ class CustomfiltersViewProducts extends cfView
 			$items[] = $addItems ;
 
 			$pathway->setPathway($items);
-
+			
 		}
 
+
+
+//		echo'<pre>';print_r( $i );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $pathway );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
 
 
 	}

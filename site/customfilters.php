@@ -13,9 +13,45 @@
 // no direct access
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Component\Router\RouterFactoryInterface;
+
+function CustomfiltersBuildRoute(RouterFactoryInterface $router, array &$query)
+{
+	$segments = array();
+
+	// Определение сегментов маршрута
+die(__FILE__ .' '. __LINE__ );
+
+	return $segments;
+}
+
+function CustomfiltersParseRoute(RouterFactoryInterface $router, array $segments)
+{
+	$vars = array();
+
+	// Определение переменных из сегментов маршрута
+	die(__FILE__ .' '. __LINE__ );
+
+	return $vars;
+}
+
 if (!defined('DEV_IP')) {
 	define('DEV_IP',     '***.***.***.***');
 }
+try
+{
+    // Code that may throw an Exception or Error.
+
+//     throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+}
+catch (\Exception $e)
+{
+    // Executed only in PHP 5, will not be reached in PHP 7
+    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+    die(__FILE__ .' '. __LINE__ );
+}
+
 
 JLoader::registerNamespace( 'GNZ11' , JPATH_LIBRARIES . '/GNZ11' , $reset = false , $prepend = false , $type = 'psr4' );
 JLoader::register( 'seoTools' , JPATH_ROOT . '/components/com_customfilters/include/seoTools.php');
@@ -66,18 +102,7 @@ $task = $input->get('task', 'display', 'cmd') ;
 $controller = JControllerLegacy::getInstance('Customfilters');
 $controller->execute( $task );
 
-
-
-$profiler = \JProfiler::getInstance('PRO_Application');
-$profiler->mark('End All');
-
-
-if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-{
-//	$pageCreationTime = $profiler->getBuffer();
-//	echo'<pre>';print_r( $pageCreationTime );echo'</pre>'.__FILE__.' '.__LINE__;
-}
-
-
+//$profiler = \JProfiler::getInstance('PRO_Application');
+//$profiler->mark('End All');
 
 $controller->redirect();

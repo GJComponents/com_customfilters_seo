@@ -15,12 +15,19 @@ defined('_JEXEC') or die();
 jimport('joomla.application.module.helper');
 require_once JPATH_SITE. DIRECTORY_SEPARATOR. 'components'.DIRECTORY_SEPARATOR. 'com_customfilters'.DIRECTORY_SEPARATOR.'include'.DIRECTORY_SEPARATOR.'tools.php';
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\ArrayHelper;
+
 
 function customfiltersBuildRoute(&$query)
 {
+	die(__FILE__ .' '. __LINE__ );
+
+
     $segments = array();
-    $db = JFactory::getDbo();
+    $db = Factory::getDbo();
 
     // first get the filters
     if (! empty($query['virtuemart_category_id']) && is_array($query['virtuemart_category_id'])) {
@@ -125,9 +132,12 @@ function customfiltersBuildRoute(&$query)
  */
 function customfiltersParseRoute($segments)
 {
+	 
+
     $CfRouterHelper = CfRouterHelper::getInstance();
     $siteLang = $CfRouterHelper->getLangPrefix();
     $defaultSiteLang = $CfRouterHelper->getDefaultLangPrefix();
+
 
     // Fix the segments
     $total = count($segments);
@@ -136,15 +146,23 @@ function customfiltersParseRoute($segments)
     }
 
     // empty filters strings
-    $no_category = urlencode(JText::_('CF_NO_VMCAT'));
-    $no_manufacturer = urlencode(JText::_('CF_NO_VMMANUF'));
-    $db = JFactory::getDbo();
+    $no_category = urlencode(Text::_('CF_NO_VMCAT'));
+    $no_manufacturer = urlencode(Text::_('CF_NO_VMMANUF'));
+
+	$db = Factory::getContainer()->get(DatabaseInterface::class);
 
     $categories_ar = explode('__or__', $segments[0]);
+   
     if (count($categories_ar) == 1 && $categories_ar[0] == $no_category) {} else {
+
+
+
         // get the category ids
         $where_vmcat_slug = array();
         $vmcat_where_str = '';
+
+
+
 
         // It's multi-lingual
         if ($CfRouterHelper->getDefaultLang()) {
@@ -153,6 +171,8 @@ function customfiltersParseRoute($segments)
                 $db = JFactory::getDbo();
                 $value = '(lang_def.slug=' . $db->quote($db->escape($value)) . ' OR lang.slug=' . $db->quote($db->escape($value)) . ')';
             });
+
+
 
             $vmcat_where_str = implode(' OR ', $categories_ar);
 
@@ -168,11 +188,14 @@ function customfiltersParseRoute($segments)
                 $vars['virtuemart_category_id'] = $vm_cat_ids;
             }
         } else {
+
             // prepare the slugs for the query
             array_walk($categories_ar, function (&$value, $key) {
-                $db = JFactory::getDbo();
+                $db = Factory::getContainer()->get(DatabaseInterface::class);
                 $value = 'slug=' . $db->quote($db->escape($value));
             });
+
+
 
             $vmcat_where_str = implode(' OR ', $categories_ar);
 
@@ -188,7 +211,11 @@ function customfiltersParseRoute($segments)
             }
         }
     }
-    if (isset($segments[1])) {
+
+
+
+
+	if (isset($segments[1])) {
         $manuf_ar = explode('__or__', $segments[1]);
         if (count($manuf_ar) == 1 && $manuf_ar[0] == $no_manufacturer) {} else {
             // get the manuf ids
@@ -199,7 +226,7 @@ function customfiltersParseRoute($segments)
             if ($CfRouterHelper->getDefaultLang()) {
                 // prepare the slugs for the query
                 array_walk($manuf_ar, function (&$value, $key) {
-                    $db = JFactory::getDbo();
+                    $db = Factory::getContainer()->get(DatabaseInterface::class);
                     $value = '(lang_def.slug=' . $db->quote($db->escape($value)).' OR lang.slug=' . $db->quote($db->escape($value)).')';
                 });
 
@@ -217,13 +244,16 @@ function customfiltersParseRoute($segments)
                         $vars['virtuemart_manufacturer_id'] = $vm_mnf_ids;
                     }
 
-            } else {
+            }
+			else {
 
                 // prepare the slugs for the query
                 array_walk($manuf_ar, function (&$value, $key) {
                     $db = JFactory::getDbo();
                     $value = 'slug=' . $db->quote($db->escape($value));
                 });
+
+
 
                 $vmmnf_where_str = implode(' OR ', $manuf_ar);
 
@@ -240,6 +270,21 @@ function customfiltersParseRoute($segments)
             }
         }
     }
+
+
+	$app                       = Factory::getApplication('Site');
+	$menus                     = $app->getMenu('Site');
+	$cfmenus                   = $menus->getItems('link' , 'index.php?option=com_customfilters&view=products');
+
+
+
+	echo'<pre>';print_r( $menus->getActive() );echo'</pre>'.__FILE__.' '.__LINE__;
+	echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+	echo'<pre>';print_r( $cfmenus );echo'</pre>'.__FILE__.' '.__LINE__;
+	
+	
+	die(__FILE__ .' '. __LINE__ );
+
     return $vars;
 }
 

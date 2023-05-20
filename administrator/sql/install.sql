@@ -1,14 +1,14 @@
 CREATE TABLE IF NOT EXISTS `#__cf_customfields` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `alias` varchar(255) NOT NULL,
-  `vm_custom_id` int(11) NOT NULL COMMENT 'is the key to the custom field id ',
+  `vm_custom_id` int(11) NOT NULL COMMENT 'is the key to the custom field id',
   `ordering` int(11) NOT NULL DEFAULT '0',
   `published` tinyint(1) NOT NULL DEFAULT '0',
     `on_seo` int(11) NOT NULL DEFAULT '1' COMMENT 'исключение из seo',
   `type_id` varchar(12) NOT NULL DEFAULT '3' COMMENT 'The display type',
   `order_by` varchar(64) NOT NULL DEFAULT 'custom_title' COMMENT 'The way that the values will be displayed',
   `order_dir` varchar(12) NOT NULL DEFAULT 'ASC' COMMENT 'the direction',
-  `params` text NOT NULL,
+  `params` text NOT NULL DEFAULT '' ,
    `data_type` varchar(12) NOT NULL DEFAULT 'string',
   PRIMARY KEY (`id`),
   UNIQUE KEY `virtuemart_custom_id` (`vm_custom_id`),
@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `#__cf_customfields` (
 -- Создание: 14.10.22-14:33
 --
 DROP TABLE IF EXISTS `#__cf_customfields_setting_seo`;
+-- gtvxq
 CREATE TABLE `#__cf_customfields_setting_seo` (
      `id` int(11) NOT NULL,
      `vmcategory_id` int(11) NOT NULL,
@@ -30,13 +31,13 @@ CREATE TABLE `#__cf_customfields_setting_seo` (
      `sef_url` varchar(512) NOT NULL,
      `sef_url_hash` varchar(255) NOT NULL,
      `no_index` int(1) NOT NULL DEFAULT '0' COMMENT 'закрыто от индекса',
-     `no_ajax` int(1) NOT NULL,
-     `sef_filter_h_tag` text NOT NULL,
-     `sef_filter_vm_cat_description` text NOT NULL,
-     `sef_filter_title` text NOT NULL,
-     `sef_filter_description` text NOT NULL,
-     `sef_filter_keywords` text NOT NULL,
-     `selected_filters_table` text NOT NULL,
+     `no_ajax` int(1) NOT NULL DEFAULT '0' ,
+     `sef_filter_h_tag` text NOT NULL  DEFAULT '' ,
+     `sef_filter_vm_cat_description` text NOT NULL  DEFAULT '' ,
+     `sef_filter_title` text NOT NULL   ,
+     `sef_filter_description` text NOT NULL   ,
+     `sef_filter_keywords` text NOT NULL   ,
+     `selected_filters_table` text NOT NULL   ,
      `published` int(1) NOT NULL DEFAULT '1',
      `created_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

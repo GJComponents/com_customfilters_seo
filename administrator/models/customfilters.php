@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Filter\OutputFilter;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Component\ComponentHelper;
@@ -22,7 +23,7 @@ use Joomla\Registry\Registry;
  * @author    Sakis Terz
  * @since    1.0
  */
-class CustomfiltersModelCustomfilters extends JModelList
+class CustomfiltersModelCustomfilters extends \Joomla\CMS\MVC\Model\ListModel
 {
     /**
      * Model context
@@ -321,7 +322,13 @@ class CustomfiltersModelCustomfilters extends JModelList
     {
 
         $db = Factory::getDbo();
+	    // Edit Joomla 4
+	    $dispatcher = Joomla\CMS\Factory::getApplication()->getDispatcher();
+
         PluginHelper::importPlugin('vmcustom');
+
+		
+
 
         //the accepted custom fields
         $params = ComponentHelper::getParams('com_customfilters');
@@ -332,10 +339,11 @@ class CustomfiltersModelCustomfilters extends JModelList
         }
         //get the existing custom fields from the vm table
         $custom_fields = $this->getCustomfields('*', $field_types_ar);
+		
 
+		
         //the existing custom filters
         $cf_customfilters = $this->getCustomFilters();
-
 
         $slugs = array();
 
@@ -347,37 +355,91 @@ class CustomfiltersModelCustomfilters extends JModelList
             foreach ($custom_fields as $vm_c) {
 
                 $query2 = '';
-                $slug = JFilterOutput::stringURLUnicodeSlug($vm_c->custom_title);
+                $slug = OutputFilter::stringURLUnicodeSlug($vm_c->custom_title);
                 //check if the slug exists and format it accordingly
                 while (in_array($slug, $slugs)) {
                     $slug = $slug . $vm_c->virtuemart_custom_id;
                 }
                 $slugs[] = $slug;
                 //if not plugin
+
+
+
                 if ($vm_c->field_type != 'E') {
                     if ($vm_c->field_type == 'I') $data_type = 'int';
                     else if ($vm_c->field_type == 'D') $data_type = 'date';
                     else $data_type = 'string';
-                    $query2 = "INSERT INTO #__cf_customfields (vm_custom_id,alias,ordering,published,data_type) VALUES ($vm_c->virtuemart_custom_id," . $db->quote($slug) . "," . $counter . ",1," . $db->quote($data_type) . ")";
+
+
+	                $fieldVal = new \stdClass();
+	                $fieldVal->vm_custom_id = $vm_c->virtuemart_custom_id ;
+	                $fieldVal->alias = $db->quote($slug) ;
+	                $fieldVal->ordering=$counter;
+	                $fieldVal->published=1;
+	                $fieldVal->data_type = $db->quote($data_type) ;
+
+					try
+					{
+						// Insert the object into the user profile table.
+						$result = JFactory::getDbo()->insertObject('#__cf_customfields', $fieldVal );
+					    // throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+						$counter++;
+						continue ;
+					}
+					catch (\Exception $e)
+					{
+					    // Executed only in PHP 5, will not be reached in PHP 7
+					    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+					    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+					    die(__FILE__ .' '. __LINE__ );
+					}
+
+					/*$query2 = "INSERT INTO #__cf_customfields (
+                                 vm_custom_id,
+                                 alias,
+                                 ordering,
+                                 published,
+                                 data_type
+                                 ) 
+								VALUES (
+								        $vm_c->virtuemart_custom_id
+								        ," . $db->quote($slug) . "
+								        ," . $counter . "
+								        ,1
+								        ," . $db->quote($data_type) . "
+								        )
+								        ";*/
                 } //if its plugin call the plugin hook
                 else {
-                    $dispatcher = JEventDispatcher::getInstance();
                     $data_type = 'string';
                     $name = $vm_c->custom_element;
                     $virtuemart_custom_id = $vm_c->virtuemart_custom_id;
-                    $ret = $dispatcher->trigger('onGenerateCustomfilters', array($name, $virtuemart_custom_id, &$data_type));
-                    if ($ret == true && !empty($data_type)) {
+
+					// Edit Joomla 4
+	                $event = new Joomla\Event\Event('onGenerateCustomfilters', [$name, $virtuemart_custom_id, &$data_type]);
+	                $ret = $dispatcher->dispatch('onGenerateCustomfilters', $event);
+
+					// old - Joomla 3
+//	                $dispatcher = JEventDispatcher::getInstance();
+//					$ret = $dispatcher->trigger('onGenerateCustomfilters', array($name, $virtuemart_custom_id, &$data_type));
+
+
+					if ($ret == true && !empty($data_type)) {
                         $query2 = "INSERT INTO #__cf_customfields ( vm_custom_id, alias, ordering, published, data_type)";
                         $query2 .= " VALUES (" . $vm_c->virtuemart_custom_id . "," . $db->quote($slug) . "," . $counter . ",1," . $db->quote($data_type) . ")";
+						$db->setQuery($query2);
+
+						try {
+							$db->execute();
+						} catch ( RuntimeException $e) {
+							echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+							die(__FILE__ .' '. __LINE__ );
+						}
+
+						$counter++;
                     } else continue;
                 }
-                $db->setQuery($query2);
-                try {
-                    $db->execute();
-                } catch (\RuntimeException $e) {
-                    //suck it
-                }
-                $counter++;
+
             }
 
         }
@@ -419,7 +481,7 @@ class CustomfiltersModelCustomfilters extends JModelList
                     $db->setQuery($query);
                     try {
                         $db->execute();
-                    } catch (\RuntimeException $e) {
+                    } catch (RuntimeException $e) {
                         //suck it
                     }
                 }
@@ -427,11 +489,6 @@ class CustomfiltersModelCustomfilters extends JModelList
 
             //delete or update
             $tobeDeleted = array_diff( $cf_customfilters_ids , $vm_customfield_ids);
-
-			echo'<pre>';print_r( $tobeDeleted );echo'</pre>'.__FILE__.' '.__LINE__;
-
-
-
 
 			// Перебираем фильтры
             foreach ($cf_customfilters as $cflt) {
@@ -446,7 +503,7 @@ class CustomfiltersModelCustomfilters extends JModelList
                     $db->setQuery($query);
                     try {
                         $db->execute();
-                    } catch (\RuntimeException $e) {
+                    } catch (RuntimeException $e) {
                         echo'<pre>';print_r( $cflt );echo'</pre>'.__FILE__.' '.__LINE__;
                         die(__FILE__ .' '. __LINE__ );
 
@@ -456,10 +513,16 @@ class CustomfiltersModelCustomfilters extends JModelList
 				else {
                     //check if we should update the data_type
                     if ($cflt->field_type == 'E') {
-                        $dispatcher = JDispatcher::getInstance();
+
+
                         $data_type = 'string';
                         $name = $cflt->custom_element;
-                        $ret = $dispatcher->trigger('onGenerateCustomfilters', array($name, $vm_custom_id, &$data_type));
+
+	                    // Edit Joomla 4
+	                    $event = new Joomla\Event\Event('onGenerateCustomfilters', [$name, $vm_custom_id, &$data_type]);
+	                    $ret = $dispatcher->dispatch('onGenerateCustomfilters', $event);
+
+
                     } else {
                         if ($cflt->field_type == 'I') $data_type = 'int';
                         else if ($cflt->field_type == 'D') $data_type = 'date';
@@ -471,7 +534,7 @@ class CustomfiltersModelCustomfilters extends JModelList
                         $db->setQuery($query);
                         try {
                             $db->execute();
-                        } catch (\RuntimeException $e) {
+                        } catch (RuntimeException $e) {
                             throw $e;
                         }
                     }
@@ -495,12 +558,11 @@ class CustomfiltersModelCustomfilters extends JModelList
     public function getCustomFilters()
     {
         $query = $this->getListQuery($use_filters = false);
-
         $filters = $this->_getList($query);
 
-
-
-
+//		echo'<pre>';print_r( $filters );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $query );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
 
 
 		try
@@ -718,7 +780,7 @@ class CustomfiltersModelCustomfilters extends JModelList
         $db->setQuery($q);
         try {
             $db->execute();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             //suck it
         }
     }

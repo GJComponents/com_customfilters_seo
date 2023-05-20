@@ -23,8 +23,8 @@ $document->setMimeEncoding( 'text/html' );
 $jinput    = JFactory::getApplication()->input;
 $module_id = $jinput->get( 'module_id' , '' , 'int' );
 
-echo'<pre>';print_r( $module_id );echo'</pre>'.__FILE__.' '.__LINE__;
-die(__FILE__ .' '. __LINE__ );
+//echo'<pre>';print_r( $module_id );echo'</pre>'.__FILE__.' '.__LINE__;
+//die(__FILE__ .' '. __LINE__ );
  
 //get and print the module
 $module                    = cfModuleHelper::getModule( $module_id );

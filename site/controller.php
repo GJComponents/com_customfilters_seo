@@ -71,9 +71,9 @@ class CustomfiltersController extends \Joomla\CMS\MVC\Controller\BaseController
 		// Отключить CACHE -  для DEV
 		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 		{
-			$cachable = false ;
+
 		}
-		
+	    $cachable = false ;
 
         $input = JFactory::getApplication()->input;
         $viewName = $input->get('view', $this->default_view);

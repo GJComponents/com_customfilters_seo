@@ -1,7 +1,10 @@
 <?php
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Document\FactoryInterface;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
+use Joomla\Database\DatabaseInterface;
 
 JLoader::registerNamespace( 'GNZ11',JPATH_LIBRARIES.'/GNZ11',$reset=false,$prepend=false,$type='psr4');
 JLoader::register('seoTools_uri' , JPATH_ROOT .'/components/com_customfilters/include/seoTools_uri.php');
@@ -61,9 +64,9 @@ class seoTools
 	 */
 	public function __construct()
     {
-        $this->app = JFactory::getApplication();
-        $this->db = JFactory::getDbo();
-        $this->doc = JFactory::getDocument();
+        $this->app = Factory::getApplication();
+	    $this->db   = Factory::getContainer()->get(DatabaseInterface::class);
+	    $this->doc = $this->app->getDocument();
         $this->uri = Uri::getInstance();
 
 		seoTools_uri::instance();
@@ -126,7 +129,7 @@ class seoTools
 		 */
 		if (!empty($Object->link))
 		{
-			$link         = \seoTools_uri::getSefUlrOption($Object->link , 'Pagination' );
+			$link         = seoTools_uri::getSefUlrOption($Object->link , 'Pagination' );
 			$Object->link = $link->sef_url;
         }
 		return $Object;
@@ -280,24 +283,16 @@ class seoTools
 			 */
 			$table = $this->app->get('seoToolsActiveFilter.table' );
 
-			 
-
 			if ( !$table ) return false ; #END IF
-
-
 
 			foreach ( $table as $key => $item)
 			{
 				$filter = $this->seoTools_filters->_getFilterById( $key );
-				
 				// Подготовить массив со значениями
 				$filter->valueArr = self::prepareHex2binArr( $item );
 				$filterOrdering[$filter->ordering] = $filter ;
 			}
-
 		}#END IF
-
-
 
 		/**
 		 * @var VirtueMartModelCategory $categoryModel
@@ -305,21 +300,24 @@ class seoTools
 		$categoryModel = VmModel::getModel('category');
 		$vmCategory = $categoryModel->getCategory($vmCategoryId[0] );
 
+		$findReplaceArr = [];
+		$findReplaceArr[ '{{CATEGORY_NAME}}' ]       = $vmCategory->category_name ;
 
-		$findReplaceArr = [
-			'{{FILTER_LIST}}' => seoTools_shortCode::getFilterListText( $filterOrdering ) ,
-			'{{FILTER_VALUE_LIST}}' => seoTools_shortCode::getFilterValueListText( $filterOrdering ) ,
-			'{{CATEGORY_NAME}}' => $vmCategory->category_name ,
-		];
+		if ( !$onlyCity && isset($filterOrdering))
+		{
+			$findReplaceArr[ '{{FILTER_LIST}}' ]       = seoTools_shortCode::getFilterListText( $filterOrdering );
+			$findReplaceArr[ '{{FILTER_VALUE_LIST}}' ] = seoTools_shortCode::getFilterValueListText( $filterOrdering );
+		}#END IF
 
-		
+
+
 		// Если создаем значения замены для фильтров городов - или настраиваемых фильтров
 		if ( $onlyCity )
 		{
 			$findReplaceArr['{{TEXT_PROP}}'] = !isset($DataFiltersCity['text_prop']) ?$DataFiltersCity['name']:$DataFiltersCity['text_prop'] ;
 			$findReplaceArr['{{FILTER_VALUE_LIST}}'] = !isset($DataFiltersCity['name']) ? $DataFiltersCity['text_prop'] :$DataFiltersCity['name'] ;
-			unset( $findReplaceArr['{{FILTER_LIST}}'] );
-		}#END IF
+//			unset( $findReplaceArr['{{FILTER_LIST}}'] );
+		}#END IFs
 		$this->setReplaceFilterDescriptionArr( $findReplaceArr );
  		return $findReplaceArr ;
 
@@ -341,22 +339,26 @@ class seoTools
 	 */
 	public function createSefUrl(\CfFilter $filter ,   stdClass $option ): stdClass
 	{
-
+		$dataReturn = new stdClass();
         $var_name = $filter->getVarName();
         $option_url = $option->option_url ;
+
+
 
 		/**
 		 * TODO - Разобраться с фильтром для категорий
 		 */
 		if ( $var_name == 'virtuemart_category_id' )
         {
-            $Options = $filter->getOptions();
-//                    $option->option_sef_url->sef_url = $option->option_url ;
+//            $Options = $filter->getOptions();
+//            $option->option_sef_url->sef_url = $option->option_url ;
 
         }#END IF
 
+		$resultSefUrlOption = seoTools_uri::getSefUlrOption( $option_url ) ;
 
-		return \seoTools_uri::getSefUlrOption( $option_url );
+
+		return $resultSefUrlOption ;
 	}
 
 	/**
@@ -365,6 +367,7 @@ class seoTools
 	 *
 	 * @param   array  $optionsFilterArr
 	 *
+	 * @throws Exception
 	 * @since version
 	 */
 	public function updateSeoTable( array $optionsFilterArr)
@@ -398,8 +401,8 @@ class seoTools
 		$key         = md5($optRegistry->toString());
 
 
-		$cache = JFactory::getCache('com_customfilters-seoTools::updateSeoTable', '');
-		$cache->setCaching(1);
+		$cache = Factory::getCache('com_customfilters-seoTools::updateSeoTable', '');
+		$cache->setCaching(0);
 
 		if (!$cacheFilterArr = $cache->get($key))
 		{
@@ -428,21 +431,42 @@ class seoTools
 			'sef_url' ,
 			'sef_url_hash' ,
 			'no_index' ,
+			'no_ajax' ,
+			'sef_filter_h_tag' ,
+			'sef_filter_vm_cat_description' ,
+			'sef_filter_title' ,
+			'sef_filter_description' ,
+			'sef_filter_keywords' ,
+			'selected_filters_table' ,
 			'created_time' ,
 			];
 
-		$this->db   = JFactory::getDBO();
+
+
+
+		/**
+		 * @var \Joomla\Database\DatabaseQuery $query
+		 */
 		$query      = $this->db->getQuery(true);
 		$countLines = 0;
+		
 
+		
+		
 		foreach ( $optionsFilterArr as $options )
 		{
 			if ( !is_array( $options->option_sef_url->vmcategory_id ) )
 			{
 				$options->option_sef_url->vmcategory_id = [ $options->option_sef_url->vmcategory_id ];
 			}#END IF
-			
+
+
+
 			$sef_url_hash = md5( $options->option_sef_url->sef_url );
+
+			if ( !$options->option_sef_url->no_index  ) $options->option_sef_url->no_index = 0 ; #END IF
+			if ( !$options->option_sef_url->no_ajax  ) $options->option_sef_url->no_ajax = 0 ; #END IF
+
 			$values =
 				$this->db->quote( $options->option_sef_url->vmcategory_id[ 0 ] ).","
 				.$this->db->quote( $options->option_sef_url->url_params ).","
@@ -450,6 +474,15 @@ class seoTools
 				.$this->db->quote( $options->option_sef_url->sef_url ).","
 				.$this->db->quote( $sef_url_hash ).","
 				.$this->db->quote( $options->option_sef_url->no_index ).","
+				.$this->db->quote( $options->option_sef_url->no_ajax ).","
+
+				.$this->db->quote( '' ).","
+				.$this->db->quote( '' ).","
+				.$this->db->quote( '' ).","
+				.$this->db->quote( '' ).","
+				.$this->db->quote( '' ).","
+				.$this->db->quote( '' ).","
+
 				.$this->db->quote( $now );
 
 			$query->values( $values );
@@ -459,11 +492,16 @@ class seoTools
 			->columns($this->db->quoteName($columns));
 
 
-
 		$this->db->setQuery(
 		// Заменяет INSERT INTO на другой запрос
 		// substr_replace($query, '******', 0, 12 )
 			(string) $query . ' ON DUPLICATE KEY UPDATE sef_url_hash = sef_url_hash ; ');
+
+
+		 
+//		echo'<pre>';print_r( $query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
 
 		$this->db->execute();
 
@@ -598,11 +636,21 @@ class seoTools
 
 		// --- Считаем опции во всех фильтрах
 		$_allOptionCount = 0 ;
+
 	    foreach ( $inputs as $filter => $option )
 	    {
 		    if ( $filter == 'virtuemart_category_id') continue ; #END IF
-			$_allOptionCount += count( $option ) ;
+		    if ( !is_array( $option ) )
+		    {
+//			   	echo'<pre>';print_r( $inputs );echo'</pre>'.__FILE__.' '.__LINE__;
+//			    	die(__FILE__ .' '. __LINE__ );
+		    }else{
+			    $_allOptionCount += count( $option ) ;
+		    }#END IF
+
 		}#END FOREACH
+
+
 	    if ( $_allOptionCount > $limit_filter_no_index ) return true ;  #END IF
 	    // ---
 
@@ -610,19 +658,23 @@ class seoTools
 
         $idFieldActive = [] ;
 
-        foreach ( $inputs as $key => $input)
-        {
+	    foreach ( $inputs as $key => $input)
+	    {
+		    if ( !is_array($input) )
+		    {
+				continue ;
+		    }#END IF
+		    /**
+		     * Считаем - количество выбранных опций в для каждого фильтра("любые фильтры когда 2 значение из 1-й группы")
+		     */
+		    if ( count( $input ) >= $limit_filter_no_index ) {  return true ;  }#END IF
 
-	        /**
-	         * Считаем - количество выбранных опций в для каждого фильтра("любые фильтры когда 2 значение из 1-й группы")
-	         */
-	        if ( count( $input ) >= $limit_filter_no_index ) {  return true ;  }#END IF
 
+		    preg_match('/custom_f_(\d+)/', $key, $matches);
+		    if (empty($matches)) continue; #END IF
+		    $idFieldActive[] = $matches[1];
+	    }#END FOREACH
 
-            preg_match('/custom_f_(\d+)/', $key, $matches);
-            if (empty($matches)) continue; #END IF
-            $idFieldActive[] = $matches[1];
-        }#END FOREACH
 
 
 	    $result = [] ;

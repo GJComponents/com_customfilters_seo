@@ -15,6 +15,7 @@ if (!class_exists('CfOutput')) {
     require(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customfilters' . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'output.php');
 }
 
+use Joomla\CMS\Language\Text;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -23,7 +24,10 @@ use Joomla\CMS\Factory;
 
 class cftools
 {
-
+	/**
+	 * @var
+	 * @since version
+	 */
     protected static $menuparams;
 
     protected static $moduleparams = [];
@@ -301,36 +305,35 @@ class cftools
         return self::$module[$key] = $result;
     }
 
-    /**
-     * Function to get the menu params
-     *
-     * @since 1.8.0
-     * @author Sakis Terz
-     */
+	/**
+	 * Function to get the menu params
+	 *
+	 * @throws Exception
+	 * @author Sakis Terz
+	 * @since  1.8.0
+	 */
     public static function getMenuparams()
     {
-        if (empty(self::$menuparams)) {
-            $app = Factory::getApplication();
-            $menus = $app->getMenu();
-            $cfmenus = $menus->getItems('link', 'index.php?option=com_customfilters&view=products');
-            $menuparams = new Registry();
-            if (empty($cfmenus)) {
-                $app->enqueueMessage(JText::_('COM_CUSTOMFILTERS_MENU_ITEM_MISSING'), 'Notice');
-            } else {
-                $menuparams->loadString($cfmenus[0]->params);
-                $menuparams->set('cf_itemid', $cfmenus[0]->id);
-            }
-            self::$menuparams = $menuparams;
+
+        if (empty(self::$menuparams))
+        {
+	        $menus   = Factory::getApplication()->getMenu();
+	        $cfmenus = $menus->getItems('link', 'index.php?option=com_customfilters&view=products');
+
+	        self::$menuparams = new Registry();
+	        if ( empty($cfmenus) )
+	        {
+		        Factory::getApplication()->enqueueMessage(
+			        Text::_('COM_CUSTOMFILTERS_MENU_ITEM_MISSING')
+			        , 'Notice'
+		        );
+	        }
+	        else
+	        {
+		        self::$menuparams->loadString($cfmenus[0]->getParams());
+		        self::$menuparams->set('cf_itemid', $cfmenus[0]->id);
+	        }
         }
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-
-//			echo'<pre>';print_r( $cfmenus[0]->id );echo'</pre>'.__FILE__.' '.__LINE__;
-//			echo'<pre>';print_r( self::$menuparams );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
-
-		}
-
         return self::$menuparams;
     }
 
@@ -472,6 +475,8 @@ class cftools
             for ($a = 0; $a < strlen($h); $a += 2) {
                 $r .= chr(hexdec($h[$a] . $h[$a + 1]));
             }
+
+			
             $r = $filter->clean($r, 'string');
         }
 
@@ -577,7 +582,7 @@ class cftools
     }
 
 	/**
-	 * Функция для получения фильтров Компонента из таблицы #__cf_customfields
+	 * Получения фильтров Компонента из таблицы #__cf_customfields
 	 * ---
 	 * Function to get the existing custom filters
 	 *

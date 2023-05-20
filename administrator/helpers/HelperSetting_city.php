@@ -39,7 +39,7 @@ class HelperSetting_city
 	 * @return array
 	 * @since 3.9
 	 */
-	public static function getOneLevelParams( array $array  , $keyAlias = false    ){
+	public static function getOneLevelParams(   $array  , $keyAlias = false    ){
 		$paramsComponent = self::getParamsComponent();
 		$default_h1_tag = $paramsComponent->get('default_h1_tag' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;
 		$default_title = $paramsComponent->get('default_title' , '{{CATEGORY_NAME}} - {{FILTER_VALUE_LIST}}') ;

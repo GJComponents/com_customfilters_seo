@@ -555,7 +555,12 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
 			}#END IF
 
+			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
+			{
+//			    echo'<pre>';print_r( $query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
+//			        die(__FILE__ .' '. __LINE__ );
 
+			}
 
 
 			$db->setQuery( $query , $limitstart , $limit );

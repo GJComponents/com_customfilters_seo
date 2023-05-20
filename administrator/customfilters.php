@@ -90,8 +90,8 @@ JLoader::register('seoTools_uri' , JPATH_ROOT .'/components/com_customfilters/in
     // Add stylesheets and Scripts
     $document = JFactory::getDocument();
     $document->addStyleSheet(JURI::root() . 'administrator/components/com_customfilters/assets/css/display.css');
-    JHtml::_('behavior.framework');
-    JHtml::_('behavior.modal');
+//    JHtml::_('behavior.framework');
+//    JHtml::_('behavior.modal');
 
     // Include dependencies
     jimport('joomla.application.component.controller');
