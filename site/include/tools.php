@@ -788,15 +788,6 @@ class cftools
 
 		}#END FOREACH
 
-		if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
-		{
-			// Grey (Серый)
-//			echo '<pre>'; print_r($res); echo '</pre>'.__FILE__.' '.__LINE__;
-//			echo '<pre>'; print_r($itemArr); echo '</pre>'.__FILE__.' '.__LINE__;
-		}
-
-
-
 		return $itemArr ;
 	}
 
@@ -828,24 +819,25 @@ class cftools
         return self::$_filterDependencies[$parentCustomFilterCustomId];
     }
 
-    /**
-     * Если настраиваемое поле является плагином, получите параметры плагина и назначьте
-     * их пользовательскому фильтру в качестве атрибута объекта.
-     *
-     * If the customfield is plugin then get the plugin params and assign them to the custom filter as object attr.
-     *
-     * @param   array  $cust_filters
-     *
-     * @return array $cust_filters
-     * @since 1.9.0
-     */
-    public static function setPluginparamsAsAttributes(array $cust_filters): array
+	/**
+	 * Если настраиваемое поле является плагином, получите параметры плагина и назначьте
+	 * их пользовательскому фильтру в качестве атрибута объекта.
+	 *
+	 * If the customfield is plugin then get the plugin params and assign them to the custom filter as object attr.
+	 *
+	 * @param   array  $cost_filters
+	 *
+	 * @return array $cost_filters
+	 * @throws Exception
+	 * @since 1.9.0
+	 */
+    public static function setPluginparamsAsAttributes(array $cost_filters): array
     {
-        if (!is_array($cust_filters)) {
+        if (!is_array($cost_filters)) {
             return [];
         }
         PluginHelper::importPlugin('vmcustom');
-        foreach ($cust_filters as &$customfilter) {
+        foreach ($cost_filters as &$customfilter) {
             if ($customfilter->field_type == 'E') {
                 $name = $customfilter->custom_element;
                 $virtuemart_custom_id = $customfilter->custom_id;
@@ -895,7 +887,7 @@ class cftools
                 }
             }
         }
-        return $cust_filters;
+        return $cost_filters;
     }
 
     /**

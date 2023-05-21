@@ -583,17 +583,9 @@ class seoTools
             $sef_url = str_replace($suffix , '' , $sef_url ) ;
 		}#END IF
 
-//	    $sef_url = str_replace([' ','-'] , '_' , $sef_url);
-//	    $sef_url = str_replace('/' , '' , $sef_url);
 	    // TODO Gartes -- Добавил пропускать скобки "("  ")" -- При добавлении urlencode - перестает нормально работать
 	    $resReplace =  preg_replace('/[^\/\-_\w\d\(\)]/i', '', $sef_url) . $suffix ;
 
-	    if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-	    {
-//	        echo'<pre>';print_r( $sef_url );echo'</pre>'.__FILE__.' '.__LINE__;
-//	        echo'<pre>';print_r( $resReplace );echo'</pre>'.__FILE__.' '.__LINE__;
-//	        echo'<pre>';print_r( urlencode( $sef_url ) );echo'</pre>'.__FILE__.' '.__LINE__;
-	    }
         return $resReplace ;
     }
 

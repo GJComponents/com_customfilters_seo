@@ -46,7 +46,7 @@ class CfInput
         $module_id = $module->id;
         if (!isset(self::$cfInputsPerFilter[$module_id])) {
             $selected_fl = self::getInputs($cached);
-            $moduleparams = \cftools::getModuleparams($module);
+            $moduleparams = cftools::getModuleparams($module);
             $modif_selection = array();
             $filters_order = json_decode(str_replace("'", '"', $moduleparams->get('filterlist', '')));
             if (empty($filters_order) || !in_array('virtuemart_category_id', $filters_order) || !in_array('q',
@@ -162,7 +162,7 @@ class CfInput
 	    $this->parseUrlString();
 
 		// Параметры компонента com_customfilters
-        $componentParams = \cftools::getComponentparams();
+        $componentParams = cftools::getComponentparams();
 	    /**
 	     * Автоматическое выделение категорий и производителей при навигации по страницам
 	     * ---
@@ -291,7 +291,7 @@ class CfInput
 	         * ---
 	         * @var array $published_cf
 	         */
-            $published_cf = \cftools::getCustomFilters('');
+            $published_cf = cftools::getCustomFilters('');
 
             $var_name = '';
             foreach ($published_cf as $cf) {
@@ -337,7 +337,7 @@ class CfInput
 	                             * unecnode значение, только если строка
 	                             * unecnode the value only if string
 	                             */
-                                $unencoded_value = \cftools::cfHex2bin($cf_el);
+                                $unencoded_value = cftools::cfHex2bin($cf_el);
 
 	                            if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
 	                            {
@@ -394,7 +394,7 @@ class CfInput
         }
 
 
-        \cftools::setRangeVars($rangeVars);
+        cftools::setRangeVars($rangeVars);
 
         return $selected_flt;
     }
@@ -421,7 +421,7 @@ class CfInput
 		/**
 		 * @var array $published_cf - Все опубликованные фильтры
 		 */
-		$published_cf = \cftools::getCustomFilters('');
+		$published_cf = cftools::getCustomFilters('');
 
 		// Удалить параметры пагинации
 		$path = preg_replace('/\/start=\d+/', '', $path);
@@ -432,6 +432,7 @@ class CfInput
 		// Параметры сортировки
 		preg_match( '/\/orderby=([\w_]+)/' , $path , $matchesOrderBy );
 		if ( isset($matchesOrderBy[1]) ) $app->input->set('orderby' , $matchesOrderBy[1] ); #END IF
+
 		// Удалить параметр сортировки
 		$path = preg_replace('/\/orderby=[\w_]+/', '', $path);
 
@@ -567,7 +568,7 @@ class CfInput
 		/**
 		 * @var array $customSelectValueArr - Массив всех значений для фильтров
 		 */
-		$customSelectValueArr = \cftools::getCustomSelectValue($selectFilterIds);
+		$customSelectValueArr = cftools::getCustomSelectValue($selectFilterIds);
 
 
 
@@ -588,7 +589,7 @@ class CfInput
 						$customfield_value = $customSelectValueArr[$option]->customfield_value;
 
 						// Параметры компонента com_customfilters
-						$componentParams = \cftools::getComponentparams();
+						$componentParams = cftools::getComponentparams();
 						/**
 						 * Pattern : пропускаем =>
 						 * буквы, пробелы, числа, скобки()[], точки и запятые, тире, ®, *
@@ -662,7 +663,7 @@ class CfInput
         }
         $first_portion = array_slice($filters_order, 0, $custom_f_pos);
         $second_portion = array_slice($filters_order, $custom_f_pos + 1);
-        $custom_filters = \cftools::getCustomFilters();
+        $custom_filters = cftools::getCustomFilters();
 
         foreach ($custom_filters as $key => $flt) {
             $first_portion[] = 'custom_f_' . $flt->custom_id;

@@ -15,25 +15,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Component\Router\RouterFactoryInterface;
 
-function CustomfiltersBuildRoute(RouterFactoryInterface $router, array &$query)
-{
-	$segments = array();
 
-	// Определение сегментов маршрута
-die(__FILE__ .' '. __LINE__ );
-
-	return $segments;
-}
-
-function CustomfiltersParseRoute(RouterFactoryInterface $router, array $segments)
-{
-	$vars = array();
-
-	// Определение переменных из сегментов маршрута
-	die(__FILE__ .' '. __LINE__ );
-
-	return $vars;
-}
 
 if (!defined('DEV_IP')) {
 	define('DEV_IP',     '***.***.***.***');

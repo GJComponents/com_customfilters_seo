@@ -13,20 +13,39 @@
 // no direct access
 defined('_JEXEC') or die();
 jimport('joomla.application.module.helper');
+JLoader::registerNamespace( 'GNZ11' , JPATH_LIBRARIES . '/GNZ11' , $reset = false , $prepend = false  );
+JLoader::registerNamespace('Joomla\Component\Customfilters\Site' , JPATH_SITE. DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR. 'com_customfilters/src' );
+
+
 require_once JPATH_SITE. DIRECTORY_SEPARATOR. 'components'.DIRECTORY_SEPARATOR. 'com_customfilters'.DIRECTORY_SEPARATOR.'include'.DIRECTORY_SEPARATOR.'tools.php';
 
+use JetBrains\PhpStorm\NoReturn;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Component\Router\RouterFactoryInterface;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
-use Joomla\Component\Customfilters\Helpers\Helper;
+
+use Joomla\CMS\Uri\Uri;
+use Joomla\Component\Customfilters\Site\Helpers\CfHelperFilters;
+use Joomla\Component\Customfilters\Site\Helpers\CfHelperUri;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\ArrayHelper;
+
+use Joomla\Component\Customfilters\Site\Helpers\CfHelper;
+
+
+
 
 
 function CustomfiltersBuildRoute(&$query)
 {
 
-	\Joomla\Component\Customfilters\Site\Helpers\CfHelper::getParseUrl();
-	die(__FILE__ .' '. __LINE__ );
+	echo'<pre>';print_r( $query );echo'</pre>'.__FILE__.' '.__LINE__;
+//	die(__FILE__ .' '. __LINE__ );
+
+//	CfHelper::getParseUrl();
+	 
 
 
     $segments = array();
@@ -38,14 +57,14 @@ function CustomfiltersBuildRoute(&$query)
         $vm_categories=ArrayHelper::toInteger($vm_categories);
         $vm_categories=array_filter($vm_categories);
     }
-    if (! empty($query['virtuemart_manufacturer_id']) && is_array($query['virtuemart_manufacturer_id'])) {
+    if ( ! empty($query['virtuemart_manufacturer_id']) && is_array($query['virtuemart_manufacturer_id'])) {
         $vm_manufacturers = $query['virtuemart_manufacturer_id'];
         $vm_manufacturers=ArrayHelper::toInteger($vm_manufacturers);
         $vm_manufacturers=array_filter($vm_manufacturers);
     }
     // empty filters strings
-    $no_category = urlencode(JText::_('CF_NO_VMCAT'));
-    $no_manufacturer = urlencode(JText::_('CF_NO_VMMANUF'));
+    $no_category = urlencode( Text::_('CF_NO_VMCAT'));
+    $no_manufacturer = urlencode( Text::_('CF_NO_VMMANUF'));
     $manuf_string = '';
     $categ_string = '';
 
@@ -94,8 +113,11 @@ function CustomfiltersBuildRoute(&$query)
         }
     }
 
+
+
+
     // manufacturers
-    if (! empty($vm_manufacturers)) {
+    if ( !empty($vm_manufacturers) ) {
         $vm_manufacturers = (array) $vm_manufacturers;
 
         // Add the manuf alias
@@ -124,18 +146,77 @@ function CustomfiltersBuildRoute(&$query)
     $segments[] = $categ_string;
     $segments[] = $manuf_string;
 
+
     return $segments;
 }
 
-/**
- *
- * @author Sakis Terz
- * @since 1.0
- * @todo Check if the segments param is sanitized
- */
-function customfiltersParseRoute($segments)
+
+ function preprocess(&$query)
 {
-	 
+	die(__FILE__ .' '. __LINE__ );
+//	$menu = Factory::getContainer()->get('Menu');
+	//	$menu =CMSApplication::getInstance('site')->getMenu();
+
+	// Search for all menu items for your component
+//	$candidates = $menu->getItems('component', 'com_eventary');
+
+//	if (!$candidates) return; // Nothing found
+
+	// Check each if it suits current $query
+	/*foreach ($candidates as $candidate)
+	{
+		if ( $candidate )
+		{
+			$query['Itemid'] = $candidate->id;
+			break;
+		}
+	}*/
+}
+
+
+/**
+ * Преобразует сегменты маршрута SefUrl в массив параметров запроса.
+ * @param   array $segments
+ *
+ *
+ * @throws Exception
+ * @since version
+ */
+function CustomfiltersParseRoute(  array $segments)
+{
+
+
+	$params      = ComponentHelper::getParams('com_customfilters');
+
+	$menu = CMSApplication::getInstance('site')->getMenu();
+	// Search for all menu items for your component
+	$candidates = $menu->getItems('component', 'com_customfilters');
+
+
+	echo'<pre>';print_r( $params );echo'</pre>'.__FILE__.' '.__LINE__;
+	echo'<pre>';print_r( $candidates );echo'</pre>'.__FILE__.' '.__LINE__;
+
+	
+// die(__FILE__ .' '. __LINE__ );
+
+
+
+	$CustomFilterMenuMenuItem = CfHelper::getCustomFilterMenuMenuItem();
+	$menuAlias = $CustomFilterMenuMenuItem->alias ;
+	$juri = Uri::getInstance();
+	$path = $juri->getPath();
+
+	if ( strncmp($path, '/' . $menuAlias . '/', strlen($menuAlias) + 2) === 0 )
+	{
+		// Алиас меню содержится в начале пути
+
+
+	} else {
+		// Алиас меню не содержится в начале пути
+		// echo 'Алиас меню "' . $menuAlias . '" не содержится в начале пути';
+//		return ;
+	}#END IF
+
 
     $CfRouterHelper = CfRouterHelper::getInstance();
     $siteLang = $CfRouterHelper->getLangPrefix();
@@ -148,6 +229,8 @@ function customfiltersParseRoute($segments)
         $segments[$i] = preg_replace('/:/', '-', $segments[$i], 1);
     }
 
+	
+
     // empty filters strings
     $no_category = urlencode(Text::_('CF_NO_VMCAT'));
     $no_manufacturer = urlencode(Text::_('CF_NO_VMMANUF'));
@@ -156,7 +239,10 @@ function customfiltersParseRoute($segments)
 
     $categories_ar = explode('__or__', $segments[0]);
    
-    if (count($categories_ar) == 1 && $categories_ar[0] == $no_category) {} else {
+    if (count($categories_ar) == 1 && $categories_ar[0] == $no_category) {
+
+    }
+	else {
 
 
 
@@ -215,12 +301,38 @@ function customfiltersParseRoute($segments)
         }
     }
 
+	/**
+	 * @var array $published_cf - Все опубликованные фильтры
+	 */
+	$published_cf = CfHelperFilters::getCustomFilters('');
+
+
+	/**
+	 * Парсинг параметров сортировки
+	 */
+	preg_match( '/\/orderby=([\w_]+)/' , $path , $matchesOrderBy );
+	if ( isset($matchesOrderBy[1]) ) $vars['orderby'] = $matchesOrderBy[1];  ; #END IF
+	// Удалить параметр сортировки
+	$path = preg_replace('/\/orderby=[\w_]+/', '', $path);
+
+	// Направление сорировки
+	preg_match( '/\/order=([\w_]+)/' , $path , $matchesOrder  );
+	if ( isset($matchesOrder[1]) ) $vars['order'] = $matchesOrder[1];   #END IF
+	$path = preg_replace('/\/order=[\w_]+/', '', $path);
+
+	CfHelperUri::parseCheckFiltersToPatch( $path ,  $vars );
+
+
+
+
 
 
 
 	if (isset($segments[1])) {
         $manuf_ar = explode('__or__', $segments[1]);
-        if (count($manuf_ar) == 1 && $manuf_ar[0] == $no_manufacturer) {} else {
+        if (count($manuf_ar) == 1 && $manuf_ar[0] == $no_manufacturer) {
+
+        } else {
             // get the manuf ids
             $where_vmmnf_slug = array();
             $vmmnf_where_str = '';
@@ -249,17 +361,21 @@ function customfiltersParseRoute($segments)
 
             }
 			else {
+				 
 
                 // prepare the slugs for the query
                 array_walk($manuf_ar, function (&$value, $key) {
                     $db = JFactory::getDbo();
                     $value = 'slug=' . $db->quote($db->escape($value));
-                });
+                } , ['']);
 
 
 
                 $vmmnf_where_str = implode(' OR ', $manuf_ar);
+				
 
+
+				
                 if ($vmmnf_where_str) {
                     // Add the manuf alias
                     $q = $db->getQuery(true);
@@ -274,19 +390,23 @@ function customfiltersParseRoute($segments)
         }
     }
 
+	/*$vars['option']= 'com_customfilters' ;
+	$vars['view']= 'products' ;
 
-	$app                       = Factory::getApplication('Site');
-	$menus                     = $app->getMenu('Site');
-	$cfmenus                   = $menus->getItems('link' , 'index.php?option=com_customfilters&view=products');
+	$app = \Joomla\CMS\Factory::getApplication();
+	$app->input->set('option', 'com_customfilters' );
+	$app->input->set('view', 'products' );*/
 
-	CustomfiltersNamespace\Component\Customfilters\Helpers\Helper::getParseUrl();
+    unset($vars['virtuemart_category_id']);
+    unset($vars['custom_f_10']);
+    unset($vars['custom_f_59']);
+    unset($vars['virtuemart_manufacturer_id']);
+	$vars['view']= 'products' ;
+	$vars['Itemid'] = 421 ;
+//echo'<pre>';print_r( $vars );echo'</pre>'.__FILE__.' '.__LINE__;
+//die(__FILE__ .' '. __LINE__ );
 
-	echo'<pre>';print_r( $menus->getActive() );echo'</pre>'.__FILE__.' '.__LINE__;
-	echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
-	echo'<pre>';print_r( $cfmenus );echo'</pre>'.__FILE__.' '.__LINE__;
-	
-	
-	die(__FILE__ .' '. __LINE__ );
+
 
     return $vars;
 }
@@ -299,6 +419,8 @@ function customfiltersParseRoute($segments)
  */
 function existCustomfilter($query)
 {
+	die(__FILE__ .' '. __LINE__ );
+
     foreach ($query as $key => $q) {
         if (strpos($key, 'custom_f_') !== false || strpos($key, 'price') !== false) {
             return true;
