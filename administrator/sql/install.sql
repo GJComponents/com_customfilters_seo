@@ -34,7 +34,7 @@ CREATE TABLE `#__cf_customfields_setting_seo` (
      `no_index` int(1) NOT NULL DEFAULT '0' COMMENT 'закрыто от индекса',
      `no_ajax` int(1) NOT NULL DEFAULT '0' ,
      `sef_filter_h_tag` text NOT NULL   ,
-     `sef_filter_vm_cat_description` text NOT NULL  '' ,
+     `sef_filter_vm_cat_description` text NOT NULL    ,
      `sef_filter_title` text NOT NULL   ,
      `sef_filter_description` text NOT NULL   ,
      `sef_filter_keywords` text NOT NULL   ,
