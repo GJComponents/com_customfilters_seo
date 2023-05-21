@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `#__cf_customfields`;
 CREATE TABLE IF NOT EXISTS `#__cf_customfields` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `alias` varchar(255) NOT NULL,
