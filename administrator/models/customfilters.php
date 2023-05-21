@@ -370,6 +370,7 @@ class CustomfiltersModelCustomfilters extends \Joomla\CMS\MVC\Model\ListModel
                     else if ($vm_c->field_type == 'D') $data_type = 'date';
                     else $data_type = 'string';
 
+					$params = new Registry();
 
 	                $fieldVal = new \stdClass();
 	                $fieldVal->vm_custom_id = $vm_c->virtuemart_custom_id ;
@@ -377,38 +378,14 @@ class CustomfiltersModelCustomfilters extends \Joomla\CMS\MVC\Model\ListModel
 	                $fieldVal->ordering=$counter;
 	                $fieldVal->published=1;
 	                $fieldVal->data_type = $db->quote($data_type) ;
+	                $fieldVal->params = $db->quote( json_encode($params) ) ;
 
-					try
-					{
-						// Insert the object into the user profile table.
-						$result = JFactory::getDbo()->insertObject('#__cf_customfields', $fieldVal );
-					    // throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
-						$counter++;
-						continue ;
-					}
-					catch (\Exception $e)
-					{
-					    // Executed only in PHP 5, will not be reached in PHP 7
-					    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-					    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
-					    die(__FILE__ .' '. __LINE__ );
-					}
+	                // Insert the object into the user profile table.
+	                $result = Factory::getDbo()->insertObject('#__cf_customfields', $fieldVal );
+	                $counter++;
+	                continue ;
 
-					/*$query2 = "INSERT INTO #__cf_customfields (
-                                 vm_custom_id,
-                                 alias,
-                                 ordering,
-                                 published,
-                                 data_type
-                                 ) 
-								VALUES (
-								        $vm_c->virtuemart_custom_id
-								        ," . $db->quote($slug) . "
-								        ," . $counter . "
-								        ,1
-								        ," . $db->quote($data_type) . "
-								        )
-								        ";*/
+
                 } //if its plugin call the plugin hook
                 else {
                     $data_type = 'string';
@@ -425,18 +402,22 @@ class CustomfiltersModelCustomfilters extends \Joomla\CMS\MVC\Model\ListModel
 
 
 					if ($ret == true && !empty($data_type)) {
-                        $query2 = "INSERT INTO #__cf_customfields ( vm_custom_id, alias, ordering, published, data_type)";
-                        $query2 .= " VALUES (" . $vm_c->virtuemart_custom_id . "," . $db->quote($slug) . "," . $counter . ",1," . $db->quote($data_type) . ")";
-						$db->setQuery($query2);
 
-						try {
-							$db->execute();
-						} catch ( RuntimeException $e) {
-							echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
-							die(__FILE__ .' '. __LINE__ );
-						}
 
+						$params = new Registry();
+
+						$fieldVal = new \stdClass();
+						$fieldVal->vm_custom_id = $vm_c->virtuemart_custom_id ;
+						$fieldVal->alias = $db->quote($slug) ;
+						$fieldVal->ordering=$counter;
+						$fieldVal->published=1;
+						$fieldVal->data_type = $db->quote($data_type) ;
+						$fieldVal->params = $db->quote( json_encode($params) ) ;
+
+						// Insert the object into the user profile table.
+						$result = Factory::getDbo()->insertObject('#__cf_customfields', $fieldVal );
 						$counter++;
+
                     } else continue;
                 }
 
@@ -467,14 +448,26 @@ class CustomfiltersModelCustomfilters extends \Joomla\CMS\MVC\Model\ListModel
                         $query = "INSERT INTO #__cf_customfields (vm_custom_id,alias,ordering,data_type) VALUES ($tba,$slug,(SELECT MAX(cf.ordering) FROM #__cf_customfields AS cf)+1," . $db->quote($data_type) . ")";
                     } //plugin
                     else {
-                        $dispatcher = JEventDispatcher::getInstance();
+//                        $dispatcher = JEventDispatcher::getInstance();
                         $data_type = 'string';
                         $name = $current_custom->custom_element;
                         $virtuemart_custom_id = $current_custom->virtuemart_custom_id;
-                        $ret = $dispatcher->trigger('onGenerateCustomfilters', array($name, $virtuemart_custom_id, &$data_type));
+
+	                    $dispatcher = Factory::getApplication()->getDispatcher();
+	                    $event = new \Joomla\Event\Event('onGenerateCustomfilters', [$name, $virtuemart_custom_id, &$data_type]);
+	                    $ret = $dispatcher->dispatch('onGenerateCustomfilters', $event);
+
+
+//						$ret = $dispatcher->trigger('onGenerateCustomfilters', array($name, $virtuemart_custom_id, &$data_type));
                         if ($ret == true && !empty($data_type)) {
                             $query = "INSERT INTO #__cf_customfields (vm_custom_id,alias,ordering,data_type)";
-                            $query .= " VALUES (" . $current_custom->virtuemart_custom_id . "," . $slug . ",(SELECT MAX(cf.ordering) FROM #__cf_customfields AS cf)+1," . $db->quote($data_type) . ")";
+                            $query .= " VALUES ("
+	                            . $current_custom->virtuemart_custom_id . ","
+	                            . $slug
+	                            . ",(SELECT MAX(cf.ordering) FROM #__cf_customfields AS cf)+1,"
+	                            . $db->quote($data_type)
+
+	                            . ")";
                         } else continue;
                     }
 

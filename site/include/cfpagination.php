@@ -18,9 +18,12 @@
 defined('_JEXEC') or die;
 jimport('joomla.html.pagination');
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Pagination\Pagination as JPagination;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Pagination\PaginationObject;
+use Joomla\CMS\Uri\Uri;
 
 /**
  * The class that extends the JPagination
@@ -31,11 +34,12 @@ use Joomla\CMS\Pagination\PaginationObject;
  */
 class cfPagination extends JPagination
 {
+	public $cfinputs ;
     /**
      * @var \Joomla\Registry\Registry
      * @since    1.0.0
      */
-	protected $menuparams;
+	public $menuparams;
 
     /**
      * @var mixed
@@ -110,8 +114,7 @@ class cfPagination extends JPagination
      */
     public function getPagesLinks()
     {
-
-        $offset = JRequest::getVar('limitstart', 0, '', 'int');
+	    $offset = Factory::getApplication()->getInput()->get('limitstart', 0, 'int' ) ;
 
 
 	    /**
@@ -515,7 +518,7 @@ class cfPagination extends JPagination
 				}
 				$fieldWithoutPrefix_tmp = $fieldWithoutPrefix;
 
-				$text = JText::_( 'COM_VIRTUEMART_'.strtoupper( str_replace( array( ',' , ' ' ) , array( '_' , '' ) , $fieldWithoutPrefix ) ) );
+				$text = Text::_( 'COM_VIRTUEMART_'.strtoupper( str_replace( array( ',' , ' ' ) , array( '_' , '' ) , $fieldWithoutPrefix ) ) );
 
 				$link = $this->getOrderURI( $fieldWithoutPrefix_tmp , $selected , $order_dir );
 				
@@ -574,7 +577,9 @@ class cfPagination extends JPagination
 	 */
 	private function getOrderURI($orderBy, $selected=false, $orderDir='ASC')
 	{
-		$uri    = JFactory::getURI();
+
+//		$uri    = Factory::getURI();
+		$uri    = Uri::getInstance();
 		$input  = JFactory::getApplication()->input;
 		$Itemid = $input->get( 'Itemid' );
 

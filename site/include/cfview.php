@@ -41,14 +41,27 @@ class cfView extends JViewLegacy{
 	 */
 	function display($tpl = null)
 	{
-		$result = $this->loadTemplate($tpl);
+		try
+		{
+		    // Code that may throw an Exception or Error.
+			$result = $this->loadTemplate($tpl);
+		    // throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+		}
+		catch (\Exception $e)
+		{
+		    // Executed only in PHP 5, will not be reached in PHP 7
+		    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+		    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+		    die(__FILE__ .' '. __LINE__ );
+		}
+		
 
 //        echo'<pre>';print_r( $result );echo'</pre>'.__FILE__.' '.__LINE__ .'<br>';
 //        die( __FILE__ .' ' . __LINE__);
 
-		if (JError::isError($result)) {
+		/*if (JError::isError($result)) {
 			return $result;
-		}
+		}*/
 		echo $result;
 	}
 

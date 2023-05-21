@@ -22,6 +22,7 @@ use Joomla\CMS\Menu\AbstractMenu;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Database\ParameterType;
 
+die(__FILE__ .' '. __LINE__ );
 
 
 // phpcs:disable PSR1.Files.SideEffects

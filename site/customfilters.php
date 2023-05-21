@@ -15,7 +15,10 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Component\Router\RouterFactoryInterface;
 
+if (!defined('CF_FLT_DEBUG')) {
+	define('CF_FLT_DEBUG',     0 );
 
+}
 
 if (!defined('DEV_IP')) {
 	define('DEV_IP',     '***.***.***.***');

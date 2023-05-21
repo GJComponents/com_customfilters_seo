@@ -731,7 +731,13 @@ class cftools
 	public static function getCustomSelectValue( $filtersIds = [] ): array
 	{
 		$app = \Joomla\CMS\Factory::getApplication();
-		$virtuemart_category_idArr = $app->input->get('virtuemart_category_id' , false , 'ARRAY');
+//		$virtuemart_category_idArr = $app->input->get('virtuemart_category_id' , false , 'ARRAY');
+		$virtuemart_category_idArr = $app->input->get('virtuemart_category_id' , [2922] , 'ARRAY');
+
+//		echo'<pre>';print_r( $app->input );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $virtuemart_category_idArr );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
 
 		$db = JFactory::getDbo();
 		$Query = $db->getQuery( true ) ;

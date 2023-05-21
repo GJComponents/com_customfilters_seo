@@ -20,6 +20,8 @@ defined('_JEXEC') or die();
 
 require_once JPATH_COMPONENT . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'cfview.php';
 
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
@@ -415,7 +417,15 @@ class CustomfiltersViewProducts extends cfView
 	protected function setPathWay()
 	{
 		// Get the PathWay object from the application
-		$app     = JFactory::getApplication();
+		$app     =   Factory::getContainer()->get(SiteApplication::class);
+		$menu = CMSApplication::getInstance('site')->getMenu();
+		$candidates = $menu->getItems('component', 'com_customfilters');
+		$VirtueMartCandidates = $menu->getItems('component', 'com_virtuemart');
+
+//		echo'<pre>';print_r( $VirtueMartCandidates );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
+
 		/**
 		 * @var Joomla\Registry\Registry $paramsComponent
 		 */
@@ -437,6 +447,11 @@ class CustomfiltersViewProducts extends cfView
 		 * @var Joomla\CMS\Menu\MenuItem $root_pageItem - Получить пункт меню главной страницы магазина
 		 */
 		$root_pageItem = $menu->getItem( $shop_root_page );
+
+//		echo'<pre>';print_r( $root_pageItem );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $shop_root_page );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
 
 		$PathwayArr = [] ;
 		$rootPage = new stdClass();
