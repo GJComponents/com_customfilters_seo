@@ -1,5 +1,6 @@
 <?php
 
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Router\Route;
@@ -154,6 +155,8 @@ class seoTools_uri
 
 
 
+
+
 		foreach ( $uriQuery as $fieldId => $valueCustomHashArr )
 		{
 			$exqludeArr = ['virtuemart_category_id' , 'Itemid' , 'option' , 'view' ] ;
@@ -185,6 +188,20 @@ class seoTools_uri
 
 			if ( !$filter )
 			{
+				try
+				{
+				    // Code that may throw an Exception or Error.
+
+				     throw new \Exception('Code Exception '.__FILE__.':'.__LINE__) ;
+				}
+				catch (\Exception $e)
+				{
+				    // Executed only in PHP 5, will not be reached in PHP 7
+				    echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+				    echo'<pre>';print_r( $e );echo'</pre>'.__FILE__.' '.__LINE__;
+				    die(__FILE__ .' '. __LINE__ );
+				}
+
 				echo'<pre>';print_r( $fieldId );echo'</pre>'.__FILE__.' '.__LINE__;
 				echo'<pre>';print_r( $filter );echo'</pre>'.__FILE__.' '.__LINE__;
 				die(__FILE__ .' '. __LINE__ );
@@ -338,27 +355,25 @@ class seoTools_uri
 	{
 		if ( !$category_id )
 		{
-			$app         = JFactory::getApplication();
+			$app =  Factory::getContainer()->get(SiteApplication::class);
 			$category_id = $app->input->get('virtuemart_category_id' , 0 , 'INT');
 		}#END IF
-		if ( !$category_id )
-		{
-			$category_id = ShopFunctionsF::getLastVisitedCategoryId();
-		}#END IF
+		
+		if ( !$category_id ) $category_id = ShopFunctionsF::getLastVisitedCategoryId(); #END IF
 
 		 
 		if ( is_array( $category_id ) && count( $category_id ) == 1  )
 		{
 			$stringVirtuemart_category_id = 'virtuemart_category_id='.$category_id[0] ;
-		}else if(is_array( $category_id ) && count( $category_id ) > 1){
+		}
+		else if(is_array( $category_id ) && count( $category_id ) > 1){
 			echo'<pre>';print_r( 'Не удалось составить ссылку для категорий' );echo'</pre>'.__FILE__.' '.__LINE__;
 			die(__FILE__ .' '. __LINE__ );
-
 		}else{
 			$stringVirtuemart_category_id = 'virtuemart_category_id='.$category_id  ;
 		}#END IF
 
-		return JRoute::_('index.php?option=com_virtuemart&view=category&'.$stringVirtuemart_category_id.'&virtuemart_manufacturer_id=0');
+		return Route::_('index.php?option=com_virtuemart&view=category&'.$stringVirtuemart_category_id.'&virtuemart_manufacturer_id=0');
 	}
 
 	/**
@@ -373,7 +388,7 @@ class seoTools_uri
 	 */
 	public static function checkRedirectToCategory( array $category_ids ,  $findResultArr )
 	{
-		$app    = JFactory::getApplication();
+		$app =  Factory::getContainer()->get(SiteApplication::class);
 		$option = $app->input->get('option' , false , 'STRING');
 
 		$juri = Uri::getInstance();
@@ -409,10 +424,7 @@ class seoTools_uri
 			$juri           = Uri::getInstance($category_link);
 			$queryUrl       = $juri->getQuery(true);
 			$category_ids[] = $queryUrl[ 'virtuemart_category_id' ];
-			if ( $_SERVER[ 'REMOTE_ADDR' ] == DEV_IP )
-			{
-				echo '<pre>'; print_r($queryUrl[ 'virtuemart_category_id' ]); echo '</pre>'.__FILE__.' '.__LINE__;
-			}
+
 
 		}#END IF
 
@@ -422,17 +434,14 @@ class seoTools_uri
 
 		}#END IF
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
-//		    echo'<pre>';print_r( $findResultArr );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
 
-		}
+
 
 
 		// Если ссылка не имеет выбранных опций фильтра - а только категория - перенаправляем в категорию
 		if ( empty($findResultArr) && $option == 'com_customfilters' && count($category_ids) == 1 )
 		{
+
 			$juri        = JUri::getInstance();
 			$catUrl      = seoTools_uri::getPatchToVmCategory( $category_ids[ 0 ] );
 			$catUrl      = preg_replace('/^\//' , '' , $catUrl);

@@ -11,7 +11,9 @@ require_once JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARAT
 require_once JPATH_SITE . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'mod_cf_filtering' . DIRECTORY_SEPARATOR . 'CfFilter.php';
 
 
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Filter\InputFilter;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Factory;
 
@@ -125,9 +127,6 @@ class CfInput
                 $cfinput = new \CfInput();
                 self::$cfInputs = $cfinput->buildInputs();
             }
-			
-		    
-
 
 	        $seoTools = new seoTools();
 	        $seoTools->setMetaData();
@@ -148,15 +147,17 @@ class CfInput
 	 */
     private function buildInputs(): array
     {
+		$app =  Factory::getContainer()->get(SiteApplication::class);
 
-        $app = Factory::getApplication();
+	    $juri = Uri::getInstance();
+//		echo'<pre>';print_r( $juri );echo'</pre>'.__FILE__.' '.__LINE__;
+//		die(__FILE__ .' '. __LINE__ );
+
 	    /**
 	     * @var Joomla\CMS\Input\Input $jinput
 	     */
 		$jinput = $app->input;
         $filter = InputFilter::getInstance();
-
-
 
 		// Парсим путь URL -- находим активные фильтры
 	    $this->parseUrlString();
@@ -409,14 +410,26 @@ class CfInput
 	 */
 	public function parseUrlString()
 	{
-		$app  = \Joomla\CMS\Factory::getApplication();
-		$juri = JUri::getInstance();
+		$app =  Factory::getContainer()->get(SiteApplication::class);
+		$juri = Uri::getInstance();
 		$path = $juri->getPath();
+
+		// Получаем параметры запроса GET
+		$params = $juri->getQuery(true);
 
 		/**
 		 * @var array $category_ids - массив категорий
 		 */
 		$category_ids = $app->input->get('virtuemart_category_id' , [] , 'ARRAY');
+
+//		echo'<pre>';print_r( $category_ids );echo'</pre>'.__FILE__.' '.__LINE__;
+//		echo'<pre>';print_r( $params );echo'</pre>'.__FILE__.' '.__LINE__;
+
+		//		die(__FILE__ .' '. __LINE__ );
+
+
+
+
 
 		/**
 		 * @var array $published_cf - Все опубликованные фильтры
@@ -425,6 +438,9 @@ class CfInput
 
 		// Удалить параметры пагинации
 		$path = preg_replace('/\/start=\d+/', '', $path);
+
+
+
 
 		/**
 		 * Парсинг параметров сортировки
@@ -486,6 +502,7 @@ class CfInput
 		}#END IF
 
 		seoTools_uri::checkRedirectToCategory( $category_ids , $findResultArr  );
+
 
 		// Если не нашли название фильтров в URL
 		if (empty($findResultArr)) return; #END IF

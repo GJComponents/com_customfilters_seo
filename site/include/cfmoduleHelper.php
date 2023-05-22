@@ -16,6 +16,7 @@ defined('_JEXEC') or die;
 //import the view class
 jimport('joomla.application.module.helper');
 
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Factory;
 
@@ -73,7 +74,8 @@ class cfModuleHelper extends ModuleHelper
         if (isset($clean)) {
             return $clean;
         }
-        $app = Factory::getApplication();
+	    $app =  Factory::getContainer()->get( SiteApplication::class );
+
         $jinput = $app->input;
         $Itemid = $jinput->get('Itemid', '', 'int');
         $user = Factory::getUser();
@@ -103,7 +105,7 @@ class cfModuleHelper extends ModuleHelper
             $query->where('(m.module ="mod_cf_filtering" OR m.module="mod_cf_breadcrumbs")');
 
             // Filter by language
-            if ($app->isSite() && $app->getLanguageFilter()) {
+            if ( $app->isClient('site') && $app->getLanguageFilter()) {
                 $query->where('m.language IN (' . $db->quote($lang) . ',' . $db->quote('*') . ')');
             }
 

@@ -149,13 +149,7 @@ class CustomfiltersControllerCustomfilters extends AdminController
      * @return bool|JModel|JModelLegacy
      * @since 1.0
      */
-    public function getModel(
-        $name = 'Customfilter',
-        $prefix = 'CustomfiltersModel',
-        $config = array('ignore_request' => true)
-    ) {
-
-
+    public function getModel($name = 'Customfilter',$prefix = 'CustomfiltersModel',$config = ['ignore_request' => true]) {
         $model = parent::getModel($name, $prefix, $config);
         return $model;
     }

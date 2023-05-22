@@ -51,6 +51,8 @@ function customfiltersBuildRoute(&$query)
 {
 	$app = Factory::getApplication();
 	$router = new CustomfiltersRouter($app, $app->getMenu());
+	echo'<pre>';print_r( $query );echo'</pre>'.__FILE__.' '.__LINE__;
+	die(__FILE__ .' '. __LINE__ );
 
 	return $router->build($query);
 }

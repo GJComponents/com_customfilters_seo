@@ -17,12 +17,14 @@
  */
 
 // No direct access
+use Joomla\CMS\MVC\View\HtmlView;
+
 defined('_JEXEC') or die;
 
 //import the view class
 jimport('joomla.application.component.view');
 
-class CustomfiltersViewModule extends JViewLegacy{
+class CustomfiltersViewModule extends HtmlView{
 
 
 	public function display($tpl = null){

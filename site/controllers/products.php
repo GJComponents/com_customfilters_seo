@@ -17,12 +17,14 @@
  */
 
 // no direct access
+use Joomla\CMS\MVC\Controller\BaseController;
+
 defined('_JEXEC') or die;
 
 // Include dependancies
 jimport('joomla.application.component.controller'); 
 
-class CustomfiltersControllerProducts extends JControllerLegacy{
+class CustomfiltersControllerProducts extends BaseController{
 	
 	
 	/**
@@ -31,11 +33,13 @@ class CustomfiltersControllerProducts extends JControllerLegacy{
 	 * @param	string	$name	The name of the model.
 	 * @param	string	$prefix	The prefix for the PHP class name.
 	 *
-	 * @return bool|JModel|JModelLegacy
+	 * @return bool|JModel|\Joomla\CMS\MVC\Model\BaseDatabaseModel
 	 * @since	1.0
 	 */
 	public function getModel($name = 'Products', $prefix = 'customfiltersModel', $config = array('ignore_request' => true))
 	{
+
+
         return parent::getModel($name, $prefix, $config);
 	}
 

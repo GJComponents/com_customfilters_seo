@@ -16,12 +16,16 @@
  */
 
 // no direct access
+use Joomla\CMS\Application\SiteApplication;
+use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\Controller\BaseController;
+
 defined('_JEXEC') or die();
 
 // Include dependancies
 jimport('joomla.application.component.controller');
 
-class CustomfiltersController extends \Joomla\CMS\MVC\Controller\BaseController
+class CustomfiltersController extends BaseController
 {
 
     protected $default_view = 'products';
@@ -40,11 +44,12 @@ class CustomfiltersController extends \Joomla\CMS\MVC\Controller\BaseController
     {
 
 
-	    $cachable = true ;
-//	    $cachable = false ;
+
+//	    $cachable = true ;
+	    $cachable = false ;
 	    if ( !$urlparams )
 	    {
-		    $app = \Joomla\CMS\Factory::getApplication();
+		    $app =  Factory::getContainer()->get(SiteApplication::class);
 			$view = $app->input->get('view' , false , 'STRING');
 
 		    $juri = \Joomla\CMS\Uri\Uri::getInstance();
@@ -77,9 +82,14 @@ class CustomfiltersController extends \Joomla\CMS\MVC\Controller\BaseController
 
         $input = JFactory::getApplication()->input;
         $viewName = $input->get('view', $this->default_view);
-        if ($viewName != 'module' && $viewName != 'products')
+
+		if ($viewName != 'module' && $viewName != 'products')
             $viewName = $this->default_view;
         $input->set('view', $viewName);
+
+
+
+
 
         parent::display( $cachable, $urlparams);
 //        return $this;

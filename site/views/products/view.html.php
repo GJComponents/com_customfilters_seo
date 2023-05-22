@@ -57,22 +57,23 @@ class CustomfiltersViewProducts extends cfView
 	 */
     public function display($tpl = null)
     {
-        $app = Factory::getApplication();
-	    $paramsComponent = ComponentHelper::getParams('com_customfilters');
+		$app =  Factory::getContainer()->get(SiteApplication::class);
+	    $this->show_prices = (int)VmConfig::get('show_prices', 1);
+	    $this->addHelperPath(JPATH_VM_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'helpers');
+	    $this->load();
+	    $this->vm_version = VmConfig::getInstalledVersion();
+	    $this->showcategory = VmConfig::get('showCategory', 1);
+	    $this->showproducts = true;
+	    $this->showsearch = false;
 
-        $this->show_prices = (int)VmConfig::get('show_prices', 1);
-        $this->addHelperPath(JPATH_VM_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'helpers');
-        $this->load();
-        $this->vm_version = VmConfig::getInstalledVersion();
-        $this->showcategory = VmConfig::get('showCategory', 1);
-        $this->showproducts = true;
-        $this->showsearch = false;
+	    $paramsComponent = ComponentHelper::getParams('com_customfilters');
 
         // get menu parameters
         $this->menuParams = cftools::getMenuparams();
         $vendorId = 1;
         $jinput = $app->input;
         $this->fallback = false;
+	    $category_haschildren = false;
 
         $categories = $jinput->get('virtuemart_category_id', array(), 'array');
 
@@ -84,7 +85,7 @@ class CustomfiltersViewProducts extends cfView
 	     *
 	     * If there is only one category selected and is not zero, display children categories
 	     */
-        if (count($categories) == 1 && isset($categories[0]) && $categories[0] > 0 && $paramsComponent->get('on_show_children_category' , 1) ) {
+        if (count($categories) == 1 && isset($categories[0]) && $categories[0] > 0 /*&& $paramsComponent->get('on_show_children_category' , 1)*/ ) {
             $this->categoryId = (int)$categories[0];
             if ($this->showcategory) {
                 $category_haschildren = true;
@@ -95,7 +96,7 @@ class CustomfiltersViewProducts extends cfView
             $category_haschildren = false;
         }
 
-        $categoryModel = VmModel::getModel('category');
+
 		/**@var TableCategories $category */
 
 	    if ( !$this->categoryId )
@@ -104,11 +105,14 @@ class CustomfiltersViewProducts extends cfView
 	    }#END IF
 
 
-	    
+	    $categoryModel = VmModel::getModel('category');
         $category = $categoryModel->getCategory($this->categoryId);
         $catImgAmount = VmConfig::get('catimg_browse', 1) ? VmConfig::get('catimg_browse', 1) : 1;
         $categoryModel->addImages($category, $catImgAmount);
-        $category->haschildren = $category_haschildren;
+	    // Backwards compatible
+		$category->haschildren = $category_haschildren;
+	    // Newly introduced. See: http://dev.virtuemart.net/projects/virtuemart/repository/revisions/10562/diff/trunk/virtuemart/components/com_virtuemart/views/category/tmpl/default.php
+	    $category->has_children = $category_haschildren;
 
         if ($category_haschildren) {
             $category->children = $categoryModel->getChildCategoryList($vendorId, $this->categoryId,
@@ -142,11 +146,12 @@ class CustomfiltersViewProducts extends cfView
          * show base price variables
          */
         $user = Factory::getUser();
-        $this->showBasePrice = ($user->authorise('core.administrator', 'com_virtuemart') || $user->authorise('core.manage',
+        $this->showBasePrice = ($user->authorise('core.admin', 'com_virtuemart') || $user->authorise('core.manage',
                 'com_virtuemart'));
 
         /*
          * get the products from the cf model
+         * @var CustomfiltersModelProducts|VirtueMartModelProduct
          */
         $this->productModel = VmModel::getModel('product');
 
@@ -157,8 +162,13 @@ class CustomfiltersViewProducts extends cfView
 
 
         $ids = $this->get('ProductListing');
-
         $this->products = $this->productModel->getProducts($ids);
+
+	    $this->productModel->addImages($this->products);
+	    /**
+	     * @var CustomfiltersModelProducts Object
+	     */
+	    $model = $this->getModel();
 
 
 
@@ -187,10 +197,6 @@ class CustomfiltersViewProducts extends cfView
 		    $ResultFilterDescription = $app->get('ResultFilterDescription' , false ) ;
 			
 			$layout_ResultFilterDescription = [];
-			
-
-			
-			
 			foreach ( $ResultFilterDescription as $key => $item )
 			{
 				$key = str_replace(['{{','}}'] , '' , $key);
@@ -220,11 +226,9 @@ class CustomfiltersViewProducts extends cfView
  
 	    }#END IF
   
-        $this->productModel->addImages($this->products);
-        /**
-         * @var CustomfiltersModelProducts Object
-         */
-        $model = $this->getModel();
+
+
+
 
         if ($this->products) {
             $display_stock = VmConfig::get('display_stock', 1);
@@ -258,16 +262,17 @@ class CustomfiltersViewProducts extends cfView
          * @todo Check that in later versions
          */
         $this->fallback = false;
-        if (version_compare($this->vm_version, '4.0') > 0) {
-            $products = $this->products;
-            $this->products = [];
-            $this->fallback = true;
-            $this->products['0'] = $products;
-        } // lower to 4.0
-        else {
-            $this->fallback = true;
-            vmdebug('Fallback active');
-        }
+
+	    if (version_compare($this->vm_version, '10.0') > 0) {
+		    $products = $this->products;
+		    $this->products = [];
+		    $this->fallback = true;
+		    $this->products['0'] = $products;
+	    } // lower to 10.0
+	    else {
+		    $this->fallback = true;
+		    vmdebug('Fallback active');
+	    }
 
         $this->search = false;
         $this->searchcustom = '';
@@ -279,16 +284,32 @@ class CustomfiltersViewProducts extends cfView
          * @var cfPagination Object my model's pagination
          */
         $this->vmPagination = $model->getPagination(true);
-
         $this->perRow = $this->menuParams->get('prod_per_row', 3);
         $this->orderByList = $this->get('OrderByList');
 
 		$this->addPathway();
 
-
+	    /*
+		 * This is needed workaround.
+		 * The VmView::getVmSubLayoutPath() is called by the layouts (after any shopFunctionsF::renderVmSubLayout()).
+		 * Upon it's instantiation is initializing some vars which are affecting the outcome of the VmView::getVmSubLayoutPath()
+		 * Without that the wrong sub-layouts will be used in Custom Filters.
+		 * The issue is fixed in VM version 4.0.4 (happens between 4.0.0 and 4.0.2).
+		 * Also this workaround works only in J3. J4 throws an exception.
+		 */
+	    if ( class_exists('VmView') && version_compare(JVERSION, '4.0.0') < 0 && version_compare($this->vm_version, '4.0.2') <= 0 && version_compare($this->vm_version, '4.0.0') >= 0 )
+	    {
+		    try
+		    {
+			    new VmView();
+		    }
+		    catch (\Exception $e)
+		    {
+			    echo 'Error instantiating vmView';
+		    }
+	    }
 
         parent::display($tpl);
-
         if (empty($this->products)) {
             echo '<span class="cf_results-msg">' . JText::_('COM_CUSTOMFILTERS_NO_PRODUCTS') . '</span>';
         }

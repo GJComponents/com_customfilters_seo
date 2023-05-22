@@ -20,6 +20,10 @@
 defined('_JEXEC') or die;
 
 
+echo'<pre>';print_r( $this->products );echo'</pre>'.__FILE__.' '.__LINE__;
+die(__FILE__ .' '. __LINE__ );
+
+
 foreach($this->products as $p){
     print_r($p->product_name);
 }

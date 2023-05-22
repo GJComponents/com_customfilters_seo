@@ -17,6 +17,7 @@ defined('_JEXEC') or die('Restricted access');
 
 require_once JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customfilters' . DIRECTORY_SEPARATOR . 'include' . DIRECTORY_SEPARATOR . 'tools.php';
 
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
 
 /**
@@ -106,13 +107,13 @@ class cfHelper
         $disabledFields = array()
     ) {
         $category_key = md5(serialize($selectedCategories) . $cid . $level . serialize($disabledFields));
-        $app = Factory::getApplication();
+	    $app  =  Factory::getContainer()->get(SiteApplication::class);
         $vendorId = 1;
         if (empty(self::$categoryTree[$category_key])) {
             $cache = Factory::getCache('_virtuemart');
             $cache->setCaching(1);
             self::$categoryTree[$category_key] = $cache->call(array('ShopFunctions', 'categoryListTreeLoop'),
-                $selectedCategories, $cid, $level, $disabledFields, $clean_cache = true, $app->isSite(), $vendorId);
+                $selectedCategories, $cid, $level, $disabledFields, $clean_cache = true, $app->isClient('site'), $vendorId);
         }
         return self::$categoryTree[$category_key];
     }
@@ -150,8 +151,8 @@ class cfHelper
 
         $categoryModel->_noLimit = true;
         if (self::$categories) {
-            $app = Factory::getApplication();
-            self::$categories = $categoryModel->getCategories($app->isSite(), $cid);
+	        $app  =  Factory::getContainer()->get( SiteApplication::class);
+            self::$categories = $categoryModel->getCategories($app->isClient('site'), $cid);
         }
         $records = self::$categories;
         $selected = "";

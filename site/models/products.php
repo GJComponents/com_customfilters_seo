@@ -129,13 +129,7 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 			$this->cfinputs = CfInput::getInputs();
 		}
 
-		if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-		{
 
-//			echo'<pre>';print_r( $this->cfinputs );echo'</pre>'.__FILE__.' '.__LINE__;
-//			die(__FILE__ .' '. __LINE__ );
-
-		}
 
 //		$this->cfinputs = CfInput::getInputs();
 	    ///  END Кешируем  результат метода CfInput::getInputs();
@@ -491,9 +485,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 		$queryBuilder->setOrder( $vmlastproductordering , $this->getState( 'filter_order_Dir' ) );
 //		$queryBuilder->setOrder( $this->getState( 'filter_order' ) , $this->getState( 'filter_order_Dir' ) );
 
-
-
-
 		/**
 		 * Установка limitstart (номера страницы) в пагинации
 		 */
@@ -524,12 +515,6 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 			$query = $queryBuilder->create();
 
 			$option = $app->input->get('option' , 'com_customfilters' , 'STRING') ;
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//			    echo'<pre>';print_r( $query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
-//			    echo'<pre>';print_r( $option );echo'</pre>'.__FILE__.' '.__LINE__;
-
-			}
 
 			//
 			if ( $option == 'com_customfilters' && $this->componentparams->get('on_description_vm_category' , 0 ) == 2 )
@@ -555,18 +540,10 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 
 			}#END IF
 
-			if ($_SERVER['REMOTE_ADDR'] ==  DEV_IP )
-			{
-//			    echo'<pre>';print_r( $query->dump() );echo'</pre>'.__FILE__.' '.__LINE__;
-//			        die(__FILE__ .' '. __LINE__ );
-
-			}
-
-
 			$db->setQuery( $query , $limitstart , $limit );
 			$product_ids = $db->loadColumn();
 		}
-		catch ( \RuntimeException $e )
+		catch (RuntimeException $e )
 		{
 			Log::add(
 				sprintf( 'Failed to return products: %s' , $e->getMessage() ) ,
@@ -584,7 +561,7 @@ class CustomfiltersModelProducts extends VirtueMartModelProduct
 			$db->setQuery( 'SELECT FOUND_ROWS()' );
 			$this->total = $db->loadResult();
 		}
-		catch ( \RuntimeException $e )
+		catch (RuntimeException $e )
 		{
 			Log::add(
 				sprintf( 'Failed to count products: %s' , $e->getMessage() ) ,

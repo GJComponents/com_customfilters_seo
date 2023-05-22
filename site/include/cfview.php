@@ -16,6 +16,8 @@
  */
 
 //defined
+use Joomla\CMS\MVC\View\HtmlView;
+
 defined('_JEXEC') or die;
 
 //import the view class
@@ -28,7 +30,7 @@ jimport('joomla.application.component.view');
  * @author	Sakis Terz
  * @since	1.0
  */
-class cfView extends JViewLegacy{
+class cfView extends HtmlView{
 
 	/**
 	 * Execute and display a template script.
